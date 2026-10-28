@@ -1,0 +1,26 @@
+@if (modal.datos(); as datos) {
+  <div class="fondo" (click)="modal.cerrar()">
+    <div
+      class="ventana"
+      [class]="'tipo-' + datos.tipo"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="modal-titulo"
+      aria-describedby="modal-mensaje"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="icono" aria-hidden="true">
+        @switch (datos.tipo) {
+          @case ('exito') { ✓ }
+          @case ('error') { ! }
+          @default { i }
+        }
+      </div>
+      <h2 id="modal-titulo">{{ datos.titulo }}</h2>
+      <p id="modal-mensaje">{{ datos.mensaje }}</p>
+      <button #botonAceptar class="boton ancho" type="button" (click)="modal.cerrar()">
+        Aceptar
+      </button>
+    </div>
+  </div>
+}

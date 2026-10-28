@@ -1,0 +1,59 @@
+<section class="contenedor">
+  @if (auth.usuario(); as usuario) {
+    <article class="panel perfil">
+      <div class="portada" aria-hidden="true"></div>
+
+      <div class="cabecera">
+        @if (usuario.fotoPerfil) {
+          <img class="avatar grande" [src]="usuario.fotoPerfil" alt="Foto de perfil de {{ usuario.nombre }}" width="120" height="120">
+        } @else {
+          <span class="avatar grande">{{ iniciales() }}</span>
+        }
+        <div class="identidad">
+          <h1>{{ usuario.nombre }} {{ usuario.apellido }}</h1>
+          <p class="arroba">&#64;{{ usuario.nombreUsuario }}</p>
+        </div>
+        <span class="etiqueta" [class.amarilla]="usuario.perfil === 'administrador'">
+          {{ usuario.perfil }}
+        </span>
+      </div>
+
+      <p class="descripcion">
+        @if (usuario.descripcion) {
+          {{ usuario.descripcion }}
+        } @else {
+          <span class="sin-dato">Todavía no escribiste una descripción.</span>
+        }
+      </p>
+
+      <dl class="datos">
+        <div>
+          <dt>Correo</dt>
+          <dd>{{ usuario.correo }}</dd>
+        </div>
+        <div>
+          <dt>Fecha de nacimiento</dt>
+          <!-- 'UTC': la fecha se guarda a las 00:00 UTC; sin esto en Argentina mostraría el día anterior -->
+          <dd>{{ usuario.fechaNacimiento | date: 'longDate' : 'UTC' }} ({{ edad() }} años)</dd>
+        </div>
+        <div>
+          <dt>En la tribuna desde</dt>
+          <dd>{{ usuario.createdAt | date: 'MMMM y' }}</dd>
+        </div>
+        <div>
+          <dt>Perfil</dt>
+          <dd class="capital">{{ usuario.perfil }}</dd>
+        </div>
+      </dl>
+    </article>
+  } @else {
+    <div class="panel sin-sesion">
+      <h1>Mi perfil</h1>
+      <p>Iniciá sesión para ver tus datos y tu foto de perfil.</p>
+      <div class="acciones">
+        <a class="boton" routerLink="/login">Ingresar</a>
+        <a class="boton secundario" routerLink="/registro">Crear cuenta</a>
+      </div>
+    </div>
+  }
+</section>

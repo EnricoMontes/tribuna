@@ -1,0 +1,91 @@
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(7, 29, 18, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 3px solid var(--amarilla);
+}
+
+.barra {
+  width: min(1100px, 100% - 2rem);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.7rem 0;
+  flex-wrap: wrap;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--cal);
+  font-family: var(--fuente-titulos);
+  font-size: 1.9rem;
+  letter-spacing: 2px;
+}
+
+.links {
+  display: flex;
+  gap: 1.2rem;
+  flex: 1;
+}
+
+.links a {
+  color: var(--cal-suave);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.3rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.links a:hover,
+.links a.activo {
+  color: var(--cal);
+  border-bottom-color: var(--amarilla);
+}
+
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sesion .boton {
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cal);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.usuario .avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .barra {
+    gap: 0.75rem;
+  }
+
+  .links {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+  }
+
+  .arroba {
+    display: none;
+  }
+}

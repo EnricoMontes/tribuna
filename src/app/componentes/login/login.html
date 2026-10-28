@@ -1,0 +1,49 @@
+<section class="contenedor">
+  <div class="panel acceso angosto">
+    <aside class="acceso-lateral">
+      <h2>Volviste a la tribuna</h2>
+      <p>Entrá y seguí la charla con toda la hinchada.</p>
+    </aside>
+
+    <div class="acceso-form">
+      <h1>Ingresar</h1>
+      <p class="subtitulo">Con tu correo o tu nombre de usuario.</p>
+
+      <form class="form" [formGroup]="formLogin" (ngSubmit)="ingresar()" novalidate>
+        <div class="campo" [class.invalido]="identificador.touched && identificador.invalid">
+          <label for="identificador">Correo o nombre de usuario</label>
+          <input id="identificador" type="text" formControlName="identificador"
+                 autocomplete="username" placeholder="hincha@correo.com o hincha10">
+          @if (identificador.touched && identificador.hasError('required')) {
+            <p class="error">Ingresá tu correo o tu nombre de usuario</p>
+          }
+        </div>
+
+        <div class="campo" [class.invalido]="password.touched && password.invalid">
+          <label for="password">Contraseña</label>
+          <div class="con-boton">
+            <input id="password" [type]="verPassword() ? 'text' : 'password'"
+                   formControlName="password" autocomplete="current-password">
+            <button type="button" class="ojo" (click)="verPassword.set(!verPassword())"
+                    [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              {{ verPassword() ? 'Ocultar' : 'Ver' }}
+            </button>
+          </div>
+          @if (password.touched) {
+            @if (password.hasError('required')) {
+              <p class="error">Ingresá tu contraseña</p>
+            } @else if (password.invalid) {
+              <p class="error">La contraseña tiene al menos 8 caracteres, una mayúscula y un número</p>
+            }
+          }
+        </div>
+
+        <button class="boton ancho" type="submit" [disabled]="cargando()">
+          @if (cargando()) { Ingresando... } @else { Ingresar }
+        </button>
+      </form>
+
+      <p class="acceso-pie">¿Todavía no tenés cuenta? <a routerLink="/registro">Creala acá</a></p>
+    </div>
+  </div>
+</section>

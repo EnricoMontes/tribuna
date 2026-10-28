@@ -1,0 +1,339 @@
+/* ==========================================================================
+   Tribuna — estilos globales
+   Paleta inspirada en una cancha de noche: césped oscuro, líneas de cal,
+   amarillo de tarjeta como acento y rojo de tarjeta para los errores.
+   ========================================================================== */
+
+:root {
+  --cesped-900: #071d12;
+  --cesped-800: #0b2e1c;
+  --cesped-700: #0f3d25;
+  --cesped-600: #155232;
+  --cesped-500: #1d6b42;
+  --cal: #f3f6f1;
+  --cal-suave: #c9d6cc;
+  --cal-tenue: #8fa597;
+  --amarilla: #f5c518;
+  --amarilla-oscura: #d6a90a;
+  --roja: #ef4b4b;
+  --verde-ok: #3ddc84;
+  --panel: rgba(7, 29, 18, 0.78);
+  --borde: rgba(243, 246, 241, 0.14);
+  --sombra: 0 18px 40px rgba(0, 0, 0, 0.35);
+  --radio: 14px;
+  --fuente-titulos: 'Bebas Neue', Impact, sans-serif;
+  --fuente-texto: 'Barlow', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+html {
+  background: var(--cesped-800); /* color de base por si el degradé no llega a cubrir */
+}
+
+body {
+  font-family: var(--fuente-texto);
+  font-size: 16px;
+  color: var(--cal);
+  /* franjas del césped cortado + viñeta para que el centro tenga más luz */
+  background:
+    radial-gradient(ellipse at top, rgba(255, 255, 255, 0.07), transparent 60%),
+    repeating-linear-gradient(
+      90deg,
+      var(--cesped-800) 0 90px,
+      var(--cesped-700) 90px 180px
+    );
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--fuente-titulos);
+  font-weight: 400;
+  letter-spacing: 1px;
+  margin: 0 0 0.5rem;
+  line-height: 1;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+a {
+  color: var(--amarilla);
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ---------- contenedores ---------- */
+
+.contenedor {
+  width: min(1100px, 100% - 2rem);
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 2rem;
+  backdrop-filter: blur(6px);
+}
+
+.subtitulo {
+  color: var(--cal-suave);
+  margin: 0 0 1.5rem;
+}
+
+/* ---------- formularios ---------- */
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.campo {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start; /* que el input no se estire si el campo de al lado muestra un error */
+}
+
+.campo label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--cal-suave);
+}
+
+.campo input,
+.campo textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--cal);
+  background: rgba(243, 246, 241, 0.06);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.campo textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+  outline: none;
+  border-color: var(--amarilla);
+  background: rgba(243, 246, 241, 0.1);
+}
+
+.campo input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.campo.invalido input,
+.campo.invalido textarea {
+  border-color: var(--roja);
+}
+
+.ayuda {
+  font-size: 0.8rem;
+  color: var(--cal-tenue);
+  margin: 0;
+}
+
+.error {
+  color: var(--roja);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.ok {
+  color: var(--verde-ok);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ---------- botones ---------- */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font: 700 1rem var(--fuente-texto);
+  text-decoration: none;
+  color: var(--cesped-900);
+  background: var(--amarilla);
+  border: 2px solid var(--amarilla);
+  border-radius: 999px;
+  padding: 0.7rem 1.4rem;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.15s;
+}
+
+.boton:hover:not(:disabled) {
+  background: var(--amarilla-oscura);
+  transform: translateY(-1px);
+}
+
+.boton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.boton.secundario {
+  color: var(--cal);
+  background: transparent;
+  border-color: var(--borde);
+}
+
+.boton.secundario:hover:not(:disabled) {
+  background: rgba(243, 246, 241, 0.08);
+}
+
+.boton.ancho {
+  width: 100%;
+}
+
+/* ---------- etiquetas ---------- */
+
+.etiqueta {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: var(--cesped-500);
+  color: var(--cal);
+}
+
+.etiqueta.amarilla {
+  background: var(--amarilla);
+  color: var(--cesped-900);
+}
+
+/* ---------- avatar con iniciales (si no hay foto) ---------- */
+
+.avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--cesped-500);
+  color: var(--cal);
+  font-family: var(--fuente-titulos);
+  border: 2px solid var(--amarilla);
+  flex-shrink: 0;
+}
+
+/* ---------- pantallas de acceso (login / registro) ---------- */
+
+.acceso {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  overflow: hidden;
+  padding: 0;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.acceso.angosto {
+  max-width: 860px;
+}
+
+/* lateral que imita el círculo central de la cancha */
+.acceso-lateral {
+  position: relative;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background:
+    radial-gradient(circle at 50% 42%, transparent 64px, rgba(243, 246, 241, 0.35) 65px 67px, transparent 68px),
+    linear-gradient(90deg, transparent calc(50% - 1px), rgba(243, 246, 241, 0.35) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(160deg, var(--cesped-500), var(--cesped-700));
+  min-height: 260px;
+}
+
+.acceso-lateral h2 {
+  font-size: 2.6rem;
+}
+
+.acceso-lateral p {
+  color: var(--cal-suave);
+  margin: 0;
+}
+
+.acceso-form {
+  padding: 2.5rem 2rem;
+}
+
+.acceso-pie {
+  text-align: center;
+  color: var(--cal-suave);
+  margin: 1.25rem 0 0;
+}
+
+@media (max-width: 760px) {
+  .acceso {
+    grid-template-columns: 1fr;
+  }
+
+  .acceso-lateral {
+    min-height: 180px;
+  }
+
+  .acceso-form {
+    padding: 2rem 1.25rem;
+  }
+}
+
+/* ---------- input con botón adentro (ver / ocultar contraseña) ---------- */
+
+.con-boton {
+  position: relative;
+}
+
+.con-boton input {
+  padding-right: 5rem;
+}
+
+.ojo {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font: 600 0.8rem var(--fuente-texto);
+  color: var(--amarilla);
+  background: none;
+  border: none;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}

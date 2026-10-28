@@ -1,0 +1,46 @@
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.vacio {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.vacio p {
+  color: var(--cal-suave);
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.pelota {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  animation: pique 1.6s ease-in-out infinite;
+}
+
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.75rem;
+}
+
+@keyframes pique {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pelota {
+    animation: none;
+  }
+}

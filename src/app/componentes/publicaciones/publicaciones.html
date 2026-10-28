@@ -1,0 +1,28 @@
+<section class="contenedor">
+  <header class="encabezado">
+    <div>
+      <h1>Publicaciones</h1>
+      <p class="subtitulo">
+        @if (auth.usuario(); as usuario) {
+          ¿Qué se dice en la tribuna hoy, {{ usuario.nombre }}?
+        } @else {
+          Lo último que se dice en la tribuna.
+        }
+      </p>
+    </div>
+  </header>
+
+  <div class="panel vacio">
+    <div class="pelota" aria-hidden="true">
+      <img src="favicon.svg" alt="" width="72" height="72">
+    </div>
+    <h2>Todavía no hay publicaciones</h2>
+    <p>Muy pronto vas a poder opinar de cada partido, subir fotos de cancha y darle "me gusta" a lo que publica la hinchada.</p>
+    @if (!auth.logueado()) {
+      <div class="acciones">
+        <a class="boton" routerLink="/registro">Crear cuenta</a>
+        <a class="boton secundario" routerLink="/login">Ya tengo cuenta</a>
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,118 @@
+.perfil {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 0 2rem;
+  overflow: hidden;
+}
+
+/* "portada": arco y área chica de la cancha */
+.portada {
+  height: 140px;
+  background:
+    radial-gradient(circle at 50% 100%, transparent 54px, rgba(243, 246, 241, 0.4) 55px 57px, transparent 58px),
+    linear-gradient(180deg, transparent 60%, rgba(243, 246, 241, 0.4) 60% calc(60% + 2px), transparent calc(60% + 2px)),
+    repeating-linear-gradient(90deg, var(--cesped-500) 0 60px, var(--cesped-600) 60px 120px);
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.25rem;
+  padding: 0 2rem;
+  margin-top: -60px;
+  flex-wrap: wrap;
+}
+
+.avatar.grande {
+  width: 120px;
+  height: 120px;
+  font-size: 3rem;
+  border-width: 4px;
+}
+
+.identidad {
+  flex: 1;
+  min-width: 200px;
+}
+
+.identidad h1 {
+  margin: 0;
+}
+
+.arroba {
+  color: var(--amarilla);
+  font-weight: 600;
+  margin: 0.25rem 0 0;
+}
+
+.descripcion {
+  padding: 0 2rem;
+  margin: 1.5rem 0;
+  font-size: 1.05rem;
+  color: var(--cal-suave);
+}
+
+.sin-dato {
+  font-style: italic;
+  color: var(--cal-tenue);
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 0 2rem;
+}
+
+.datos div {
+  background: rgba(243, 246, 241, 0.05);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--cal-tenue);
+}
+
+dd {
+  margin: 0.3rem 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.capital {
+  text-transform: capitalize;
+}
+
+.sin-sesion {
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.sin-sesion p {
+  color: var(--cal-suave);
+}
+
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .cabecera,
+  .descripcion {
+    padding: 0 1.25rem;
+  }
+
+  .datos {
+    margin: 0 1.25rem;
+  }
+}

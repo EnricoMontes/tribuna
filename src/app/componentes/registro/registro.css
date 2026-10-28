@@ -1,0 +1,72 @@
+.foto {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.foto .avatar {
+  width: 84px;
+  height: 84px;
+}
+
+.avatar.vacio {
+  font: 400 2.4rem var(--fuente-texto);
+  color: var(--amarilla);
+  background: rgba(243, 246, 241, 0.06);
+  border-style: dashed;
+}
+
+.foto-acciones {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: start;
+}
+
+.foto-acciones .boton {
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* el input file nativo se oculta: se usa el label como botón */
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.quitar {
+  font: 600 0.85rem var(--fuente-texto);
+  color: var(--roja);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.reglas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--cal-tenue);
+}
+
+.reglas li::before {
+  content: '○ ';
+}
+
+.reglas li.cumple {
+  color: var(--verde-ok);
+}
+
+.reglas li.cumple::before {
+  content: '● ';
+}
+
+.contador {
+  text-align: right;
+}

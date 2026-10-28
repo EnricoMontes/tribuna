@@ -1,0 +1,30 @@
+<header>
+  <nav class="barra">
+    <a class="marca" routerLink="/publicaciones">
+      <img src="favicon.svg" alt="" width="36" height="36">
+      <span>Tribuna</span>
+    </a>
+
+    <div class="links">
+      <a routerLink="/publicaciones" routerLinkActive="activo">Publicaciones</a>
+      <a routerLink="/mi-perfil" routerLinkActive="activo">Mi perfil</a>
+    </div>
+
+    <div class="sesion">
+      @if (auth.usuario(); as usuario) {
+        <a class="usuario" routerLink="/mi-perfil">
+          @if (usuario.fotoPerfil) {
+            <img class="avatar" [src]="usuario.fotoPerfil" alt="Foto de perfil" width="34" height="34">
+          } @else {
+            <span class="avatar">{{ iniciales() }}</span>
+          }
+          <span class="arroba">&#64;{{ usuario.nombreUsuario }}</span>
+        </a>
+        <button class="boton secundario" type="button" (click)="salir()">Salir</button>
+      } @else {
+        <a class="boton secundario" routerLink="/login">Ingresar</a>
+        <a class="boton" routerLink="/registro">Crear cuenta</a>
+      }
+    </div>
+  </nav>
+</header>

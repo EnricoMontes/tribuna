@@ -1,0 +1,154 @@
+<section class="contenedor">
+  <div class="panel acceso">
+    <aside class="acceso-lateral">
+      <h2>Sumate a la hinchada</h2>
+      <p>Opiná de cada partido, subí tus fotos de cancha y bancá a tu equipo.</p>
+    </aside>
+
+    <div class="acceso-form">
+      <h1>Crear cuenta</h1>
+      <p class="subtitulo">Todos los campos son obligatorios, salvo la foto y la descripción.</p>
+
+      <form class="form" [formGroup]="formRegistro" (ngSubmit)="registrarse()" novalidate>
+        <!-- Foto de perfil -->
+        <div class="foto">
+          @if (vistaPrevia()) {
+            <img class="avatar" [src]="vistaPrevia()" alt="Vista previa de la foto de perfil" width="84" height="84">
+          } @else {
+            <span class="avatar vacio" aria-hidden="true">+</span>
+          }
+          <div class="foto-acciones">
+            <label class="boton secundario" for="fotoPerfil">
+              {{ foto() ? 'Cambiar foto' : 'Elegir foto de perfil' }}
+            </label>
+            <input #inputFoto id="fotoPerfil" class="oculto" type="file"
+                   accept="image/jpeg,image/png,image/webp" (change)="elegirFoto($event)">
+            @if (foto()) {
+              <button type="button" class="quitar" (click)="quitarFoto(inputFoto)">Quitar</button>
+            }
+            <p class="ayuda">JPG, PNG o WEBP · hasta 2 MB</p>
+            @if (errorFoto()) {
+              <p class="error">{{ errorFoto() }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="campo" [class.invalido]="mostrarError('nombre')">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" formControlName="nombre" autocomplete="given-name">
+            @if (mostrarError('nombre')) {
+              <p class="error">
+                @if (formRegistro.controls.nombre.hasError('required')) { Ingresá tu nombre }
+                @else { Máximo 50 caracteres }
+              </p>
+            }
+          </div>
+
+          <div class="campo" [class.invalido]="mostrarError('apellido')">
+            <label for="apellido">Apellido</label>
+            <input id="apellido" type="text" formControlName="apellido" autocomplete="family-name">
+            @if (mostrarError('apellido')) {
+              <p class="error">
+                @if (formRegistro.controls.apellido.hasError('required')) { Ingresá tu apellido }
+                @else { Máximo 50 caracteres }
+              </p>
+            }
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="campo" [class.invalido]="mostrarError('correo')">
+            <label for="correo">Correo</label>
+            <input id="correo" type="email" formControlName="correo" autocomplete="email">
+            @let correo = formRegistro.controls.correo;
+            @if (correo.pending) {
+              <p class="ayuda">Verificando...</p>
+            } @else if (mostrarError('correo')) {
+              <p class="error">
+                @if (correo.hasError('required')) { Ingresá tu correo }
+                @else if (correo.hasError('email')) { El correo no tiene un formato válido }
+                @else if (correo.hasError('enUso')) { Ya existe una cuenta con ese correo }
+              </p>
+            }
+          </div>
+
+          <div class="campo" [class.invalido]="mostrarError('nombreUsuario')">
+            <label for="nombreUsuario">Nombre de usuario</label>
+            <input id="nombreUsuario" type="text" formControlName="nombreUsuario" autocomplete="username">
+            @let nombreUsuario = formRegistro.controls.nombreUsuario;
+            @if (nombreUsuario.pending) {
+              <p class="ayuda">Verificando...</p>
+            } @else if (mostrarError('nombreUsuario')) {
+              <p class="error">
+                @if (nombreUsuario.hasError('required')) { Elegí un nombre de usuario }
+                @else if (nombreUsuario.hasError('pattern')) { De 3 a 20 caracteres: letras, números, "_" o "." }
+                @else if (nombreUsuario.hasError('enUso')) { Ese nombre de usuario ya está en uso }
+              </p>
+            } @else if (nombreUsuario.valid && nombreUsuario.dirty) {
+              <p class="ok">¡Está libre!</p>
+            }
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="campo" [class.invalido]="mostrarError('password')">
+            <label for="password">Contraseña</label>
+            <div class="con-boton">
+              <input id="password" [type]="verPassword() ? 'text' : 'password'"
+                     formControlName="password" autocomplete="new-password">
+              <button type="button" class="ojo" (click)="verPassword.set(!verPassword())"
+                      [attr.aria-label]="verPassword() ? 'Ocultar contraseñas' : 'Mostrar contraseñas'">
+                {{ verPassword() ? 'Ocultar' : 'Ver' }}
+              </button>
+            </div>
+            <!-- Checklist en vivo de las reglas de la contraseña -->
+            @let password = formRegistro.controls.password;
+            <ul class="reglas">
+              <li [class.cumple]="password.value && !password.hasError('passwordCorta')">8 caracteres o más</li>
+              <li [class.cumple]="password.value && !password.hasError('passwordSinMayuscula')">Una mayúscula</li>
+              <li [class.cumple]="password.value && !password.hasError('passwordSinNumero')">Un número</li>
+            </ul>
+          </div>
+
+          <div class="campo" [class.invalido]="mostrarError('repetirPassword') || noCoinciden">
+            <label for="repetirPassword">Repetir contraseña</label>
+            <input id="repetirPassword" [type]="verPassword() ? 'text' : 'password'"
+                   formControlName="repetirPassword" autocomplete="new-password">
+            @if (mostrarError('repetirPassword')) {
+              <p class="error">Repetí la contraseña</p>
+            } @else if (noCoinciden) {
+              <p class="error">Las contraseñas no coinciden</p>
+            }
+          </div>
+        </div>
+
+        <div class="campo" [class.invalido]="mostrarError('fechaNacimiento')">
+          <label for="fechaNacimiento">Fecha de nacimiento</label>
+          <input id="fechaNacimiento" type="date" formControlName="fechaNacimiento" [max]="hoy">
+          @let fecha = formRegistro.controls.fechaNacimiento;
+          @if (mostrarError('fechaNacimiento')) {
+            <p class="error">
+              @if (fecha.hasError('required')) { Ingresá tu fecha de nacimiento }
+              @else if (fecha.hasError('fechaFutura')) { La fecha no puede ser futura }
+              @else if (fecha.hasError('menorDeEdad')) { Tenés que tener al menos {{ edadMinima }} años }
+            </p>
+          }
+        </div>
+
+        <div class="campo" [class.invalido]="mostrarError('descripcion')">
+          <label for="descripcion">Descripción breve</label>
+          <textarea id="descripcion" formControlName="descripcion" maxlength="200"
+                    placeholder="¿De qué cuadro sos? ¿Desde cuándo vas a la cancha?"></textarea>
+          <p class="ayuda contador">{{ formRegistro.controls.descripcion.value.length }}/200</p>
+        </div>
+
+        <button class="boton ancho" type="submit" [disabled]="cargando()">
+          @if (cargando()) { Creando cuenta... } @else { Crear cuenta }
+        </button>
+      </form>
+
+      <p class="acceso-pie">¿Ya tenés cuenta? <a routerLink="/login">Ingresá</a></p>
+    </div>
+  </div>
+</section>

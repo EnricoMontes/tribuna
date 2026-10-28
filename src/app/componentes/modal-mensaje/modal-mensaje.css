@@ -1,0 +1,78 @@
+.fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  animation: aparecer 0.15s ease-out;
+}
+
+.ventana {
+  width: min(420px, 100%);
+  text-align: center;
+  background: var(--cesped-800);
+  border: 1px solid var(--borde);
+  border-top: 6px solid var(--cal-tenue);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 2rem 1.75rem 1.5rem;
+  animation: subir 0.2s ease-out;
+}
+
+/* el color de arriba es la "tarjeta": amarilla = info, roja = error, verde = éxito */
+.ventana.tipo-exito {
+  border-top-color: var(--verde-ok);
+}
+
+.ventana.tipo-error {
+  border-top-color: var(--roja);
+}
+
+.ventana.tipo-info {
+  border-top-color: var(--amarilla);
+}
+
+.icono {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font: 700 1.8rem var(--fuente-texto);
+  color: var(--cesped-900);
+  background: var(--cal-tenue);
+}
+
+.tipo-exito .icono {
+  background: var(--verde-ok);
+}
+
+.tipo-error .icono {
+  background: var(--roja);
+}
+
+.tipo-info .icono {
+  background: var(--amarilla);
+}
+
+p {
+  color: var(--cal-suave);
+  white-space: pre-line; /* respeta los saltos de línea (varios errores de validación) */
+  margin: 0 0 1.5rem;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes subir {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
