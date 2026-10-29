@@ -2,18 +2,18 @@ header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(7, 29, 18, 0.92);
+  background: rgba(3, 21, 33, 0.96);
   backdrop-filter: blur(8px);
-  border-bottom: 3px solid var(--amarilla);
+  border-bottom: 1px solid var(--divisor-oscuro);
 }
 
 .barra {
-  width: min(1100px, 100% - 2rem);
+  width: min(1200px, 100% - 2rem);
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 0.7rem 0;
+  gap: 2rem;
+  padding: 0.9rem 0;
   flex-wrap: wrap;
 }
 
@@ -22,30 +22,50 @@ header {
   align-items: center;
   gap: 0.6rem;
   text-decoration: none;
-  color: var(--cal);
+  color: var(--blanco);
   font-family: var(--fuente-titulos);
-  font-size: 1.9rem;
-  letter-spacing: 2px;
+  font-size: 2rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
 }
 
 .links {
   display: flex;
-  gap: 1.2rem;
+  justify-content: center;
+  gap: 2rem;
   flex: 1;
 }
 
 .links a {
-  color: var(--cal-suave);
+  position: relative;
+  color: var(--blanco);
   text-decoration: none;
-  font-weight: 600;
+  font-family: var(--fuente-titulos);
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
   padding: 0.3rem 0;
-  border-bottom: 2px solid transparent;
+  transition: color 0.3s;
+}
+
+/* rayita azul que crece debajo del link activo */
+.links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: var(--azul);
+  transition: width 0.3s;
 }
 
 .links a:hover,
 .links a.activo {
-  color: var(--cal);
-  border-bottom-color: var(--amarilla);
+  color: var(--azul);
+}
+
+.links a.activo::after {
+  width: 100%;
 }
 
 .sesion {
@@ -54,27 +74,47 @@ header {
   gap: 0.75rem;
 }
 
-.sesion .boton {
-  padding: 0.45rem 1rem;
-  font-size: 0.9rem;
+.sesion .translucido {
+  padding: 0.7rem 1.3rem;
+  font-size: 1.05rem;
+}
+
+/* sobre la barra oscura, el botón principal va en blanco (al pasar el mouse lo barre el azul) */
+.sesion .crear {
+  font-size: 1.05rem;
+  padding: 5px 5px 5px 22px;
+  color: var(--noche);
+  background: var(--blanco);
+}
+
+.sesion .crear:hover {
+  color: var(--blanco);
+}
+
+.sesion .crear::after {
+  width: 34px;
+  height: 34px;
+  background-size: 17px;
 }
 
 .usuario {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--cal);
+  gap: 0.6rem;
+  color: var(--blanco);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .usuario .avatar {
-  width: 34px;
-  height: 34px;
-  font-size: 1rem;
+  width: 38px;
+  height: 38px;
+  font-size: 1.1rem;
+  border-width: 2px;
+  border-color: var(--azul);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
   .barra {
     gap: 0.75rem;
   }
@@ -82,10 +122,22 @@ header {
   .links {
     order: 3;
     flex-basis: 100%;
-    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .sesion {
+    margin-left: auto;
   }
 
   .arroba {
     display: none;
+  }
+
+  .marca {
+    font-size: 1.6rem;
+  }
+
+  .sesion .translucido {
+    padding: 0.6rem 1rem;
   }
 }

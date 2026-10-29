@@ -1,17 +1,18 @@
 .perfil {
-  max-width: 760px;
-  margin: 0 auto;
+  max-width: 820px;
+  margin: -6rem auto 0; /* la tarjeta se monta sobre la banda azul de la cabecera */
+  position: relative;
   padding: 0 0 2rem;
   overflow: hidden;
 }
 
-/* "portada": arco y área chica de la cancha */
+/* "portada": arco y área chica de la cancha sobre azul */
 .portada {
-  height: 140px;
+  height: 150px;
   background:
-    radial-gradient(circle at 50% 100%, transparent 54px, rgba(243, 246, 241, 0.4) 55px 57px, transparent 58px),
-    linear-gradient(180deg, transparent 60%, rgba(243, 246, 241, 0.4) 60% calc(60% + 2px), transparent calc(60% + 2px)),
-    repeating-linear-gradient(90deg, var(--cesped-500) 0 60px, var(--cesped-600) 60px 120px);
+    radial-gradient(circle at 50% 100%, transparent 54px, rgba(255, 255, 255, 0.35) 55px 57px, transparent 58px),
+    linear-gradient(180deg, transparent 60%, rgba(255, 255, 255, 0.35) 60% calc(60% + 2px), transparent calc(60% + 2px)),
+    repeating-linear-gradient(90deg, var(--azul) 0 60px, var(--azul-oscuro) 60px 120px);
 }
 
 .cabecera {
@@ -24,10 +25,11 @@
 }
 
 .avatar.grande {
-  width: 120px;
-  height: 120px;
+  width: 124px;
+  height: 124px;
   font-size: 3rem;
-  border-width: 4px;
+  border-width: 5px;
+  box-shadow: var(--sombra);
 }
 
 .identidad {
@@ -35,26 +37,27 @@
   min-width: 200px;
 }
 
-.identidad h1 {
+.identidad h2 {
+  font-size: clamp(2.2rem, 4vw, 3rem);
   margin: 0;
 }
 
 .arroba {
-  color: var(--amarilla);
-  font-weight: 600;
-  margin: 0.25rem 0 0;
+  color: var(--azul);
+  font-weight: 700;
+  margin: 0;
 }
 
 .descripcion {
   padding: 0 2rem;
   margin: 1.5rem 0;
   font-size: 1.05rem;
-  color: var(--cal-suave);
+  color: var(--texto-suave);
 }
 
 .sin-dato {
   font-style: italic;
-  color: var(--cal-tenue);
+  color: var(--texto-tenue);
 }
 
 .datos {
@@ -65,22 +68,24 @@
 }
 
 .datos div {
-  background: rgba(243, 246, 241, 0.05);
-  border: 1px solid var(--borde);
-  border-radius: 10px;
-  padding: 0.85rem 1rem;
+  background: var(--fondo);
+  border: 1px solid var(--divisor);
+  border-left: 3px solid var(--azul);
+  border-radius: var(--radio-chico);
+  padding: 0.9rem 1.1rem;
 }
 
 dt {
-  font-size: 0.75rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--cal-tenue);
+  color: var(--texto-tenue);
 }
 
 dd {
-  margin: 0.3rem 0 0;
-  font-weight: 600;
+  margin: 0.15rem 0 0;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
@@ -89,13 +94,13 @@ dd {
 }
 
 .sin-sesion {
-  max-width: 520px;
+  max-width: 540px;
   margin: 0 auto;
   text-align: center;
 }
 
 .sin-sesion p {
-  color: var(--cal-suave);
+  color: var(--texto-suave);
 }
 
 .acciones {
@@ -107,6 +112,10 @@ dd {
 }
 
 @media (max-width: 640px) {
+  .perfil {
+    margin-top: -4rem;
+  }
+
   .cabecera,
   .descripcion {
     padding: 0 1.25rem;

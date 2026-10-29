@@ -8,14 +8,79 @@ main {
   flex: 1;
 }
 
-footer {
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--cal-tenue);
-  padding: 1.5rem 1rem;
-  border-top: 1px solid var(--borde);
+/* ---------- cinta azul que se desplaza ---------- */
+
+.cinta {
+  overflow: hidden;
+  background: var(--azul);
+  color: var(--blanco);
+  padding: 1rem 0;
 }
 
-footer p {
+.cinta-pista {
+  display: flex;
+  width: max-content;
+  animation: desplazar 30s linear infinite;
+}
+
+.cinta span {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding-right: 2rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* pelotita blanca entre frase y frase */
+.cinta span::after {
+  content: '';
+  width: 24px;
+  height: 24px;
+  background: var(--blanco);
+  mask: var(--icono-pelota) center / contain no-repeat;
+}
+
+/* la pista tiene la lista dos veces: al correrse la mitad, vuelve a empezar sin que se note */
+@keyframes desplazar {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- pie ---------- */
+
+footer {
+  background: var(--noche);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.pie {
+  width: min(1200px, 100% - 2rem);
+  margin: 0 auto;
+  padding: 2rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.pie p {
   margin: 0;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--blanco);
+  font-family: var(--fuente-titulos);
+  font-size: 1.8rem;
+  letter-spacing: 0.08em;
 }

@@ -11,9 +11,9 @@
 
 .avatar.vacio {
   font: 400 2.4rem var(--fuente-texto);
-  color: var(--amarilla);
-  background: rgba(243, 246, 241, 0.06);
-  border-style: dashed;
+  color: var(--azul);
+  background: var(--azul-claro);
+  border: 2px dashed var(--azul);
 }
 
 .foto-acciones {
@@ -23,8 +23,8 @@
 }
 
 .foto-acciones .boton {
-  padding: 0.45rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 1.05rem;
 }
 
 /* el input file nativo se oculta: se usa el label como botón */
@@ -37,7 +37,7 @@
 
 .quitar {
   font: 600 0.85rem var(--fuente-texto);
-  color: var(--roja);
+  color: var(--error);
   background: none;
   border: none;
   padding: 0;
@@ -52,7 +52,7 @@
   flex-wrap: wrap;
   gap: 0.25rem 0.9rem;
   font-size: 0.8rem;
-  color: var(--cal-tenue);
+  color: var(--texto-tenue);
 }
 
 .reglas li::before {
@@ -60,7 +60,7 @@
 }
 
 .reglas li.cumple {
-  color: var(--verde-ok);
+  color: var(--exito);
 }
 
 .reglas li.cumple::before {

@@ -1,3 +1,10 @@
+<header class="cabecera-pagina" [class.con-solapa]="auth.logueado()">
+  <div class="interior">
+    <span class="etiqueta-seccion">Tu camiseta</span>
+    <h1>Mi perfil</h1>
+  </div>
+</header>
+
 <section class="contenedor">
   @if (auth.usuario(); as usuario) {
     <article class="panel perfil">
@@ -10,10 +17,10 @@
           <span class="avatar grande">{{ iniciales() }}</span>
         }
         <div class="identidad">
-          <h1>{{ usuario.nombre }} {{ usuario.apellido }}</h1>
+          <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
           <p class="arroba">&#64;{{ usuario.nombreUsuario }}</p>
         </div>
-        <span class="etiqueta" [class.amarilla]="usuario.perfil === 'administrador'">
+        <span class="etiqueta" [class.destacada]="usuario.perfil === 'administrador'">
           {{ usuario.perfil }}
         </span>
       </div>
@@ -48,7 +55,7 @@
     </article>
   } @else {
     <div class="panel sin-sesion">
-      <h1>Mi perfil</h1>
+      <h2>Entrá a la cancha</h2>
       <p>Iniciá sesión para ver tus datos y tu foto de perfil.</p>
       <div class="acciones">
         <a class="boton" routerLink="/login">Ingresar</a>

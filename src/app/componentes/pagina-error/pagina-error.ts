@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
     <section class="contenedor">
       <div class="panel cartel">
         <span class="tarjeta" aria-hidden="true"></span>
+        <span class="etiqueta-seccion">Error 404</span>
         <h1>Fuera de juego</h1>
         <p>La página que buscás no existe o cambió de lugar.</p>
         <a class="boton" routerLink="/publicaciones">Volver a la tribuna</a>
@@ -26,13 +27,13 @@ import { RouterLink } from '@angular/router';
       width: 46px;
       height: 64px;
       border-radius: 6px;
-      background: var(--amarilla);
+      background: var(--azul);
       transform: rotate(-12deg);
       margin-bottom: 1rem;
       box-shadow: var(--sombra);
     }
     p {
-      color: var(--cal-suave);
+      color: var(--texto-suave);
       margin-bottom: 1.5rem;
     }
   `,
