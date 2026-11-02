@@ -1,0 +1,110 @@
+# Tribuna · Documentación técnica (front)
+
+> Cómo está construido el front. Para qué puede hacer el usuario, ver [funcional.md](funcional.md).
+
+## Stack
+
+| Pieza | Uso |
+|---|---|
+| **Angular 22** | Componentes **standalone** (sin NgModules), **zoneless** (sin zone.js) |
+| **Signals** (`signal`, `computed`, `effect`) | Estado reactivo: sesión, modal, formulario de la foto |
+| **Reactive Forms** | `FormGroup` / `FormControl` con validadores propios (de control, de grupo y asíncrono) |
+| **HttpClient** (`withFetch`) + **RxJS** | Peticiones a la API de Nest como `Observable` |
+| **Router** | Rutas con **lazy loading** (`loadComponent`) y `title` por pantalla |
+| CSS propio | Variables CSS, sin framework. Tipografías Bebas Neue y Manrope. Responsive |
+| Vitest | Tests |
+
+## Arquitectura
+
+```
+Componente (pantalla) ──usa──▶ Servicio (@Service + inject) ──HttpClient──▶ API NestJS (Render)
+      ▲                              │
+      └──── signals ◀────────────────┘   (Auth.usuario, Modal.datos)
+```
+
+- Los **componentes** muestran la información y manejan los formularios.
+- Los **servicios** hablan con la API y guardan el estado compartido en signals.
+- Cuando un signal cambia, todos los componentes que lo leen se actualizan solos. Por ejemplo, al hacer login se actualizan el navbar y Mi perfil.
+
+## Estructura
+
+```
+src/app/
+├── app.routes.ts            rutas lazy (loadComponent) + title; '' → publicaciones; ** → 404
+├── app.config.ts            provideRouter, provideHttpClient(withFetch()), locale es-AR
+├── app.html                 <app-navbar> + <router-outlet> + <app-modal-mensaje> (una sola vez)
+├── componentes/
+│   ├── navbar/              links (routerLinkActive), avatar o iniciales (computed), Salir
+│   ├── login/               form identificador + password, ver/ocultar contraseña
+│   ├── registro/            form completo + foto con vista previa (URL.createObjectURL)
+│   ├── publicaciones/       placeholder → Sprint 2
+│   ├── mi-perfil/           datos + edad e iniciales (computed) + pipe date
+│   ├── pagina-error/        404 "Fuera de juego"
+│   └── modal-mensaje/       dibuja el modal; effect() le da foco; @HostListener para Escape
+├── servicios/
+│   ├── auth.ts              usuario = signal, logueado = computed, registro/login/cerrarSesion
+│   ├── usuarios.ts          disponible(campo, valor) → Observable<boolean>
+│   └── modal.ts             datos = signal; exito / error / info / cerrar
+├── validadores/registro.validadores.ts
+├── utilidades/errores.ts    traduce el error de Nest ({statusCode, message}) a texto
+└── modelos/usuario.ts       interfaz Usuario
+```
+
+## Decisiones técnicas
+
+### Signals vs variables comunes
+- `Auth.usuario` es un `signal<Usuario | null>` y `logueado` es un `computed`.
+- Una variable común no avisa cuando cambia. Como la app es **zoneless**, Angular no se enteraría y no redibujaría la vista. Un signal sí notifica a quienes lo leen.
+- `computed` deriva valores (iniciales, edad) y se recalcula solo cuando cambia el signal del que depende.
+- `effect` ejecuta un efecto secundario cuando cambia un signal: en el modal, pone el foco en el botón Aceptar.
+
+### Formularios reactivos y validadores propios
+| Validador | Tipo | Qué hace |
+|---|---|---|
+| `passwordFuerteValidator` | De control | 8+ caracteres, una mayúscula y un número. Devuelve **un error por regla** para el checklist en vivo |
+| `edadMinimaValidator(13)` | De control | La fecha no puede ser futura y la edad tiene que ser ≥ 13 |
+| `clavesCoincidenValidator` | **De grupo** | Va en el `FormGroup` porque compara dos campos; se recalcula si cambia cualquiera de los dos |
+| `disponibleValidator` | **Asíncrono** | Pregunta a la API si el correo o el usuario están libres. `timer(500)` + `switchMap`: espera a que el usuario deje de tipear y cancela la consulta anterior |
+
+Validar en el front da feedback inmediato. El back **vuelve a validar todo**, porque cualquiera puede llamar a la API sin pasar por el front (por ejemplo, con Postman).
+
+### HttpClient y Observables
+- Los servicios devuelven `Observable`. La petición sale recién cuando el componente hace `subscribe({ next, error })` (patrón **Observer**).
+- `tap` guarda la sesión sin modificar la respuesta. `map` transforma la respuesta (por ejemplo, `{ disponible }` → `boolean`).
+- El registro manda un **`FormData`** (`multipart/form-data`) para que viajen juntos los datos y el archivo. `repetirPassword` no se envía.
+
+### Inyección de dependencias
+- Los servicios usan `@Service()` (Angular 22) y se obtienen con `inject()` o por el constructor.
+- En `Registro` se usa `inject()` como propiedad porque el `FormGroup` necesita `Usuarios` al crearse.
+
+### Ciclo de vida
+- `Registro` implementa **`OnDestroy`**: al salir de la pantalla libera la URL temporal de la vista previa (`URL.revokeObjectURL`) para no dejar memoria tomada.
+
+### Control flow y pipes
+- Las plantillas usan `@if` / `@for`.
+- `DatePipe` muestra la fecha en castellano gracias a `LOCALE_ID = 'es-AR'`.
+
+### Modal propio (sin `alert()`)
+- El servicio `Modal` guarda el mensaje en un signal y `<app-modal-mensaje>`, que está una sola vez en `app.html`, lo dibuja.
+- Cualquier componente llama a `modal.exito(...)` o `modal.error(...)`, y se le puede pasar una acción para cuando se cierra.
+
+### Sesión (Sprint 1)
+- El usuario que devuelve la API se guarda en `localStorage` para que un F5 no cierre la sesión.
+- En el Sprint 3 se reemplaza por el **token JWT** y un interceptor HTTP.
+
+### Lazy loading
+- Cada pantalla es un chunk aparte que se descarga recién al visitarla. Así la carga inicial es más liviana.
+
+## Entornos
+
+| Archivo | Se usa en | `apiUrl` |
+|---|---|---|
+| `environment.development.ts` | `ng serve` | `http://localhost:3000` |
+| `environment.ts` | `ng build` (Vercel) | `https://tribuna-back-zeyk.onrender.com` |
+
+## Deploy en Vercel
+
+1. Importar el repo en Vercel. Detecta Angular solo (con auto-deploy en cada push a `main`).
+2. Output Directory: `dist/tribuna-front/browser`.
+3. `vercel.json` reescribe todas las rutas a `index.html`, para que recargar en `/mi-perfil` no dé 404.
+4. La URL de Vercel tiene que estar en `FRONT_URL` del back (CORS).
