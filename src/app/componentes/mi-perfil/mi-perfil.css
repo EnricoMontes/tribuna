@@ -20,11 +20,12 @@
   align-items: flex-end;
   gap: 1.25rem;
   padding: 0 2rem;
-  margin-top: -60px;
   flex-wrap: wrap;
 }
 
+/* Solo la foto sube sobre la portada; el nombre queda debajo, sobre el fondo blanco */
 .avatar.grande {
+  margin-top: -60px;
   width: 124px;
   height: 124px;
   font-size: 3rem;
@@ -35,6 +36,7 @@
 .identidad {
   flex: 1;
   min-width: 200px;
+  padding-top: 0.75rem;
 }
 
 .identidad h2 {
