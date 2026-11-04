@@ -143,9 +143,6 @@ dd {
   overflow-wrap: anywhere;
 }
 
-.capital {
-  text-transform: capitalize;
-}
 
 .sin-sesion {
   max-width: 540px;
