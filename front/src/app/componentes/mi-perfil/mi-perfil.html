@@ -33,11 +33,14 @@
         }
         <div class="identidad">
           <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
-          <p class="arroba">&#64;{{ usuario.nombreUsuario }}</p>
+          <!-- @usuario y el tipo de perfil en la misma línea, debajo del nombre -->
+          <div class="linea-usuario">
+            <p class="arroba">&#64;{{ usuario.nombreUsuario }}</p>
+            <span class="etiqueta" [class.destacada]="usuario.perfil === 'administrador'">
+              {{ usuario.perfil }}
+            </span>
+          </div>
         </div>
-        <span class="etiqueta" [class.destacada]="usuario.perfil === 'administrador'">
-          {{ usuario.perfil }}
-        </span>
         <!-- Cuadro y número del hincha (solo si los cargó en el registro) -->
         @if (usuario.cuadro || usuario.numeroCamiseta) {
           <div class="hincha">
