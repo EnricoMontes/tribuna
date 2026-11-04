@@ -1,7 +1,7 @@
 {
   "info": {
-    "_postman_id": "41eb1371-2f0a-4c21-b177-b37eaa8faa19",
-    "name": "Tribuna API - Sprint 2",
+    "_postman_id": "ceea2a88-7a26-461f-8de6-bc2f2249a575",
+    "name": "Tribuna API",
     "description": "Pruebas del back de Tribuna (NestJS + MongoDB Atlas + Cloudinary + API de promiedos).\n\nORDEN PARA CORRERLA (Run collection o carpeta por carpeta):\n1. Estado de la API (despierta Render: el plan gratis se duerme y la primera petición tarda ~50 s).\n2. Cuadros: la lista sale de promiedos (Liga Profesional y Primera Nacional).\n3. Auth - Registro: incluye los campos nuevos cuadroId y numeroCamiseta (opcionales).\n4. Auth - Login: GUARDA el token en {{token}} (hincha_demo) y {{tokenAdmin}} (enrico_admin).\n5. Usuarios: disponibilidad de correo / nombre de usuario.\n6. Partidos: partidos YA JUGADOS del torneo actual de la Liga Profesional (con resultado). Guarda {{partidoId}}.\n7. Publicaciones: crear, listar (orden, offset/limit, filtros), me gusta y baja lógica.\n\nPartidos y Publicaciones piden \"Authorization: Bearer {{token}}\" (ya configurado en cada petición).\nEl token vence a los 15 minutos: si da 401, volvé a correr \"Auth - Login\".\nLos pedidos \"(elegir archivo)\" necesitan que elijas una imagen a mano en el body.\n\nVariable baseUrl: producción (Render). Para probar en local cambiala por {{localUrl}} (http://localhost:3000).\nUsuarios de prueba: hincha_demo / Tribuna123 (usuario) y enrico_admin / Admin123 (administrador).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },

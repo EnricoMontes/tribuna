@@ -67,7 +67,7 @@ Si algo falla, el service tira una excepción de Nest (`ConflictException`, `Una
 | `POST` | `/publicaciones/:id/me-gusta` | — | `201` `{ cantidadMeGusta, meGustaMio }` · `404` · `409` (ya lo había dado) |
 | `DELETE` | `/publicaciones/:id/me-gusta` | — | `200` · `404` · `409` (no lo había dado) |
 
-Hay una colección de Postman con todos los casos en [`postman/Tribuna-Sprint2.postman_collection.json`](../postman/Tribuna-Sprint2.postman_collection.json).
+Hay una colección de Postman con todos los casos en [`postman/Tribuna.postman_collection.json`](../postman/Tribuna.postman_collection.json).
 
 ## Modelo de datos: `usuarios`
 
