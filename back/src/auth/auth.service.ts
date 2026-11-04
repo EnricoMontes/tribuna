@@ -4,10 +4,13 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ArchivosService } from '../archivos/archivos.service.js';
 import { CuadrosService } from '../cuadros/cuadros.service.js';
+import { UsuarioDocument } from '../usuarios/entities/usuario.entity.js';
 import { UsuariosService } from '../usuarios/usuarios.service.js';
+import { DatosToken } from './guards/auth.guard.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegistroDto } from './dto/registro.dto.js';
 
@@ -20,6 +23,7 @@ export class AuthService {
     private readonly usuariosService: UsuariosService,
     private readonly archivosService: ArchivosService,
     private readonly cuadrosService: CuadrosService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async registro(datos: RegistroDto, foto?: Express.Multer.File) {
@@ -59,7 +63,7 @@ export class AuthService {
         password,
         fotoPerfil,
       });
-      return usuario.toJSON(); // toJSON borra la contraseña (ver usuario.entity.ts)
+      return this.respuestaConToken(usuario);
     } catch (error) {
       // Dos registros simultáneos con el mismo correo: lo frena el índice único de Mongo (código 11000)
       if ((error as { code?: number }).code === 11000) {
@@ -80,7 +84,20 @@ export class AuthService {
       throw new UnauthorizedException('Usuario o contraseña incorrectos');
     }
 
-    return usuario.toJSON();
+    return this.respuestaConToken(usuario);
+  }
+
+  /** Login y registro devuelven los datos del usuario + el token firmado (vence en 15 min) */
+  private respuestaConToken(usuario: UsuarioDocument) {
+    const datos: DatosToken = {
+      sub: usuario._id.toString(),
+      nombreUsuario: usuario.nombreUsuario,
+      perfil: usuario.perfil,
+    };
+    return {
+      usuario: usuario.toJSON(), // toJSON borra la contraseña (ver usuario.entity.ts)
+      token: this.jwtService.sign(datos),
+    };
   }
 
   private validarFechaNacimiento(fecha: string) {

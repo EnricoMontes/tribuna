@@ -95,9 +95,12 @@ Validar en el front da feedback inmediato. El back **vuelve a validar todo**, po
 - El servicio `Modal` guarda el mensaje en un signal y `<app-modal-mensaje>`, que está una sola vez en `app.html`, lo dibuja.
 - Cualquier componente llama a `modal.exito(...)` o `modal.error(...)`, y se le puede pasar una acción para cuando se cierra.
 
-### Sesión (Sprint 1)
-- El usuario que devuelve la API se guarda en `localStorage` para que un F5 no cierre la sesión.
-- En el Sprint 3 se reemplaza por el **token JWT** y un interceptor HTTP.
+### Sesión con token (JWT)
+- Login y registro devuelven `{ usuario, token }`. Los dos se guardan en `localStorage` (`tribuna_usuario` y `tribuna_token`), así un F5 no cierra la sesión. El profe aceptó `localStorage`; la alternativa eran cookies.
+- **Interceptor HTTP** (`interceptores/token.interceptor.ts`): es una función que Angular ejecuta en **cada** petición de `HttpClient`. Si hay token, **clona** la petición (porque las peticiones son inmutables) y le agrega `Authorization: Bearer <token>`. Se registra con `provideHttpClient(withInterceptors([tokenInterceptor]))`.
+- Solo agrega el token a las peticiones a nuestra API (`environment.apiUrl`), no a otros sitios.
+- Si hay usuario guardado pero no token (una sesión vieja del Sprint 1), se considera que no hay sesión.
+- En el Sprint 3 se agregan `POST /auth/autorizar` al abrir la app, el refresco del token y la redirección al login si una petición da `401`.
 
 ### Lazy loading
 - Cada pantalla es un chunk aparte que se descarga recién al visitarla. Así la carga inicial es más liviana.

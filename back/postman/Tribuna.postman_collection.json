@@ -12,6 +12,30 @@
     {
       "key": "localUrl",
       "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "usuarioId",
+      "value": ""
+    },
+    {
+      "key": "partidoId",
+      "value": ""
+    },
+    {
+      "key": "publicacionId",
+      "value": ""
+    },
+    {
+      "key": "publicacionAdminId",
+      "value": ""
     }
   ],
   "item": [
@@ -54,8 +78,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
-                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));",
-                  "pm.test(\"Perfil por defecto: usuario\", () => pm.expect(pm.response.json().perfil).to.eql(\"usuario\"));"
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json().usuario).to.not.have.property(\"password\"));",
+                  "pm.test(\"Perfil por defecto: usuario\", () => pm.expect(pm.response.json().usuario.perfil).to.eql(\"usuario\"));"
                 ]
               }
             }
@@ -126,12 +150,12 @@
                 "exec": [
                   "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
                   "pm.test(\"Guarda el cuadro con nombre y escudo\", () => {",
-                  "  const { cuadro } = pm.response.json();",
+                  "  const { cuadro } = pm.response.json().usuario;",
                   "  pm.expect(cuadro.id).to.eql(\"igg\");",
                   "  pm.expect(cuadro.nombre).to.eql(\"Boca Juniors\");",
                   "  pm.expect(cuadro.escudo).to.include(\"/images/team/igg/\");",
                   "});",
-                  "pm.test(\"Guarda el número como número\", () => pm.expect(pm.response.json().numeroCamiseta).to.eql(10));"
+                  "pm.test(\"Guarda el número como número\", () => pm.expect(pm.response.json().usuario.numeroCamiseta).to.eql(10));"
                 ]
               }
             }
@@ -431,8 +455,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
-                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));",
-                  "pm.test(\"Guarda la URL de Cloudinary\", () => pm.expect(pm.response.json().fotoPerfil).to.include(\"res.cloudinary.com\"));"
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json().usuario).to.not.have.property(\"password\"));",
+                  "pm.test(\"Guarda la URL de Cloudinary\", () => pm.expect(pm.response.json().usuario.fotoPerfil).to.include(\"res.cloudinary.com\"));"
                 ]
               }
             }
@@ -997,7 +1021,11 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));"
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json().usuario).to.not.have.property(\"password\"));",
+                  "pm.test(\"Devuelve el token JWT\", () => pm.expect(pm.response.json().token).to.be.a(\"string\"));",
+                  "// Se guarda el token para las carpetas Partidos y Publicaciones",
+                  "pm.collectionVariables.set(\"token\", pm.response.json().token);",
+                  "pm.collectionVariables.set(\"usuarioId\", pm.response.json().usuario._id);"
                 ]
               }
             }
@@ -1041,7 +1069,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));"
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json().usuario).to.not.have.property(\"password\"));",
+                  "pm.test(\"Devuelve el token JWT\", () => pm.expect(pm.response.json().token).to.be.a(\"string\"));"
                 ]
               }
             }
@@ -1085,8 +1114,10 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));",
-                  "pm.test(\"Es administrador\", () => pm.expect(pm.response.json().perfil).to.eql(\"administrador\"));"
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json().usuario).to.not.have.property(\"password\"));",
+                  "pm.test(\"Es administrador\", () => pm.expect(pm.response.json().usuario.perfil).to.eql(\"administrador\"));",
+                  "pm.test(\"Devuelve el token JWT\", () => pm.expect(pm.response.json().token).to.be.a(\"string\"));",
+                  "pm.collectionVariables.set(\"tokenAdmin\", pm.response.json().token);"
                 ]
               }
             }
@@ -1411,6 +1442,1030 @@
               ]
             },
             "description": "El back consulta la API de promiedos (header X-VER), saca los repetidos y cachea 24 h. Si promiedos no responde, usa la lista de respaldo (cuadros.respaldo.ts)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Partidos",
+      "description": "Correr antes \"Auth - Login\" para tener {{token}}.",
+      "item": [
+        {
+          "name": "401 - Sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/partidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos"
+              ]
+            },
+            "description": "Todas las rutas de partidos y publicaciones piden \"Authorization: Bearer <token>\".",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "200 - Partidos de la fecha actual",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const partidos = pm.response.json();",
+                  "pm.test(\"Trae partidos con local, visitante y horario\", () => {",
+                  "  pm.expect(partidos.length).to.be.above(0);",
+                  "  pm.expect(partidos[0]).to.include.keys(\"id\", \"liga\", \"fecha\", \"local\", \"visitante\", \"inicio\");",
+                  "});",
+                  "// Se guarda el primero para crear publicaciones",
+                  "pm.collectionVariables.set(\"partidoId\", partidos[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/partidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos"
+              ]
+            },
+            "description": "Sale de la API de promiedos (misma respuesta que los cuadros): la fecha actual de Liga Profesional y Primera Nacional.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Publicaciones",
+      "description": "Correr antes \"Auth - Login\" (guarda token, tokenAdmin y usuarioId) y \"Partidos\" (guarda partidoId).",
+      "item": [
+        {
+          "name": "401 - Listar sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "Sin token -> 401.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "201 - Crear sin imagen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "const p = pm.response.json();",
+                  "pm.test(\"El autor sale del token\", () => pm.expect(p.autor._id).to.eql(pm.collectionVariables.get(\"usuarioId\")));",
+                  "pm.test(\"Guarda una copia del partido\", () => pm.expect(p.partido.id).to.eql(pm.collectionVariables.get(\"partidoId\")));",
+                  "pm.test(\"Arranca sin me gusta\", () => { pm.expect(p.cantidadMeGusta).to.eql(0); pm.expect(p.meGustaMio).to.eql(false); });",
+                  "pm.collectionVariables.set(\"publicacionId\", p._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "multipart/form-data: titulo, mensaje, partidoId (+ archivo \"imagen\" opcional). El autor NO se manda: sale del token.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "Desde la popular",
+                  "type": "text"
+                },
+                {
+                  "key": "mensaje",
+                  "value": "Qué partidazo, la hinchada no paró de cantar",
+                  "type": "text"
+                },
+                {
+                  "key": "partidoId",
+                  "value": "{{partidoId}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 - Crear con imagen (elegir archivo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Guarda la URL de Cloudinary\", () => pm.expect(pm.response.json().imagen).to.include(\"res.cloudinary.com\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "Elegir un JPG/PNG/WEBP de hasta 2 MB en el campo \"imagen\". Se sube a Cloudinary (carpeta tribuna/publicaciones).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "Desde la popular",
+                  "type": "text"
+                },
+                {
+                  "key": "mensaje",
+                  "value": "Qué partidazo, la hinchada no paró de cantar",
+                  "type": "text"
+                },
+                {
+                  "key": "partidoId",
+                  "value": "{{partidoId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "imagen",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Partido que no es de la fecha actual",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.eql(\"El partido elegido no está en la fecha actual\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "El partido tiene que ser uno de GET /partidos.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "X",
+                  "type": "text"
+                },
+                {
+                  "key": "mensaje",
+                  "value": "Y",
+                  "type": "text"
+                },
+                {
+                  "key": "partidoId",
+                  "value": "no-existe",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Datos inválidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensajes del DTO\", () => pm.expect(pm.response.json().message).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "Título y mensaje obligatorios (DTO + ValidationPipe).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "partidoId",
+                  "value": "{{partidoId}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Listar por fecha (página 1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Trae total, offset, limit y la página\", () => pm.expect(r).to.include.keys(\"total\", \"offset\", \"limit\", \"publicaciones\"));",
+                  "pm.test(\"Respeta el limit\", () => pm.expect(r.publicaciones.length).to.be.at.most(5));",
+                  "pm.test(\"No manda la lista de quiénes dieron me gusta\", () => r.publicaciones.forEach(p => pm.expect(p).to.not.have.property(\"meGusta\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones?orden=fecha&offset=0&limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ],
+              "query": [
+                {
+                  "key": "orden",
+                  "value": "fecha"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Por defecto ordena por fecha (más nuevas primero). offset = cuántas saltear, limit = cuántas traer (máx. 50).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 - Dar me gusta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Suma uno\", () => { pm.expect(pm.response.json().cantidadMeGusta).to.eql(1); pm.expect(pm.response.json().meGustaMio).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionId}}/me-gusta",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}",
+                "me-gusta"
+              ]
+            },
+            "description": "Agrega el usuario del token a la lista y suma 1 al contador, en una sola operación atómica.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "409 - Me gusta repetido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionId}}/me-gusta",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}",
+                "me-gusta"
+              ]
+            },
+            "description": "Un usuario puede dar UN solo me gusta por publicación.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Listar por me gusta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const ps = pm.response.json().publicaciones;",
+                  "pm.test(\"Ordenadas de más a menos me gusta\", () => { for (let i = 1; i < ps.length; i++) pm.expect(ps[i - 1].cantidadMeGusta).to.be.at.least(ps[i].cantidadMeGusta); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones?orden=meGusta&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ],
+              "query": [
+                {
+                  "key": "orden",
+                  "value": "meGusta"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "orden=meGusta: ordena por el contador cantidadMeGusta (y si empatan, la más nueva).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Filtrar por partido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Todas son de ese partido\", () => pm.response.json().publicaciones.forEach(p => pm.expect(p.partido.id).to.eql(pm.collectionVariables.get(\"partidoId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones?partido={{partidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ],
+              "query": [
+                {
+                  "key": "partido",
+                  "value": "{{partidoId}}"
+                }
+              ]
+            },
+            "description": "Para la página de un partido.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Últimas 3 de un usuario (Mi perfil)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Máximo 3 y todas del usuario\", () => { const ps = pm.response.json().publicaciones; pm.expect(ps.length).to.be.at.most(3); ps.forEach(p => pm.expect(p.autor._id).to.eql(pm.collectionVariables.get(\"usuarioId\"))); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones?usuario={{usuarioId}}&limit=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ],
+              "query": [
+                {
+                  "key": "usuario",
+                  "value": "{{usuarioId}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": "Lo usa Mi perfil.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Query inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones?orden=cualquiera&limit=500",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ],
+              "query": [
+                {
+                  "key": "orden",
+                  "value": "cualquiera"
+                },
+                {
+                  "key": "limit",
+                  "value": "500"
+                }
+              ]
+            },
+            "description": "orden solo puede ser fecha o meGusta; limit va de 1 a 50.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Quitar me gusta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resta uno\", () => pm.expect(pm.response.json().meGustaMio).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionId}}/me-gusta",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}",
+                "me-gusta"
+              ]
+            },
+            "description": "Saca al usuario de la lista y resta 1.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "409 - Quitar me gusta sin haberlo dado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionId}}/me-gusta",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}",
+                "me-gusta"
+              ]
+            },
+            "description": "Solo se puede quitar si antes se había dado.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 - Crear publicación del admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"publicacionAdminId\", pm.response.json()._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "La crea el administrador, para probar los permisos de borrado.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "Desde la popular",
+                  "type": "text"
+                },
+                {
+                  "key": "mensaje",
+                  "value": "Qué partidazo, la hinchada no paró de cantar",
+                  "type": "text"
+                },
+                {
+                  "key": "partidoId",
+                  "value": "{{partidoId}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "403 - Borrar una publicación ajena (usuario común)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.include(\"Solo el autor o un administrador\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionAdminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionAdminId}}"
+              ]
+            },
+            "description": "403 y no 401: sabemos quién es (token válido), pero no tiene permiso.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - El admin borra una ajena (baja lógica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}"
+              ]
+            },
+            "description": "Baja lógica: queda en la base con activa: false y deja de listarse.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - El autor borra la suya",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionAdminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionAdminId}}"
+              ]
+            },
+            "description": "El autor siempre puede borrar lo suyo.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 - Borrar una ya borrada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}"
+              ]
+            },
+            "description": "Una publicación dada de baja ya no existe para la API.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Id mal formado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "123"
+              ]
+            },
+            "description": "ParseObjectIdPipe: el id tiene que tener formato de ObjectId de Mongo.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
           }
         }
       ]

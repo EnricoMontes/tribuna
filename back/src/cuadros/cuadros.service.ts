@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { LIGAS, PromiedosService } from '../promiedos/promiedos.service.js';
 import { CUADROS_RESPALDO } from './cuadros.respaldo.js';
 
 export interface Cuadro {
@@ -15,50 +16,25 @@ export interface Categoria {
   cuadros: Cuadro[];
 }
 
-// API de promiedos.com.ar: no es pública ni está documentada; es la que usa su propia página.
-// Pide el header X-VER (la versión de su app) y devuelve las tablas de cada liga con los equipos.
-const API = 'https://api.promiedos.com.ar';
-const VERSION_API = '1.11.7.5';
-const LIGAS = [
-  { id: 'hc', nombre: 'Liga Profesional' },
-  { id: 'ebj', nombre: 'Primera Nacional' },
-];
-const UN_DIA = 24 * 60 * 60 * 1000;
-
-/** Forma (resumida) de lo que devuelve /league/tables_and_fixtures/:id */
-interface RespuestaLiga {
-  tables_groups?: {
-    tables: {
-      table: { rows: { entity: { object: { id: string; name: string } } }[] };
-    }[];
-  }[];
-}
-
 @Injectable()
 export class CuadrosService {
   private readonly logger = new Logger(CuadrosService.name);
 
-  // Caché en memoria: la lista de equipos casi no cambia, no tiene sentido pedirla en cada registro
-  private cache: { categorias: Categoria[]; vence: number } | null = null;
+  constructor(private readonly promiedos: PromiedosService) {}
 
-  /** Escudo del equipo, servido por la misma API (imagen PNG de 200x200). */
   escudo(id: string) {
-    return `${API}/images/team/${id}/3`;
+    return this.promiedos.escudo(id);
   }
 
+  /** Cuadros de la Liga Profesional y de la Primera Nacional, sacados de las tablas de posiciones */
   async listar(): Promise<Categoria[]> {
-    if (this.cache && this.cache.vence > Date.now()) {
-      return this.cache.categorias;
-    }
     try {
-      const categorias = await Promise.all(
+      return await Promise.all(
         LIGAS.map(async (liga) => ({
           nombre: liga.nombre,
           cuadros: await this.equiposDeLiga(liga.id),
         })),
       );
-      this.cache = { categorias, vence: Date.now() + UN_DIA };
-      return categorias;
     } catch (error) {
       // Si la API externa falla, usamos la copia local: el registro sigue andando igual
       this.logger.warn(
@@ -78,17 +54,7 @@ export class CuadrosService {
   }
 
   private async equiposDeLiga(idLiga: string): Promise<Cuadro[]> {
-    const respuesta = await fetch(
-      `${API}/league/tables_and_fixtures/${idLiga}`,
-      {
-        headers: { 'X-VER': VERSION_API },
-        signal: AbortSignal.timeout(5000), // si tarda más de 5 s, pasamos al respaldo
-      },
-    );
-    if (!respuesta.ok) {
-      throw new Error(`HTTP ${respuesta.status}`);
-    }
-    const datos = (await respuesta.json()) as RespuestaLiga;
+    const datos = await this.promiedos.liga(idLiga);
 
     // Un equipo aparece en varias tablas (Apertura, Clausura...): el Map por id saca los repetidos
     const equipos = new Map<string, string>();

@@ -48,6 +48,16 @@ una copia guardada, así que el registro siempre funciona.
 Mientras alguien completa el registro, la app pregunta si el correo o el nombre de usuario ya existen,
 para avisarle antes de enviar el formulario.
 
+### 5. Partidos y publicaciones (Sprint 2)
+
+Para todo lo que sigue hay que **haber ingresado**: el login devuelve un "pase" (token) que vence a los 15 minutos.
+
+- **Partidos:** la app muestra los partidos de la **fecha actual** de la Liga Profesional y de la Primera Nacional, con los escudos y el horario. Salen de promiedos.
+- **Publicar:** título, mensaje, el **partido** del que se habla y, si querés, una foto (JPG, PNG o WEBP de hasta 2 MB). El partido tiene que ser de la fecha actual.
+- **Ver publicaciones:** de a una página por vez, ordenadas por **fecha** (las más nuevas primero) o por **cantidad de me gusta**. Se pueden ver solo las de un partido o solo las de un usuario.
+- **Me gusta:** cada hincha puede dar **un solo** me gusta por publicación, y sacarlo si quiere.
+- **Eliminar:** cada uno puede borrar **sus** publicaciones, y un administrador puede borrar cualquiera. La publicación no se borra de la base: se oculta (baja lógica).
+
 ## Qué responde el servidor en cada caso
 
 | Situación | Respuesta |
@@ -59,6 +69,10 @@ para avisarle antes de enviar el formulario.
 | Menor de 13 años o fecha futura | ❌ **400** |
 | Foto que no es JPG/PNG/WEBP | ❌ **400** |
 | Correo o contraseña incorrectos en el ingreso | ❌ **401** No autorizado |
+| Pedir partidos o publicaciones sin haber ingresado (o con la sesión vencida) | ❌ **401** |
+| Borrar la publicación de otro sin ser administrador | ❌ **403** Prohibido |
+| La publicación no existe o ya se borró | ❌ **404** No encontrado |
+| Dar me gusta dos veces, o sacar uno que no se había dado | ❌ **409** Conflicto |
 | Correo o nombre de usuario ya registrados | ❌ **409** Conflicto |
 | Foto de más de 2 MB | ❌ **413** Archivo demasiado grande |
 
@@ -68,6 +82,5 @@ Todos los mensajes de error están en castellano y la app los muestra en un moda
 
 | Sprint | Funcionalidad |
 |---|---|
-| 2 | Publicaciones con imagen, "me gusta", orden por fecha o por me gusta, paginación, borrar las propias |
-| 3 | Comentarios, sesión con token (JWT) que vence y se puede extender |
+| 3 | Comentarios. Validar la sesión al abrir la app y poder extenderla antes de que venza |
 | 4 | Panel de administración de usuarios y estadísticas con gráficos |

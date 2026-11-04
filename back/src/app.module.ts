@@ -5,6 +5,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { CuadrosModule } from './cuadros/cuadros.module.js';
+import { PartidosModule } from './partidos/partidos.module.js';
 import { PublicacionesModule } from './publicaciones/publicaciones.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
 
@@ -23,6 +24,7 @@ import { UsuariosModule } from './usuarios/usuarios.module.js';
     UsuariosModule,
     PublicacionesModule,
     CuadrosModule,
+    PartidosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
