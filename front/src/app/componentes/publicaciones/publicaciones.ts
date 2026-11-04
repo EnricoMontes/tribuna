@@ -1,28 +1,31 @@
-import { DecimalPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { catchError, of } from 'rxjs';
 import { Auth } from '../../servicios/auth';
+import { Partidos } from '../../servicios/partidos';
+import { ListaPublicaciones } from '../lista-publicaciones/lista-publicaciones';
 
-// Sprint 1: pantalla creada y navegable. El listado paginado, el orden y los me gusta llegan en el sprint 2.
 @Component({
-  imports: [RouterLink, DecimalPipe],
+  imports: [RouterLink, DecimalPipe, DatePipe, ListaPublicaciones],
   selector: 'app-publicaciones',
   styleUrl: './publicaciones.css',
   templateUrl: './publicaciones.html',
 })
 export class Publicaciones {
-  // Por ahora en 0: en el sprint 2 se completa con lo que devuelve la API
-  readonly tablero = [
-    { nombre: 'Publicaciones', valor: 0 },
-    { nombre: 'Me gusta', valor: 0 },
-    { nombre: 'Comentarios', valor: 0 },
-  ];
+  auth = inject(Auth);
 
-  readonly pasos = [
-    { titulo: 'Hacete la cuenta', texto: 'Poné una foto y contá de qué cuadro sos.' },
-    { titulo: 'Subí lo tuyo', texto: 'Lo que pensaste del partido, la foto desde la popular, lo que pinte.' },
-    { titulo: 'Metete en la charla', texto: 'Dale me gusta a lo que te cierra y comentá.' },
-  ];
+  // Partidos de la fecha (lateral). Si falla, la lista de publicaciones se ve igual.
+  partidos = toSignal(
+    inject(Partidos)
+      .listar()
+      .pipe(catchError(() => of([]))),
+    {
+      initialValue: [],
+    },
+  );
 
-  constructor(public auth: Auth) {}
+  // El total lo informa la lista (output "cargada") cada vez que trae una página
+  total = signal(0);
 }

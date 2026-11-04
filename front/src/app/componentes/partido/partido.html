@@ -1,0 +1,57 @@
+<header class="cabecera-pagina">
+  <div class="interior">
+    <a class="volver" routerLink="/publicaciones">← Todas las publicaciones</a>
+    @if (partido(); as p) {
+      <span class="etiqueta-seccion">{{ p.liga }} · {{ p.fecha }}</span>
+      <div class="marcador">
+        <div class="equipo">
+          <img
+            [src]="p.local.escudo"
+            [alt]="'Escudo de ' + p.local.nombre"
+            width="96"
+            height="96"
+          />
+          <h1>{{ p.local.nombre }}</h1>
+        </div>
+        <div class="centro">
+          <span class="vs">VS</span>
+          <span class="hora">{{ p.inicio | date: 'EEEE d/M · HH:mm' }}</span>
+          @if (p.estado) {
+            <span class="estado">{{ p.estado }}</span>
+          }
+        </div>
+        <div class="equipo">
+          <img
+            [src]="p.visitante.escudo"
+            [alt]="'Escudo de ' + p.visitante.nombre"
+            width="96"
+            height="96"
+          />
+          <h1>{{ p.visitante.nombre }}</h1>
+        </div>
+      </div>
+      <a class="boton crear" [routerLink]="['/publicar']" [queryParams]="{ partido: p.id }"
+        >Publicar de este partido</a
+      >
+    } @else if (noEncontrado()) {
+      <span class="etiqueta-seccion">Partido</span>
+      <h1>No encontramos el partido</h1>
+      <p>No es de la fecha actual y nadie publicó sobre él.</p>
+    } @else {
+      <span class="etiqueta-seccion">Partido</span>
+      <h1>Cargando...</h1>
+    }
+  </div>
+</header>
+
+<section class="contenedor angosto">
+  <app-lista-publicaciones [partido]="id()" [mostrarPartido]="false" (cargada)="alCargar($event)">
+    <div vacio class="panel vacio">
+      <h2>Nadie publicó de este partido todavía</h2>
+      <p>Subí la primera foto o contá qué te pareció.</p>
+      @if (partido(); as p) {
+        <a class="boton" [routerLink]="['/publicar']" [queryParams]="{ partido: p.id }">Publicar</a>
+      }
+    </div>
+  </app-lista-publicaciones>
+</section>

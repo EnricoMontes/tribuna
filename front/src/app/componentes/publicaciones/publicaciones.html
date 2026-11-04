@@ -10,53 +10,63 @@
       }
     </p>
 
-    <!-- Tablero del estadio: cuando haya publicaciones (sprint 2) estos números salen de la API -->
+    <!-- Tablero del estadio con datos reales -->
     <div class="tablero" aria-label="Resumen de la tribuna">
-      @for (dato of tablero; track dato.nombre) {
-        <div class="tablero-dato">
-          <span class="tablero-numero">{{ dato.valor | number: '2.0-0' }}</span>
-          <span class="tablero-nombre">{{ dato.nombre }}</span>
-        </div>
-      }
-      <div class="tablero-dato en-vivo">
-        <span class="punto" aria-hidden="true"></span>
-        <span class="tablero-nombre">Previa del partido</span>
+      <div class="tablero-dato">
+        <span class="tablero-numero">{{ total() | number: '2.0-0' }}</span>
+        <span class="tablero-nombre">Publicaciones</span>
       </div>
+      <div class="tablero-dato">
+        <span class="tablero-numero">{{ partidos().length | number: '2.0-0' }}</span>
+        <span class="tablero-nombre">Partidos de la fecha</span>
+      </div>
+      <a class="boton crear" routerLink="/publicar">Publicar</a>
     </div>
   </div>
 </header>
 
 <section class="contenedor grilla">
-  <div class="panel cancha-vacia">
-    <!-- mini cancha dibujada con CSS: césped a franjas + líneas + la pelota picando en el centro -->
-    <div class="mini-cancha" aria-hidden="true">
-      <img class="pelota" src="pelota.svg" alt="" width="72" height="72">
-    </div>
-    <span class="etiqueta-seccion">Previa</span>
-    <h2>La cancha está vacía</h2>
-    <p>Todavía no hay publicaciones. Muy pronto vas a poder opinar de cada partido, subir fotos de cancha y darle "me gusta" a lo que publica la hinchada.</p>
-    @if (!auth.logueado()) {
-      <div class="acciones">
-        <a class="boton" routerLink="/registro">Saltar a la cancha</a>
-        <a class="boton secundario" routerLink="/login">Ya tengo cuenta</a>
+  <div>
+    <app-lista-publicaciones (cargada)="total.set($event.total)">
+      <!-- Lo que se ve si todavía no hay publicaciones -->
+      <div vacio class="panel cancha-vacia">
+        <div class="mini-cancha" aria-hidden="true">
+          <img class="pelota" src="pelota.svg" alt="" width="72" height="72" />
+        </div>
+        <span class="etiqueta-seccion">Previa</span>
+        <h2>La cancha está vacía</h2>
+        <p>Todavía nadie publicó nada. Elegí un partido de la fecha y arrancá vos.</p>
+        <div class="acciones">
+          <a class="boton" routerLink="/publicar">Publicar</a>
+        </div>
       </div>
-    }
+    </app-lista-publicaciones>
   </div>
 
   <aside class="lateral">
     <div class="panel bloque">
-      <span class="etiqueta-seccion">¿Recién llegás?</span>
-      <ol class="pasos">
-        @for (paso of pasos; track paso.titulo; let i = $index) {
-          <li>
-            <span class="dorsal">{{ i + 1 }}</span>
-            <div>
-              <strong>{{ paso.titulo }}</strong>
-              <p>{{ paso.texto }}</p>
-            </div>
-          </li>
-        }
-      </ol>
+      <span class="etiqueta-seccion">Partidos de la fecha</span>
+      @if (partidos().length) {
+        <ul class="partidos">
+          @for (partido of partidos(); track partido.id) {
+            <li>
+              <a [routerLink]="['/partidos', partido.id]">
+                <span class="equipos">
+                  <img [src]="partido.local.escudo" alt="" width="24" height="24" />
+                  <span>{{ partido.local.nombre }}</span>
+                </span>
+                <span class="equipos">
+                  <img [src]="partido.visitante.escudo" alt="" width="24" height="24" />
+                  <span>{{ partido.visitante.nombre }}</span>
+                </span>
+                <span class="hora">{{ partido.inicio | date: 'EEE d/M · HH:mm' }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="ayuda">Cargando los partidos...</p>
+      }
     </div>
   </aside>
 </section>

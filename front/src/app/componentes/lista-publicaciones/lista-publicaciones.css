@@ -1,0 +1,75 @@
+.barra-orden {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.barra-orden .etiqueta-seccion {
+  margin: 0;
+}
+
+/* selector de orden tipo "píldora" */
+.orden {
+  display: inline-flex;
+  padding: 4px;
+  background: var(--blanco);
+  border: 1px solid var(--divisor);
+  border-radius: 100px;
+}
+
+.orden button {
+  font-family: var(--fuente-titulos);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  background: none;
+  border: none;
+  border-radius: 100px;
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+
+.orden button.activo {
+  color: var(--blanco);
+  background: var(--noche);
+}
+
+.lista {
+  display: grid;
+  gap: 1.25rem;
+  transition: opacity 0.2s;
+}
+
+.lista.cargando {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.75rem;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.paginacion .boton {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+}
+
+.aviso {
+  text-align: center;
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+}

@@ -11,16 +11,39 @@
     >
       <div class="icono" aria-hidden="true">
         @switch (datos.tipo) {
-          @case ('exito') { ✓ }
-          @case ('error') { <span class="tarjeta-roja"></span> }
-          @default { <img src="pelota.svg" alt="" width="40" height="40"> }
+          @case ('exito') {
+            ✓
+          }
+          @case ('error') {
+            <span class="tarjeta-roja"></span>
+          }
+          @case ('confirmar') {
+            <span class="tarjeta-amarilla"></span>
+          }
+          @default {
+            <img src="pelota.svg" alt="" width="40" height="40" />
+          }
         }
       </div>
       <h2 id="modal-titulo">{{ datos.titulo }}</h2>
       <p id="modal-mensaje">{{ datos.mensaje }}</p>
-      <button #botonAceptar class="boton ancho" type="button" (click)="modal.cerrar()">
-        Aceptar
-      </button>
+      @if (datos.tipo === 'confirmar') {
+        <div class="botones">
+          <button class="boton secundario" type="button" (click)="modal.cerrar()">Cancelar</button>
+          <button
+            #botonAceptar
+            class="boton peligro"
+            type="button"
+            (click)="modal.aceptarConfirmacion()"
+          >
+            {{ datos.textoConfirmar }}
+          </button>
+        </div>
+      } @else {
+        <button #botonAceptar class="boton ancho" type="button" (click)="modal.cerrar()">
+          Aceptar
+        </button>
+      }
     </div>
   </div>
 }

@@ -1,0 +1,72 @@
+@if (conControles()) {
+  <div class="barra-orden">
+    <span class="etiqueta-seccion">
+      @if (datos(); as d) {
+        {{ d.total }} {{ d.total === 1 ? 'publicación' : 'publicaciones' }}
+      } @else {
+        Publicaciones
+      }
+    </span>
+    <div class="orden" role="group" aria-label="Ordenar publicaciones">
+      <button type="button" [class.activo]="orden() === 'fecha'" (click)="cambiarOrden('fecha')">
+        Más nuevas
+      </button>
+      <button
+        type="button"
+        [class.activo]="orden() === 'meGusta'"
+        (click)="cambiarOrden('meGusta')"
+      >
+        Más me gusta
+      </button>
+    </div>
+  </div>
+}
+
+@if (error()) {
+  <div class="panel aviso">
+    <p class="error">{{ error() }}</p>
+    <button class="boton secundario" type="button" (click)="recargar()">Reintentar</button>
+  </div>
+} @else if (datos(); as d) {
+  @if (d.publicaciones.length) {
+    <div class="lista" [class.cargando]="cargando()">
+      @for (publicacion of d.publicaciones; track publicacion._id) {
+        <app-tarjeta-publicacion
+          [publicacion]="publicacion"
+          [puedeEliminar]="esMia(publicacion)"
+          [ocupado]="procesando() === publicacion._id"
+          [mostrarPartido]="mostrarPartido()"
+          (meGusta)="alternarMeGusta($event)"
+          (eliminar)="confirmarEliminar($event)"
+        />
+      }
+    </div>
+
+    @if (conControles() && totalPaginas() > 1) {
+      <nav class="paginacion" aria-label="Páginas">
+        <button
+          class="boton secundario"
+          type="button"
+          [disabled]="pagina() === 1"
+          (click)="irAPagina(pagina() - 1)"
+        >
+          Anterior
+        </button>
+        <span>Página {{ pagina() }} de {{ totalPaginas() }}</span>
+        <button
+          class="boton secundario"
+          type="button"
+          [disabled]="pagina() === totalPaginas()"
+          (click)="irAPagina(pagina() + 1)"
+        >
+          Siguiente
+        </button>
+      </nav>
+    }
+  } @else {
+    <!-- Estado vacío: lo decide el padre (contenido proyectado con ng-content) -->
+    <ng-content select="[vacio]" />
+  }
+} @else {
+  <div class="panel aviso"><p class="ayuda">Cargando publicaciones...</p></div>
+}

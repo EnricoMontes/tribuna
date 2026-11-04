@@ -1,0 +1,278 @@
+.tarjeta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  background: var(--blanco);
+  border: 1px solid var(--divisor);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+
+.tarjeta.sin-partido {
+  grid-template-columns: 1fr;
+}
+
+.contenido {
+  padding: 1.4rem 1.5rem 1.1rem;
+  min-width: 0;
+}
+
+/* ---------- autor ---------- */
+
+.autor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.autor .avatar {
+  width: 44px;
+  height: 44px;
+  font-size: 1.1rem;
+  border-width: 2px;
+  border-color: var(--azul-claro);
+}
+
+.autor-datos {
+  display: grid;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.autor-datos span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--azul);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.escudo-mini {
+  object-fit: contain;
+}
+
+.cuando {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--texto-tenue);
+  white-space: nowrap;
+}
+
+/* ---------- texto y foto ---------- */
+
+h3 {
+  font-size: 1.7rem;
+  margin: 0 0 0.3rem;
+  overflow-wrap: anywhere;
+}
+
+.mensaje {
+  margin: 0 0 1rem;
+  color: var(--texto-suave);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.foto {
+  display: block;
+  width: 100%;
+  max-height: 460px;
+  object-fit: cover;
+  border-radius: var(--radio-chico);
+  margin-bottom: 1rem;
+}
+
+/* ---------- acciones ---------- */
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.me-gusta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font: 700 0.9rem var(--fuente-texto);
+  color: var(--texto-suave);
+  background: var(--fondo);
+  border: 1px solid var(--divisor);
+  border-radius: 100px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.me-gusta svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  transition: transform 0.2s;
+}
+
+.me-gusta:hover:not(:disabled) {
+  border-color: var(--azul);
+  color: var(--azul);
+}
+
+.me-gusta.activo {
+  color: var(--blanco);
+  background: var(--azul);
+  border-color: var(--azul);
+}
+
+.me-gusta.activo svg {
+  fill: currentColor;
+  transform: scale(1.1);
+}
+
+.me-gusta:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.borrar {
+  margin-left: auto;
+  font: 700 0.85rem var(--fuente-texto);
+  color: var(--error);
+  background: none;
+  border: none;
+  padding: 0.4rem 0.2rem;
+  cursor: pointer;
+}
+
+.borrar:hover {
+  text-decoration: underline;
+}
+
+/* ---------- partido al costado ---------- */
+
+.partido {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  text-decoration: none;
+  color: var(--blanco);
+  background:
+    var(--cancha-vertical) center / cover no-repeat,
+    linear-gradient(180deg, var(--noche-2), var(--noche));
+  transition: background-color 0.3s;
+}
+
+/* el dibujo de la cancha de fondo, tenue */
+.partido::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 21, 33, 0.82);
+  transition: background 0.3s;
+}
+
+.partido > * {
+  position: relative;
+}
+
+.partido:hover::before {
+  background: rgba(23, 71, 173, 0.82);
+}
+
+.partido-liga {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.equipo {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.05rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.equipo img {
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+}
+
+.vs {
+  font-family: var(--fuente-titulos);
+  font-size: 0.95rem;
+  color: var(--azul);
+  background: var(--blanco);
+  border-radius: 100px;
+  padding: 0.05rem 0.55rem;
+}
+
+.partido-hora {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: capitalize;
+}
+
+.ver {
+  margin-top: 0.35rem;
+  font-family: var(--fuente-titulos);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffd84a;
+}
+
+.ver::after {
+  content: ' →';
+}
+
+/* en celular el partido va arriba, horizontal */
+@media (max-width: 640px) {
+  .tarjeta {
+    grid-template-columns: 1fr;
+  }
+
+  .partido {
+    order: -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .partido-liga,
+  .partido-hora {
+    flex-basis: 100%;
+  }
+
+  .equipo {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .equipo img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .ver {
+    display: none;
+  }
+}

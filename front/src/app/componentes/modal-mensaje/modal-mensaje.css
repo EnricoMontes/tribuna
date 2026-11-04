@@ -96,3 +96,29 @@ p {
     opacity: 0;
   }
 }
+
+/* confirmar = tarjeta amarilla (advertencia) */
+.tipo-confirmar .icono {
+  background: rgba(245, 197, 24, 0.15);
+  box-shadow: 0 0 0 8px rgba(245, 197, 24, 0.08);
+}
+
+.tipo-confirmar::before {
+  background: #f5c518;
+}
+
+.tarjeta-amarilla {
+  width: 28px;
+  height: 38px;
+  border-radius: 4px;
+  background: #f5c518;
+  transform: rotate(-12deg);
+  box-shadow: 0 4px 10px rgba(245, 197, 24, 0.45);
+}
+
+.botones {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}

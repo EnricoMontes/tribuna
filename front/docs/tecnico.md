@@ -31,20 +31,29 @@ Componente (pantalla) ──usa──▶ Servicio (@Service + inject) ──Http
 ```
 src/app/
 ├── app.routes.ts            rutas lazy (loadComponent) + title; '' → publicaciones; ** → 404
-├── app.config.ts            provideRouter, provideHttpClient(withFetch()), locale es-AR
+├── app.config.ts            provideRouter(withComponentInputBinding), provideHttpClient(withFetch, withInterceptors), es-AR
 ├── app.html                 <app-navbar> + <router-outlet> + <app-modal-mensaje> (una sola vez)
 ├── componentes/
 │   ├── navbar/              links (routerLinkActive), avatar o iniciales (computed), Salir
 │   ├── login/               form identificador + password, ver/ocultar contraseña
 │   ├── registro/            form completo + foto con vista previa (URL.createObjectURL)
-│   ├── publicaciones/       placeholder → Sprint 2
-│   ├── mi-perfil/           datos + edad e iniciales (computed) + pipe date
+│   ├── publicaciones/       tablero + <app-lista-publicaciones> + partidos de la fecha (toSignal)
+│   ├── lista-publicaciones/ orden, paginación (offset/limit), me gusta y eliminar; la reusan 3 pantallas
+│   ├── tarjeta-publicacion/ UNA publicación: input() publicacion / output() meGusta y eliminar
+│   ├── partido/             /partidos/:id (el id llega como input) + lista filtrada por partido
+│   ├── publicar/            form reactivo: partido (optgroup por liga), título, mensaje, foto
+│   ├── mi-perfil/           datos + edad e iniciales (computed) + mis últimas 3 (la misma lista)
 │   ├── pagina-error/        404 "Fuera de juego"
 │   └── modal-mensaje/       dibuja el modal; effect() le da foco; @HostListener para Escape
 ├── servicios/
 │   ├── auth.ts              usuario = signal, logueado = computed, registro/login/cerrarSesion
 │   ├── usuarios.ts          disponible(campo, valor) → Observable<boolean>
-│   └── modal.ts             datos = signal; exito / error / info / cerrar
+│   ├── modal.ts             datos = signal; exito / error / info / confirmar / cerrar
+│   ├── publicaciones.ts     listar (HttpParams) / crear / eliminar / darMeGusta / quitarMeGusta
+│   ├── partidos.ts          GET /partidos
+│   └── cuadros.ts           GET /cuadros (shareReplay)
+├── interceptores/token.interceptor.ts   agrega el Bearer y, si hay 401, vuelve al login
+├── guards/sesion.guard.ts   canActivate: sin sesión -> /login
 ├── validadores/registro.validadores.ts
 ├── utilidades/errores.ts    traduce el error de Nest ({statusCode, message}) a texto
 └── modelos/usuario.ts       interfaz Usuario
@@ -101,6 +110,17 @@ Validar en el front da feedback inmediato. El back **vuelve a validar todo**, po
 - Solo agrega el token a las peticiones a nuestra API (`environment.apiUrl`), no a otros sitios.
 - Si hay usuario guardado pero no token (una sesión vieja del Sprint 1), se considera que no hay sesión.
 - En el Sprint 3 se agregan `POST /auth/autorizar` al abrir la app, el refresco del token y la redirección al login si una petición da `401`.
+
+### Publicaciones: componentes que se comunican
+- **`TarjetaPublicacion`** (la consigna pide que cada publicación sea un componente) recibe la publicación con **`input.required()`** y avisa con **`output()`** cuando se toca me gusta o eliminar. **No llama a la API**: solo muestra y avisa. Así sirve igual en el listado, en el partido y en Mi perfil.
+- **`ListaPublicaciones`** escucha esos outputs y llama al servicio. Recibe inputs (`partido`, `usuario`, `porPagina`, `conControles`) para usarse en las tres pantallas.
+  - Un **`effect()`** vuelve a pedir la página cuando cambia el orden, la página, el partido o el usuario (son signals).
+  - Al dar me gusta se actualiza **solo esa publicación** en el signal (`update` + `map`), sin volver a pedir la página.
+  - **Paginación**: `offset = (página - 1) * porPágina`, y `totalPaginas` es un `computed` sobre el `total` que manda la API.
+  - El estado vacío lo pone cada pantalla con **`<ng-content select="[vacio]">`** (proyección de contenido).
+- **Rutas con parámetros como input**: con `withComponentInputBinding()`, el `:id` de `/partidos/:id` y el `?partido=` de `/publicar` llegan directo como `input()`.
+- **Confirmación sin `confirm()`**: `modal.confirmar(titulo, mensaje, textoBoton, alConfirmar)` muestra dos botones; la acción se ejecuta solo si se acepta.
+- **Guard `sesionGuard`** (`canActivate`): si no hay sesión, devuelve un `UrlTree` al login. Con `canMatch` el chunk lazy ni siquiera se descargaría.
 
 ### Lazy loading
 - Cada pantalla es un chunk aparte que se descarga recién al visitarla. Así la carga inicial es más liviana.

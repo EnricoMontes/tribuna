@@ -1,0 +1,123 @@
+<header class="cabecera-pagina">
+  <div class="interior">
+    <span class="etiqueta-seccion">Nueva publicación</span>
+    <h1>Publicar</h1>
+    <p>Elegí el partido y contá qué pasó. La foto es opcional.</p>
+  </div>
+</header>
+
+<section class="contenedor">
+  <form class="panel form publicar" [formGroup]="formPublicar" (ngSubmit)="publicar()" novalidate>
+    <!-- Partido -->
+    <div class="campo" [class.invalido]="mostrarError('partidoId')">
+      <label for="partidoId">Partido</label>
+      <select id="partidoId" formControlName="partidoId">
+        <option value="" disabled>
+          {{ partidos().length ? 'Elegí un partido de la fecha' : 'Cargando partidos...' }}
+        </option>
+        @for (liga of ligas(); track liga.nombre) {
+          <optgroup [label]="liga.nombre">
+            @for (partido of liga.partidos; track partido.id) {
+              <option [value]="partido.id">
+                {{ partido.local.nombre }} vs {{ partido.visitante.nombre }} ·
+                {{ partido.inicio | date: 'EEE d/M HH:mm' }}
+              </option>
+            }
+          </optgroup>
+        }
+      </select>
+      @if (mostrarError('partidoId')) {
+        <p class="error">Elegí el partido de la publicación</p>
+      }
+      @if (partidoElegido(); as p) {
+        <div class="partido-elegido">
+          <img [src]="p.local.escudo" alt="" width="40" height="40" />
+          <strong>{{ p.local.nombre }}</strong>
+          <span class="vs">vs</span>
+          <strong>{{ p.visitante.nombre }}</strong>
+          <img [src]="p.visitante.escudo" alt="" width="40" height="40" />
+          <span class="liga">{{ p.liga }} · {{ p.fecha }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="campo" [class.invalido]="mostrarError('titulo')">
+      <label for="titulo">Título</label>
+      <input
+        id="titulo"
+        type="text"
+        formControlName="titulo"
+        maxlength="80"
+        placeholder="Ej: Qué golazo en el segundo tiempo"
+      />
+      @if (mostrarError('titulo')) {
+        <p class="error">
+          @if (formPublicar.controls.titulo.hasError('required')) {
+            Poné un título
+          } @else {
+            Máximo 80 caracteres
+          }
+        </p>
+      }
+    </div>
+
+    <div class="campo" [class.invalido]="mostrarError('mensaje')">
+      <label for="mensaje">Mensaje</label>
+      <textarea
+        id="mensaje"
+        formControlName="mensaje"
+        maxlength="500"
+        placeholder="¿Qué te pareció el partido?"
+      ></textarea>
+      <p class="ayuda contador">{{ formPublicar.controls.mensaje.value.length }}/500</p>
+      @if (mostrarError('mensaje')) {
+        <p class="error">
+          @if (formPublicar.controls.mensaje.hasError('required')) {
+            Escribí un mensaje
+          } @else {
+            Máximo 500 caracteres
+          }
+        </p>
+      }
+    </div>
+
+    <!-- Foto (opcional) -->
+    <div class="campo">
+      <span class="etiqueta-campo">Foto <span class="opcional">(opcional)</span></span>
+      @if (vistaPrevia()) {
+        <img class="vista-previa" [src]="vistaPrevia()" alt="Vista previa de la foto" />
+      }
+      <div class="foto-acciones">
+        <label class="boton secundario" for="imagen">{{
+          foto() ? 'Cambiar foto' : 'Elegir foto'
+        }}</label>
+        <input
+          #inputFoto
+          id="imagen"
+          class="oculto"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          (change)="elegirFoto($event)"
+        />
+        @if (foto()) {
+          <button type="button" class="quitar" (click)="quitarFoto(inputFoto)">Quitar</button>
+        }
+        <p class="ayuda">JPG, PNG o WEBP · hasta 2 MB</p>
+      </div>
+      @if (errorFoto()) {
+        <p class="error">{{ errorFoto() }}</p>
+      }
+    </div>
+
+    <div class="botones">
+      <a class="boton secundario" routerLink="/publicaciones">Cancelar</a>
+      <button class="boton" type="submit" [disabled]="enviando()">
+        @if (enviando()) {
+          Publicando...
+        } @else {
+          Publicar
+        }
+      </button>
+    </div>
+  </form>
+</section>

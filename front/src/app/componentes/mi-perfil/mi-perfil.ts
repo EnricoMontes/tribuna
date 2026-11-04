@@ -2,9 +2,10 @@ import { DatePipe } from '@angular/common';
 import { Component, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Auth } from '../../servicios/auth';
+import { ListaPublicaciones } from '../lista-publicaciones/lista-publicaciones';
 
 @Component({
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, ListaPublicaciones],
   selector: 'app-mi-perfil',
   styleUrl: './mi-perfil.css',
   templateUrl: './mi-perfil.html',
@@ -26,7 +27,8 @@ export class MiPerfil {
     let edad = hoy.getUTCFullYear() - nacimiento.getUTCFullYear();
     const yaCumplio =
       hoy.getUTCMonth() > nacimiento.getUTCMonth() ||
-      (hoy.getUTCMonth() === nacimiento.getUTCMonth() && hoy.getUTCDate() >= nacimiento.getUTCDate());
+      (hoy.getUTCMonth() === nacimiento.getUTCMonth() &&
+        hoy.getUTCDate() >= nacimiento.getUTCDate());
     if (!yaCumplio) {
       edad--;
     }

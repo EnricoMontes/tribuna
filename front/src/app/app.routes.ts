@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
+import { sesionGuard } from './guards/sesion.guard';
 
 // Todas las pantallas con lazy loading (loadComponent): cada una se descarga recién al visitarla.
-// Sprint 1: navegación libre, sin guards ("sin límites de accesibilidad").
+// Sprint 2: las pantallas de la red social piden sesión (sesionGuard); login y registro son libres.
 export const routes: Routes = [
   { path: '', redirectTo: 'publicaciones', pathMatch: 'full' },
   {
@@ -17,12 +18,27 @@ export const routes: Routes = [
   {
     path: 'publicaciones',
     title: 'Publicaciones · Tribuna',
+    canActivate: [sesionGuard],
     loadComponent: () =>
       import('./componentes/publicaciones/publicaciones').then((m) => m.Publicaciones),
   },
   {
+    // :id -> llega al componente como input (withComponentInputBinding en app.config.ts)
+    path: 'partidos/:id',
+    title: 'Partido · Tribuna',
+    canActivate: [sesionGuard],
+    loadComponent: () => import('./componentes/partido/partido').then((m) => m.Partido),
+  },
+  {
+    path: 'publicar',
+    title: 'Publicar · Tribuna',
+    canActivate: [sesionGuard],
+    loadComponent: () => import('./componentes/publicar/publicar').then((m) => m.Publicar),
+  },
+  {
     path: 'mi-perfil',
     title: 'Mi perfil · Tribuna',
+    canActivate: [sesionGuard],
     loadComponent: () => import('./componentes/mi-perfil/mi-perfil').then((m) => m.MiPerfil),
   },
   {

@@ -1,0 +1,82 @@
+@let p = publicacion();
+<article class="tarjeta" [class.sin-partido]="!mostrarPartido()">
+  <div class="contenido">
+    <header class="autor">
+      @if (p.autor.fotoPerfil) {
+        <img class="avatar" [src]="p.autor.fotoPerfil" alt="" width="44" height="44" />
+      } @else {
+        <span class="avatar">{{ iniciales() }}</span>
+      }
+      <div class="autor-datos">
+        <strong>{{ p.autor.nombre }} {{ p.autor.apellido }}</strong>
+        <span>
+          &#64;{{ p.autor.nombreUsuario }}
+          @if (p.autor.cuadro; as cuadro) {
+            ·
+            <img
+              class="escudo-mini"
+              [src]="cuadro.escudo"
+              [alt]="cuadro.nombre"
+              [title]="cuadro.nombre"
+              width="16"
+              height="16"
+            />
+          }
+        </span>
+      </div>
+      <time class="cuando" [attr.datetime]="p.createdAt">{{
+        p.createdAt | date: 'd MMM, HH:mm'
+      }}</time>
+    </header>
+
+    <h3>{{ p.titulo }}</h3>
+    <p class="mensaje">{{ p.mensaje }}</p>
+
+    @if (p.imagen) {
+      <img class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
+    }
+
+    <footer class="acciones">
+      <button
+        type="button"
+        class="me-gusta"
+        [class.activo]="p.meGustaMio"
+        [disabled]="ocupado()"
+        [attr.aria-pressed]="p.meGustaMio"
+        (click)="meGusta.emit(p)"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 21s-7.5-4.6-9.6-9.3C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 5.3 3 1.7-1.9 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.2C19.5 16.4 12 21 12 21Z"
+          />
+        </svg>
+        {{ p.cantidadMeGusta }} me gusta
+      </button>
+      @if (puedeEliminar()) {
+        <button type="button" class="borrar" (click)="eliminar.emit(p)">Eliminar</button>
+      }
+    </footer>
+  </div>
+
+  <!-- Al costado: de qué partido es. Se puede entrar a ver todas las publicaciones de ese partido. -->
+  @if (mostrarPartido()) {
+    <a
+      class="partido"
+      [routerLink]="['/partidos', p.partido.id]"
+      title="Ver todas las publicaciones de este partido"
+    >
+      <span class="partido-liga">{{ p.partido.liga }} · {{ p.partido.fecha }}</span>
+      <span class="equipo">
+        <img [src]="p.partido.local.escudo" alt="" width="40" height="40" />
+        {{ p.partido.local.nombre }}
+      </span>
+      <span class="vs">vs</span>
+      <span class="equipo">
+        <img [src]="p.partido.visitante.escudo" alt="" width="40" height="40" />
+        {{ p.partido.visitante.nombre }}
+      </span>
+      <span class="partido-hora">{{ p.partido.inicio | date: 'EEE d/M · HH:mm' }}</span>
+      <span class="ver">Ver partido</span>
+    </a>
+  }
+</article>

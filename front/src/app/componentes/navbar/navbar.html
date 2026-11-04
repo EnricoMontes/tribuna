@@ -4,6 +4,7 @@
 
     <div class="links">
       <a routerLink="/publicaciones" routerLinkActive="activo">Publicaciones</a>
+      <a routerLink="/publicar" routerLinkActive="activo">Publicar</a>
       <a routerLink="/mi-perfil" routerLinkActive="activo">Mi perfil</a>
     </div>
 
@@ -11,7 +12,13 @@
       @if (auth.usuario(); as usuario) {
         <a class="usuario" routerLink="/mi-perfil">
           @if (usuario.fotoPerfil) {
-            <img class="avatar" [src]="usuario.fotoPerfil" alt="Foto de perfil" width="38" height="38">
+            <img
+              class="avatar"
+              [src]="usuario.fotoPerfil"
+              alt="Foto de perfil"
+              width="38"
+              height="38"
+            />
           } @else {
             <span class="avatar">{{ iniciales() }}</span>
           }

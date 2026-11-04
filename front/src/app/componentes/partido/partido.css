@@ -1,0 +1,103 @@
+.volver {
+  display: block;
+  width: fit-content;
+  margin-bottom: 1.25rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.volver:hover {
+  color: var(--blanco);
+}
+
+/* el partido como un marcador: local · VS · visitante */
+.marcador {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1rem 0 2rem;
+}
+
+.equipo {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.equipo img {
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+}
+
+.equipo h1 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+}
+
+.centro {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+}
+
+.vs {
+  font-family: var(--fuente-titulos);
+  font-size: 2rem;
+  color: var(--azul);
+  background: var(--blanco);
+  border-radius: 100px;
+  padding: 0.1rem 1rem;
+}
+
+.hora {
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.estado {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffd84a;
+}
+
+.crear {
+  color: var(--noche);
+  background: var(--blanco);
+}
+
+.crear:hover {
+  color: var(--blanco);
+}
+
+.angosto {
+  max-width: 820px;
+}
+
+.vacio {
+  text-align: center;
+}
+
+.vacio p {
+  color: var(--texto-suave);
+}
+
+@media (max-width: 640px) {
+  .marcador {
+    gap: 0.75rem;
+  }
+
+  .equipo img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .vs {
+    font-size: 1.4rem;
+  }
+}

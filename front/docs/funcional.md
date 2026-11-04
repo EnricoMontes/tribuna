@@ -15,18 +15,22 @@ azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el 
 - en Mi perfil, el escudo del cuadro, "Hincha de ..." y el número de camiseta (si los cargó);
 - la tarjeta roja en los errores y el banderín del línea en el 404 ("Fuera de juego").
 
-## Pantallas (Sprint 1)
+## Pantallas
 
 | Pantalla | Qué se ve y qué se puede hacer |
 |---|---|
 | **Crear cuenta** (`/registro`) | Formulario completo con foto de perfil y vista previa. Avisa en vivo si algún dato está mal |
 | **Ingresar** (`/login`) | Ingreso con correo **o** nombre de usuario, más la contraseña. Botón para ver u ocultar la contraseña |
-| **Publicaciones** (`/publicaciones`) | Pantalla de inicio con saludo al usuario. El listado de publicaciones llega en el Sprint 2 |
-| **Mi perfil** (`/mi-perfil`) | Foto (o iniciales si no subió), nombre, @usuario, correo, fecha de nacimiento y edad, descripción y tipo de perfil |
+| **Publicaciones** (`/publicaciones`) | Todas las publicaciones, de a 5 por página. Se ordenan por **más nuevas** (por defecto) o por **más me gusta**. Cada una muestra el autor, el texto, la foto y, **al costado, el partido** (escudos, liga y horario): al tocarlo se entra a ese partido. Al lado de la lista están los **partidos de la fecha** |
+| **Partido** (`/partidos/:id`) | El partido como un marcador (escudos, VS, día y hora) y **todas las publicaciones de ese partido**, con el mismo orden y las mismas páginas. Botón para publicar de ese partido |
+| **Publicar** (`/publicar`) | Se elige el **partido de la fecha** (Liga Profesional o Primera Nacional), se escribe un título y un mensaje, y se puede agregar una foto con vista previa |
+| **Mi perfil** (`/mi-perfil`) | Foto (o iniciales si no subió), nombre, @usuario, correo, fecha de nacimiento y edad, descripción, tipo de perfil, cuadro y número. Abajo, **mis últimas 3 publicaciones** |
 | **Fuera de juego** (404) | Si se entra a una dirección que no existe |
 
 - **Barra de navegación:** links a todas las pantallas, avatar y @usuario de quien está logueado, y botón **Salir**.
-- En el Sprint 1 todas las pantallas son accesibles sin restricciones, como pide la consigna.
+- **Me gusta:** se toca el corazón para darlo y otra vez para sacarlo. Cada hincha puede dar uno solo por publicación.
+- **Eliminar:** aparece solo en **mis** publicaciones (o en todas si soy administrador) y pide confirmación en un modal.
+- Publicaciones, Partido, Publicar y Mi perfil piden **haber ingresado**: si no, la app manda al login. Si la sesión vence (15 minutos), también vuelve al login.
 - Al recargar la página (F5) la sesión se mantiene.
 - Se puede usar desde el celular (diseño adaptable).
 

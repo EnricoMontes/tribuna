@@ -12,7 +12,13 @@
 
       <div class="cabecera">
         @if (usuario.fotoPerfil) {
-          <img class="avatar grande" [src]="usuario.fotoPerfil" alt="Foto de perfil de {{ usuario.nombre }}" width="120" height="120">
+          <img
+            class="avatar grande"
+            [src]="usuario.fotoPerfil"
+            alt="Foto de perfil de {{ usuario.nombre }}"
+            width="120"
+            height="120"
+          />
         } @else {
           <span class="avatar grande">{{ iniciales() }}</span>
         }
@@ -27,7 +33,12 @@
         @if (usuario.cuadro || usuario.numeroCamiseta) {
           <div class="hincha">
             @if (usuario.cuadro; as cuadro) {
-              <img [src]="cuadro.escudo" alt="Escudo de {{ cuadro.nombre }}" width="52" height="52">
+              <img
+                [src]="cuadro.escudo"
+                alt="Escudo de {{ cuadro.nombre }}"
+                width="52"
+                height="52"
+              />
             }
             <div class="hincha-textos">
               @if (usuario.cuadro; as cuadro) {
@@ -70,6 +81,19 @@
         </div>
       </dl>
     </article>
+
+    <!-- Mis últimas 3 publicaciones (la misma lista, filtrada por mi usuario y sin controles) -->
+    <section class="mis-publicaciones">
+      <div class="titulo-seccion">
+        <span class="etiqueta-seccion">Mis últimas publicaciones</span>
+        <a class="boton secundario" routerLink="/publicar">Publicar</a>
+      </div>
+      <app-lista-publicaciones [usuario]="usuario._id" [porPagina]="3" [conControles]="false">
+        <div vacio class="panel sin-publicaciones">
+          <p>Todavía no publicaste nada.</p>
+        </div>
+      </app-lista-publicaciones>
+    </section>
   } @else {
     <div class="panel sin-sesion">
       <h2>Entrá a la cancha</h2>

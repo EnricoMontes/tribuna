@@ -10,8 +10,18 @@
 .portada {
   height: 150px;
   background:
-    radial-gradient(circle at 50% 100%, transparent 54px, rgba(255, 255, 255, 0.35) 55px 57px, transparent 58px),
-    linear-gradient(180deg, transparent 60%, rgba(255, 255, 255, 0.35) 60% calc(60% + 2px), transparent calc(60% + 2px)),
+    radial-gradient(
+      circle at 50% 100%,
+      transparent 54px,
+      rgba(255, 255, 255, 0.35) 55px 57px,
+      transparent 58px
+    ),
+    linear-gradient(
+      180deg,
+      transparent 60%,
+      rgba(255, 255, 255, 0.35) 60% calc(60% + 2px),
+      transparent calc(60% + 2px)
+    ),
     repeating-linear-gradient(90deg, var(--azul) 0 60px, var(--azul-oscuro) 60px 120px);
 }
 
@@ -154,6 +164,34 @@ dd {
   font-size: 2.6rem;
   line-height: 1;
   color: var(--azul);
+}
+
+/* mis últimas publicaciones */
+.mis-publicaciones {
+  max-width: 820px;
+  margin: 2.5rem auto 0;
+}
+
+.titulo-seccion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.titulo-seccion .etiqueta-seccion {
+  margin: 0;
+}
+
+.titulo-seccion .boton {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+}
+
+.sin-publicaciones {
+  text-align: center;
+  color: var(--texto-suave);
 }
 
 @media (max-width: 640px) {

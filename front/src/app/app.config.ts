@@ -2,7 +2,7 @@ import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import localeEsAr from '@angular/common/locales/es-AR';
 import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app.routes';
 import { tokenInterceptor } from './interceptores/token.interceptor';
 
@@ -12,7 +12,8 @@ registerLocaleData(localeEsAr);
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    // withComponentInputBinding: los parámetros de la ruta (:id) y de la query (?partido=) llegan como input()
+    provideRouter(routes, withComponentInputBinding()),
     // HttpClient para hablar con la API de Nest (withFetch usa la API fetch del navegador).
     // withInterceptors: el tokenInterceptor agrega el JWT a cada petición.
     provideHttpClient(withFetch(), withInterceptors([tokenInterceptor])),

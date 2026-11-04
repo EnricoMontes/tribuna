@@ -35,24 +35,16 @@
   color: rgba(255, 255, 255, 0.65);
 }
 
-.tablero-dato.en-vivo {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  align-self: stretch;
+/* botón Publicar en el tablero (sobre fondo oscuro va en blanco) */
+.tablero .crear {
+  align-self: center;
+  margin-left: auto;
+  color: var(--noche);
+  background: var(--blanco);
 }
 
-.tablero-dato.en-vivo .tablero-nombre {
-  margin: 0;
-}
-
-.punto {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--exito);
-  box-shadow: 0 0 0 0 rgba(30, 158, 90, 0.6);
-  animation: latido 1.8s infinite;
+.tablero .crear:hover {
+  color: var(--blanco);
 }
 
 /* ---------- grilla: cancha vacía + lateral ---------- */
@@ -82,7 +74,9 @@
   margin: -0.5rem -0.5rem 2rem;
   border-radius: calc(var(--radio) - 6px);
   overflow: hidden;
-  background: var(--cancha-horizontal) center / 92% 84% no-repeat, var(--cesped);
+  background:
+    var(--cancha-horizontal) center / 92% 84% no-repeat,
+    var(--cesped);
 }
 
 .pelota {
@@ -109,53 +103,57 @@
   padding: 1.5rem;
 }
 
-.pasos {
+.partidos {
   list-style: none;
   margin: 0.5rem 0 0;
   padding: 0;
   display: grid;
-  gap: 1rem;
+  gap: 0.5rem;
+  max-height: 640px;
+  overflow-y: auto;
 }
 
-.pasos li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
-}
-
-.pasos p {
-  margin: 0;
-  color: var(--texto-suave);
-  font-size: 0.92rem;
-  line-height: 1.5;
-}
-
-/* número de camiseta */
-.dorsal {
-  flex-shrink: 0;
+.partidos a {
   display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px 10px 14px 14px;
-  font-family: var(--fuente-titulos);
-  font-size: 1.4rem;
-  color: var(--blanco);
-  background: linear-gradient(90deg, var(--azul) 0 33%, var(--azul-oscuro) 33% 66%, var(--azul) 66%);
+  gap: 0.25rem;
+  padding: 0.7rem 0.85rem;
+  text-decoration: none;
+  color: var(--texto);
+  background: var(--fondo);
+  border: 1px solid var(--divisor);
+  border-left: 3px solid var(--azul);
+  border-radius: var(--radio-chico);
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.partidos a:hover {
+  background: var(--azul-claro);
+  border-color: var(--azul);
+}
+
+.equipos {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.equipos img {
+  object-fit: contain;
+}
+
+.hora {
+  font-size: 0.78rem;
+  color: var(--texto-tenue);
+  text-transform: capitalize;
 }
 
 @keyframes pique {
   50% {
     transform: translateY(-14px);
-  }
-}
-
-@keyframes latido {
-  70% {
-    box-shadow: 0 0 0 10px rgba(30, 158, 90, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(30, 158, 90, 0);
   }
 }
 

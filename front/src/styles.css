@@ -572,3 +572,16 @@ img {
     display: none;
   }
 }
+
+/* botón para acciones destructivas (eliminar) */
+.boton.peligro {
+  background: var(--error);
+}
+
+.boton.peligro::after {
+  background-color: rgba(0, 0, 0, 0.18);
+}
+
+.boton.peligro::before {
+  background: #b32a2a;
+}
