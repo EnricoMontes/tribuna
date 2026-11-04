@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- misma pelota que la del escudo, para que el estilo sea uno solo -->
+  <circle cx="32" cy="32" r="29" fill="#fff" stroke="#031521" stroke-width="3"/>
+  <polygon points="32,19.7 43.7,28.2 39.2,41.9 24.8,41.9 20.3,28.2" fill="#031521"/>
+  <g stroke="#031521" stroke-width="3.2" stroke-linecap="round">
+    <path d="M32 19.7V4.5M43.7 28.2l14.4-4.7M39.2 41.9l8.9 12.3M24.8 41.9l-8.9 12.3M20.3 28.2 5.9 23.5"/>
+  </g>
+</svg>

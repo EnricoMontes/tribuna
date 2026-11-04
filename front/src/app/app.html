@@ -1,0 +1,26 @@
+<app-navbar />
+
+<main>
+  <router-outlet />
+</main>
+
+<!-- Cinta azul con frases que se desplazan (la lista se repite para que el loop no tenga cortes) -->
+<div class="cinta" aria-hidden="true">
+  <div class="cinta-pista">
+    @for (vuelta of [1, 2]; track vuelta) {
+      @for (frase of frases; track frase) {
+        <span>{{ frase }}</span>
+      }
+    }
+  </div>
+</div>
+
+<footer>
+  <div class="pie">
+    <app-logo [tamano]="44" />
+    <p>La red social de la hinchada · Programación IV · UTN FRA · 2026</p>
+  </div>
+</footer>
+
+<!-- Una sola instancia del modal para toda la app (lo maneja el servicio Modal) -->
+<app-modal-mensaje />

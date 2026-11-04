@@ -1,0 +1,79 @@
+<header class="cabecera-pagina" [class.con-solapa]="auth.logueado()">
+  <div class="interior">
+    <span class="etiqueta-seccion">Tu camiseta</span>
+    <h1>Mi perfil</h1>
+  </div>
+</header>
+
+<section class="contenedor">
+  @if (auth.usuario(); as usuario) {
+    <article class="panel perfil">
+      <div class="portada" aria-hidden="true"></div>
+
+      <div class="cabecera">
+        @if (usuario.fotoPerfil) {
+          <img class="avatar grande" [src]="usuario.fotoPerfil" alt="Foto de perfil de {{ usuario.nombre }}" width="120" height="120">
+        } @else {
+          <span class="avatar grande">{{ iniciales() }}</span>
+        }
+        <div class="identidad">
+          <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
+          <p class="arroba">&#64;{{ usuario.nombreUsuario }}</p>
+        </div>
+        <span class="etiqueta" [class.destacada]="usuario.perfil === 'administrador'">
+          {{ usuario.perfil }}
+        </span>
+        <!-- La camiseta con el apellido y el 12, el número de la hinchada -->
+        <svg class="camiseta" viewBox="0 0 100 100" role="img" [attr.aria-label]="'Camiseta de ' + usuario.apellido">
+          <defs>
+            <pattern id="bastones" width="20" height="100" patternUnits="userSpaceOnUse">
+              <rect width="10" height="100" fill="#1f5bd8" />
+              <rect x="10" width="10" height="100" fill="#1747ad" />
+            </pattern>
+          </defs>
+          <path d="M30 8 18 12 4 27l11 13 8-6v58h54V34l8 6 11-13-14-15-12-4c-5 9-35 9-40 0Z"
+                fill="url(#bastones)" stroke="#031521" stroke-width="2" stroke-linejoin="round" />
+          <text x="50" y="45" text-anchor="middle" class="camiseta-apellido">{{ usuario.apellido }}</text>
+          <text x="50" y="82" text-anchor="middle" class="camiseta-numero">12</text>
+        </svg>
+      </div>
+
+      <p class="descripcion">
+        @if (usuario.descripcion) {
+          {{ usuario.descripcion }}
+        } @else {
+          <span class="sin-dato">Todavía no escribiste una descripción.</span>
+        }
+      </p>
+
+      <dl class="datos">
+        <div>
+          <dt>Correo</dt>
+          <dd>{{ usuario.correo }}</dd>
+        </div>
+        <div>
+          <dt>Fecha de nacimiento</dt>
+          <!-- 'UTC': la fecha se guarda a las 00:00 UTC; sin esto en Argentina mostraría el día anterior -->
+          <dd>{{ usuario.fechaNacimiento | date: 'longDate' : 'UTC' }} ({{ edad() }} años)</dd>
+        </div>
+        <div>
+          <dt>En la tribuna desde</dt>
+          <dd>{{ usuario.createdAt | date: 'MMMM y' }}</dd>
+        </div>
+        <div>
+          <dt>Perfil</dt>
+          <dd class="capital">{{ usuario.perfil }}</dd>
+        </div>
+      </dl>
+    </article>
+  } @else {
+    <div class="panel sin-sesion">
+      <h2>Entrá a la cancha</h2>
+      <p>Iniciá sesión para ver tus datos y tu foto de perfil.</p>
+      <div class="acciones">
+        <a class="boton" routerLink="/login">Ingresar</a>
+        <a class="boton secundario" routerLink="/registro">Crear cuenta</a>
+      </div>
+    </div>
+  }
+</section>

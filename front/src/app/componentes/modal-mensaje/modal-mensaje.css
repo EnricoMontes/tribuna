@@ -1,0 +1,98 @@
+.fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(3, 21, 33, 0.7);
+  backdrop-filter: blur(3px);
+  animation: aparecer 0.15s ease-out;
+}
+
+.ventana {
+  position: relative;
+  overflow: hidden;
+  width: min(440px, 100%);
+  text-align: center;
+  color: var(--texto);
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: 0 30px 80px rgba(3, 21, 33, 0.35);
+  padding: 2.25rem 2rem 2rem;
+  animation: subir 0.2s ease-out;
+}
+
+/* el color del círculo indica el tipo: azul = info, rojo = error, verde = éxito */
+.icono {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font: 800 1.9rem var(--fuente-texto);
+  color: var(--blanco);
+  background: var(--azul);
+  box-shadow: 0 0 0 8px var(--azul-claro);
+}
+
+.tipo-exito .icono {
+  background: var(--exito);
+  box-shadow: 0 0 0 8px rgba(30, 158, 90, 0.15);
+}
+
+.tipo-error .icono {
+  background: rgba(211, 58, 58, 0.12);
+  box-shadow: 0 0 0 8px rgba(211, 58, 58, 0.06);
+}
+
+/* error = tarjeta roja del árbitro */
+.tarjeta-roja {
+  width: 28px;
+  height: 38px;
+  border-radius: 4px;
+  background: #d93030;
+  transform: rotate(-12deg);
+  box-shadow: 0 4px 10px rgba(217, 48, 48, 0.4);
+}
+
+/* franja de colores arriba, igual que la de la barra */
+.ventana::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+  background: var(--azul);
+}
+
+.tipo-exito::before {
+  background: var(--exito);
+}
+
+.tipo-error::before {
+  background: var(--error);
+}
+
+h2 {
+  font-size: 2.2rem;
+}
+
+p {
+  color: var(--texto-suave);
+  white-space: pre-line; /* respeta los saltos de línea (varios errores de validación) */
+  margin: 0 0 1.75rem;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes subir {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}

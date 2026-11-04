@@ -1,0 +1,596 @@
+/* ==========================================================================
+   Tribuna — estilos globales
+   Estilo de club de fútbol: bandas azul noche, secciones claras, títulos en
+   Bebas Neue en mayúsculas y un azul eléctrico como color de acento.
+   ========================================================================== */
+
+:root {
+  --noche: #031521; /* azul casi negro: navbar, cabeceras, pie */
+  --noche-2: #0a2233;
+  --azul: #1f5bd8; /* acento: botones, íconos, links */
+  --azul-oscuro: #1747ad;
+  --azul-claro: #e8effc;
+  --blanco: #ffffff;
+  --fondo: #f3f5f8; /* fondo de las secciones claras */
+  --texto: #031521;
+  --texto-suave: #5e6873;
+  --texto-tenue: #8a939c;
+  --divisor: rgba(3, 21, 33, 0.1);
+  --divisor-oscuro: rgba(255, 255, 255, 0.1);
+  --translucido: rgba(255, 255, 255, 0.1);
+  --error: #d33a3a;
+  --exito: #1e9e5a;
+  --sombra: 0 20px 50px rgba(3, 21, 33, 0.08);
+  --radio: 20px;
+  --radio-chico: 10px;
+  --fuente-titulos: 'Bebas Neue', Impact, sans-serif;
+  --fuente-texto: 'Manrope', system-ui, sans-serif;
+
+  /* íconos dibujados en SVG para usar como máscara o fondo */
+  --icono-pelota: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22Zm0 5.2 3.9 2.8-1.5 4.6H9.6L8.1 9 12 6.2Z'/%3E%3C/svg%3E");
+  --icono-flecha: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+  /* líneas reglamentarias de una cancha (105 x 68 m), horizontal y vertical, en blanco */
+  --cancha-horizontal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1050 680' fill='none' stroke='white' stroke-width='3'%3E%3Crect x='5' y='5' width='1040' height='670'/%3E%3Cpath d='M525 5v670'/%3E%3Ccircle cx='525' cy='340' r='91.5'/%3E%3Cpath d='M5 138.4h165v403.2H5M5 248.4h55v183.2H5M1045 138.4H880v403.2h165M1045 248.4h-55v183.2h55'/%3E%3Cpath d='M170 270.9a91.5 91.5 0 0 1 0 138.2M880 270.9a91.5 91.5 0 0 0 0 138.2'/%3E%3Cg fill='white' stroke='none'%3E%3Ccircle cx='525' cy='340' r='5'/%3E%3Ccircle cx='110' cy='340' r='4'/%3E%3Ccircle cx='940' cy='340' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  --cancha-vertical: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 680 1050' fill='none' stroke='white' stroke-width='3'%3E%3Crect x='5' y='5' width='670' height='1040'/%3E%3Cpath d='M5 525h670'/%3E%3Ccircle cx='340' cy='525' r='91.5'/%3E%3Cpath d='M138.4 5v165h403.2V5M248.4 5v55h183.2V5M138.4 1045V880h403.2v165M248.4 1045v-55h183.2v55'/%3E%3Cpath d='M270.9 170a91.5 91.5 0 0 0 138.2 0M270.9 880a91.5 91.5 0 0 1 138.2 0'/%3E%3Cg fill='white' stroke='none'%3E%3Ccircle cx='340' cy='525' r='5'/%3E%3Ccircle cx='340' cy='110' r='4'/%3E%3Ccircle cx='340' cy='940' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  /* césped cortado a franjas (en azul, el color del club) */
+  --cesped: repeating-linear-gradient(90deg, var(--azul) 0 9%, var(--azul-oscuro) 9% 18%);
+  --icono-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--fuente-texto);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--texto);
+  /* fondo de franjas muy suaves, como el corte del pasto de una cancha */
+  background: repeating-linear-gradient(90deg, var(--fondo) 0 160px, #edf1f6 160px 320px) fixed;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--fuente-titulos);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.5rem;
+  line-height: 1.1;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 2.6rem);
+}
+
+a {
+  color: var(--azul);
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ---------- contenedores ---------- */
+
+.contenedor {
+  width: min(1200px, 100% - 2rem);
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+}
+
+.panel {
+  background: var(--blanco);
+  border: 1px solid var(--divisor);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 2rem;
+}
+
+.subtitulo {
+  color: var(--texto-suave);
+  margin: 0 0 1.5rem;
+}
+
+/* ---------- etiqueta de sección: pelotita azul + texto en mayúsculas ---------- */
+
+.etiqueta-seccion {
+  position: relative;
+  display: inline-block;
+  padding-left: 30px;
+  margin-bottom: 0.75rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.15rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.etiqueta-seccion::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translateY(-50%);
+  background: var(--azul);
+  mask: var(--icono-pelota) center / contain no-repeat;
+}
+
+/* ---------- cabecera de página (banda azul noche con el título) ---------- */
+
+.cabecera-pagina {
+  position: relative;
+  overflow: hidden;
+  color: var(--blanco);
+  background:
+    radial-gradient(circle at 85% 120%, rgba(31, 91, 216, 0.45), transparent 55%),
+    linear-gradient(180deg, transparent 0 70%, rgba(3, 21, 33, 0.6)),
+    var(--noche);
+  padding: 4rem 0 3.5rem;
+}
+
+/* el dibujo de la cancha va en una capa aparte para poder bajarle la opacidad */
+.cabecera-pagina::before {
+  content: '';
+  position: absolute;
+  inset: 1.25rem -2rem;
+  background: var(--cancha-horizontal) center / cover no-repeat;
+  opacity: 0.09;
+  pointer-events: none;
+}
+
+/* reflector de estadio arriba a la izquierda */
+.cabecera-pagina::after {
+  content: '';
+  position: absolute;
+  top: -140px;
+  left: 8%;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 65%);
+  pointer-events: none;
+}
+
+.cabecera-pagina .interior {
+  position: relative;
+  z-index: 1;
+  width: min(1200px, 100% - 2rem);
+  margin: 0 auto;
+}
+
+.cabecera-pagina h1 {
+  margin: 0;
+}
+
+.cabecera-pagina p {
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0.75rem 0 0;
+  max-width: 560px;
+}
+
+/* ---------- formularios ---------- */
+
+.form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.1rem;
+}
+
+.campo {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start; /* que el input no se estire si el campo de al lado muestra un error */
+}
+
+.campo label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--texto);
+}
+
+.campo input,
+.campo textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--texto);
+  background: var(--fondo);
+  border: 1px solid var(--divisor);
+  border-radius: var(--radio-chico);
+  padding: 0.8rem 1rem;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.campo textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+  outline: none;
+  background: var(--blanco);
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px var(--azul-claro);
+}
+
+.campo.invalido input,
+.campo.invalido textarea {
+  border-color: var(--error);
+}
+
+.ayuda {
+  font-size: 0.8rem;
+  color: var(--texto-tenue);
+  margin: 0;
+}
+
+.error {
+  color: var(--error);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.ok {
+  color: var(--exito);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ---------- botones ----------
+   Píldora azul noche con un círculo azul y una flecha.
+   ::before es el "relleno" que barre el botón al pasar el mouse; ::after es el círculo. */
+
+.boton {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--blanco);
+  background: var(--noche);
+  border: none;
+  border-radius: 100px;
+  padding: 6px 6px 6px 28px;
+  cursor: pointer;
+  transition: color 0.4s;
+}
+
+.boton::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 0;
+  z-index: -1;
+  background: var(--azul);
+  transition: width 0.4s ease-in-out;
+}
+
+.boton::after {
+  content: '';
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--azul) var(--icono-flecha) center / 20px no-repeat;
+  transform: rotate(-45deg);
+  transition: transform 0.4s ease-in-out, background-color 0.4s;
+}
+
+.boton:hover:not(:disabled)::before {
+  inset: 0 auto 0 0;
+  width: 100%;
+}
+
+.boton:hover:not(:disabled)::after {
+  transform: rotate(0deg);
+  background-color: var(--noche);
+}
+
+.boton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* secundario: sin círculo, contorno */
+.boton.secundario {
+  padding: 0.85rem 1.6rem;
+  color: var(--texto);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--divisor);
+}
+
+.boton.secundario::after {
+  display: none;
+}
+
+.boton.secundario:hover:not(:disabled) {
+  color: var(--blanco);
+}
+
+/* versión para fondos oscuros: blanco translúcido */
+.boton.translucido {
+  padding: 0.85rem 1.6rem;
+  color: var(--blanco);
+  background: var(--translucido);
+}
+
+.boton.translucido::after {
+  display: none;
+}
+
+.boton.ancho {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.boton.ancho.secundario,
+.boton.ancho.translucido {
+  justify-content: center;
+}
+
+/* ---------- etiquetas ---------- */
+
+.etiqueta {
+  display: inline-block;
+  font-family: var(--fuente-titulos);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  padding: 0.45rem 0.9rem;
+  border-radius: 100px;
+  background: var(--azul-claro);
+  color: var(--azul);
+}
+
+.etiqueta.destacada {
+  background: var(--azul);
+  color: var(--blanco);
+}
+
+/* ---------- avatar con iniciales (si no hay foto) ---------- */
+
+.avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--azul);
+  color: var(--blanco);
+  font-family: var(--fuente-titulos);
+  border: 3px solid var(--blanco);
+  flex-shrink: 0;
+}
+
+/* ---------- lista con checks (como la del hero) ---------- */
+
+.lista-check {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lista-check li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lista-check li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--azul) var(--icono-check) center / 14px no-repeat;
+}
+
+/* ---------- pantallas de acceso (login / registro) ---------- */
+
+.acceso {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  overflow: hidden;
+  padding: 0;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.acceso.angosto {
+  max-width: 940px;
+}
+
+/* lateral oscuro con el círculo central de la cancha y un brillo azul */
+.acceso-lateral {
+  position: relative;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: var(--blanco);
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 20% 110%, rgba(31, 91, 216, 0.55), transparent 60%),
+    var(--noche);
+  min-height: 300px;
+}
+
+.acceso-lateral::before {
+  content: '';
+  position: absolute;
+  inset: 1.25rem;
+  z-index: -1;
+  background: var(--cancha-vertical) center / cover no-repeat;
+  opacity: 0.13;
+}
+
+.acceso-lateral h2 {
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  margin: 0;
+}
+
+.acceso-lateral p {
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0.75rem 0 0;
+}
+
+.acceso-form {
+  padding: 3rem 2.5rem;
+}
+
+.acceso-form h1 {
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  margin: 0;
+}
+
+/* en el registro el formulario es largo: el texto del lateral va arriba */
+.acceso:not(.angosto) .acceso-lateral {
+  justify-content: flex-start;
+}
+
+/* en celular el lateral es ancho y bajo: la cancha va acostada */
+@media (max-width: 760px) {
+  .acceso-lateral::before {
+    background-image: var(--cancha-horizontal);
+  }
+}
+
+.acceso-pie {
+  text-align: center;
+  color: var(--texto-suave);
+  margin: 1.5rem 0 0;
+}
+
+.acceso-pie a {
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .acceso {
+    grid-template-columns: 1fr;
+  }
+
+  .acceso-lateral {
+    min-height: 220px;
+    padding: 2rem 1.5rem;
+  }
+
+  .acceso-form {
+    padding: 2rem 1.25rem;
+  }
+}
+
+/* ---------- input con botón adentro (ver / ocultar contraseña) ---------- */
+
+.con-boton {
+  position: relative;
+}
+
+.con-boton input {
+  padding-right: 5.5rem;
+}
+
+.ojo {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font: 700 0.8rem var(--fuente-texto);
+  color: var(--azul);
+  background: none;
+  border: none;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* cuando una tarjeta se monta sobre la cabecera, la banda necesita más aire abajo */
+.cabecera-pagina.con-solapa {
+  padding-bottom: 8.5rem;
+}
+
+/* ---------- tarjetas de árbitro (amarilla / roja) ---------- */
+
+.tarjeta-arbitro {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 22px;
+  height: 30px;
+  border-radius: 3px;
+  transform: rotate(-10deg);
+  box-shadow: 0 4px 10px rgba(3, 21, 33, 0.2);
+}
+
+.tarjeta-arbitro.amarilla {
+  background: #f5c518;
+}
+
+.tarjeta-arbitro.roja {
+  background: #d93030;
+}
+
+.tarjeta-arbitro.verde {
+  background: var(--exito);
+}
+
+/* pelota apoyada en el punto del penal de arriba (lateral del login) */
+.pelota-lateral {
+  position: absolute;
+  top: 2.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.45));
+  animation: girar 9s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+
+@media (max-width: 760px) {
+  .pelota-lateral {
+    display: none;
+  }
+}
