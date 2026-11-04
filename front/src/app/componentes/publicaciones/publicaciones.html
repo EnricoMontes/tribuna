@@ -45,7 +45,7 @@
 
   <aside class="lateral">
     <div class="panel bloque">
-      <span class="etiqueta-seccion">Cómo se juega</span>
+      <span class="etiqueta-seccion">¿Recién llegás?</span>
       <ol class="pasos">
         @for (paso of pasos; track paso.titulo; let i = $index) {
           <li>
@@ -57,18 +57,6 @@
           </li>
         }
       </ol>
-    </div>
-
-    <div class="panel bloque">
-      <span class="etiqueta-seccion">Reglamento de la tribuna</span>
-      <ul class="reglamento">
-        @for (regla of reglamento; track regla.texto) {
-          <li>
-            <span class="tarjeta-arbitro" [class]="regla.tarjeta"></span>
-            <p>{{ regla.texto }}</p>
-          </li>
-        }
-      </ul>
     </div>
   </aside>
 </section>

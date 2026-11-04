@@ -549,29 +549,6 @@ img {
   padding-bottom: 8.5rem;
 }
 
-/* ---------- tarjetas de árbitro (amarilla / roja) ---------- */
-
-.tarjeta-arbitro {
-  display: inline-block;
-  flex-shrink: 0;
-  width: 22px;
-  height: 30px;
-  border-radius: 3px;
-  transform: rotate(-10deg);
-  box-shadow: 0 4px 10px rgba(3, 21, 33, 0.2);
-}
-
-.tarjeta-arbitro.amarilla {
-  background: #f5c518;
-}
-
-.tarjeta-arbitro.roja {
-  background: #d93030;
-}
-
-.tarjeta-arbitro.verde {
-  background: var(--exito);
-}
 
 /* pelota apoyada en el punto del penal de arriba (lateral del login) */
 .pelota-lateral {

@@ -109,8 +109,7 @@
   padding: 1.5rem;
 }
 
-.pasos,
-.reglamento {
+.pasos {
   list-style: none;
   margin: 0.5rem 0 0;
   padding: 0;
@@ -118,15 +117,13 @@
   gap: 1rem;
 }
 
-.pasos li,
-.reglamento li {
+.pasos li {
   display: flex;
   align-items: flex-start;
   gap: 0.9rem;
 }
 
-.pasos p,
-.reglamento p {
+.pasos p {
   margin: 0;
   color: var(--texto-suave);
   font-size: 0.92rem;
@@ -145,10 +142,6 @@
   font-size: 1.4rem;
   color: var(--blanco);
   background: linear-gradient(90deg, var(--azul) 0 33%, var(--azul-oscuro) 33% 66%, var(--azul) 66%);
-}
-
-.reglamento li {
-  align-items: center;
 }
 
 @keyframes pique {

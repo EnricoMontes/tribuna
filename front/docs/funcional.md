@@ -10,7 +10,7 @@ publicar opiniones y fotos de cancha, dar "me gusta" y comentar. El diseño tien
 azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el pie. También tiene:
 - un **escudo** propio como logo y favicon;
 - líneas de cancha reglamentarias en las cabeceras;
-- un tablero de estadio y la cancha vacía en Publicaciones, con el reglamento de la tribuna (tarjetas verde, amarilla y roja);
+- un tablero de estadio y la cancha vacía en Publicaciones;
 - un **carnet de socio** que se completa en vivo en el registro;
 - la camiseta con el 12 en Mi perfil;
 - la tarjeta roja en los errores y el banderín del línea en el 404 ("Fuera de juego").

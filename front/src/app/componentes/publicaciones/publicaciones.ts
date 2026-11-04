@@ -19,15 +19,9 @@ export class Publicaciones {
   ];
 
   readonly pasos = [
-    { titulo: 'Armá tu camiseta', texto: 'Creá tu cuenta con foto y contá de qué cuadro sos.' },
-    { titulo: 'Salí a la cancha', texto: 'Publicá tu opinión del partido con una foto.' },
-    { titulo: 'Hacé ruido', texto: 'Dale me gusta y comentá lo que dice la hinchada.' },
-  ];
-
-  readonly reglamento = [
-    { tarjeta: 'verde', texto: 'Fair play: se discute el partido, no a las personas.' },
-    { tarjeta: 'amarilla', texto: 'Subí fotos propias o con permiso de quien sale.' },
-    { tarjeta: 'roja', texto: 'Insultos o discriminación: expulsión directa.' },
+    { titulo: 'Hacete la cuenta', texto: 'Poné una foto y contá de qué cuadro sos.' },
+    { titulo: 'Subí lo tuyo', texto: 'Lo que pensaste del partido, la foto desde la popular, lo que pinte.' },
+    { titulo: 'Metete en la charla', texto: 'Dale me gusta a lo que te cierra y comentá.' },
   ];
 
   constructor(public auth: Auth) {}
