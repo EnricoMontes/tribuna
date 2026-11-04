@@ -1,6 +1,6 @@
 <header class="cabecera-pagina" [class.con-solapa]="auth.logueado()">
   <div class="interior">
-    <span class="etiqueta-seccion">Tu camiseta</span>
+    <span class="etiqueta-seccion">Tu ficha</span>
     <h1>Mi perfil</h1>
   </div>
 </header>
@@ -23,19 +23,23 @@
         <span class="etiqueta" [class.destacada]="usuario.perfil === 'administrador'">
           {{ usuario.perfil }}
         </span>
-        <!-- La camiseta con el apellido y el 12, el número de la hinchada -->
-        <svg class="camiseta" viewBox="0 0 100 100" role="img" [attr.aria-label]="'Camiseta de ' + usuario.apellido">
-          <defs>
-            <pattern id="bastones" width="20" height="100" patternUnits="userSpaceOnUse">
-              <rect width="10" height="100" fill="#1f5bd8" />
-              <rect x="10" width="10" height="100" fill="#1747ad" />
-            </pattern>
-          </defs>
-          <path d="M30 8 18 12 4 27l11 13 8-6v58h54V34l8 6 11-13-14-15-12-4c-5 9-35 9-40 0Z"
-                fill="url(#bastones)" stroke="#031521" stroke-width="2" stroke-linejoin="round" />
-          <text x="50" y="45" text-anchor="middle" class="camiseta-apellido">{{ usuario.apellido }}</text>
-          <text x="50" y="82" text-anchor="middle" class="camiseta-numero">12</text>
-        </svg>
+        <!-- Cuadro y número del hincha (solo si los cargó en el registro) -->
+        @if (usuario.cuadro || usuario.numeroCamiseta) {
+          <div class="hincha">
+            @if (usuario.cuadro; as cuadro) {
+              <img [src]="cuadro.escudo" alt="Escudo de {{ cuadro.nombre }}" width="52" height="52">
+            }
+            <div class="hincha-textos">
+              @if (usuario.cuadro; as cuadro) {
+                <span class="hincha-de">Hincha de</span>
+                <strong>{{ cuadro.nombre }}</strong>
+              }
+            </div>
+            @if (usuario.numeroCamiseta) {
+              <span class="numero">{{ usuario.numeroCamiseta }}</span>
+            }
+          </div>
+        }
       </div>
 
       <p class="descripcion">

@@ -11,6 +11,8 @@ export interface Usuario {
   descripcion: string;
   fotoPerfil: string | null;
   perfil: Perfil;
+  cuadro: { id: string; nombre: string; escudo: string } | null;
+  numeroCamiseta: number | null;
   createdAt: string;
   updatedAt: string;
 }

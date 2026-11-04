@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { ArchivosService } from '../archivos/archivos.service.js';
+import { CuadrosService } from '../cuadros/cuadros.service.js';
 import { UsuariosService } from '../usuarios/usuarios.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegistroDto } from './dto/registro.dto.js';
@@ -18,6 +19,7 @@ export class AuthService {
   constructor(
     private readonly usuariosService: UsuariosService,
     private readonly archivosService: ArchivosService,
+    private readonly cuadrosService: CuadrosService,
   ) {}
 
   async registro(datos: RegistroDto, foto?: Express.Multer.File) {
@@ -32,6 +34,13 @@ export class AuthService {
       throw new ConflictException('Ese nombre de usuario ya está en uso');
     }
 
+    // El cuadro es opcional, pero si viene tiene que existir en la lista -> si no, 400
+    const { cuadroId, ...resto } = datos;
+    const cuadro = cuadroId ? await this.cuadrosService.buscar(cuadroId) : null;
+    if (cuadroId && !cuadro) {
+      throw new BadRequestException('El cuadro elegido no existe');
+    }
+
     // 3) Recién ahora subimos la foto (así no quedan imágenes huérfanas si los datos estaban mal)
     const fotoPerfil = foto
       ? await this.archivosService.subirImagen(foto, 'perfiles')
@@ -42,8 +51,10 @@ export class AuthService {
 
     try {
       const usuario = await this.usuariosService.crear({
-        ...datos,
+        ...resto,
         descripcion: datos.descripcion ?? '',
+        cuadro,
+        numeroCamiseta: datos.numeroCamiseta ?? null,
         fechaNacimiento: new Date(datos.fechaNacimiento),
         password,
         fotoPerfil,

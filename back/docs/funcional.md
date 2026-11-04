@@ -24,6 +24,8 @@ El hincha manda sus datos:
 | Fecha de nacimiento | Obligatoria, no puede ser futura, hay que tener **13 años o más** |
 | Descripción breve | Opcional, hasta 200 caracteres |
 | Foto de perfil | Opcional: JPG, PNG o WEBP de hasta 2 MB |
+| Cuadro del que es hincha | Opcional. Tiene que ser uno de la lista de la Liga Profesional o de la Primera Nacional |
+| Número de camiseta | Opcional, un número entero del 1 al 99 |
 
 - Toda cuenta nueva tiene el perfil **"usuario"**. Nadie puede registrarse como "administrador": ese perfil solo lo asigna la administración.
 - Correo y nombre de usuario no distinguen mayúsculas: `Juan@Mail.com` y `juan@mail.com` son la misma cuenta.
@@ -35,7 +37,13 @@ El hincha manda sus datos:
 - Si los datos son correctos, devuelve todos los datos de la cuenta, **nunca la contraseña**.
 - Si el usuario no existe o la contraseña está mal, el mensaje es el mismo, *"Usuario o contraseña incorrectos"*, para no darle pistas a nadie que quiera adivinar cuentas.
 
-### 3. Consultar si un correo o usuario está libre
+### 3. Lista de cuadros
+
+La app pide la lista de cuadros para que el hincha elija el suyo. La lista, con el escudo de cada uno, se arma con los datos
+de [promiedos.com.ar](https://www.promiedos.com.ar) (Liga Profesional y Primera Nacional). Si ese sitio no responde, se usa
+una copia guardada, así que el registro siempre funciona.
+
+### 4. Consultar si un correo o usuario está libre
 
 Mientras alguien completa el registro, la app pregunta si el correo o el nombre de usuario ya existen,
 para avisarle antes de enviar el formulario.

@@ -36,6 +36,18 @@ export class Usuario {
   @Prop({ type: String, default: null })
   fotoPerfil: string | null;
 
+  // Cuadro del que es hincha (opcional). Se guarda una copia de id, nombre y escudo
+  // para no depender de la API de promiedos cada vez que se muestra un perfil.
+  @Prop({
+    type: { id: String, nombre: String, escudo: String, _id: false },
+    default: null,
+  })
+  cuadro?: { id: string; nombre: string; escudo: string } | null;
+
+  // Número de camiseta (opcional, 1 a 99)
+  @Prop({ type: Number, min: 1, max: 99, default: null })
+  numeroCamiseta?: number | null;
+
   // Por defecto "usuario". Un "administrador" se asigna desde la base (y en el sprint 4 desde el dashboard)
   @Prop({ type: String, enum: PERFILES, default: 'usuario' })
   perfil: Perfil;

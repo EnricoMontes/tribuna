@@ -1,12 +1,16 @@
 import {
   IsDateString,
   IsEmail,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   Matches,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 // Mismas reglas que el formulario de Angular: el front valida para dar feedback rápido,
 // el back vuelve a validar porque cualquiera puede llamar a la API sin pasar por el front.
@@ -25,7 +29,10 @@ export class RegistroDto {
   apellido: string;
 
   // require_tld: exige la extensión después del dominio ("hincha@gmail" → 400; "hincha@gmail.com" → OK)
-  @IsEmail({ require_tld: true }, { message: 'El correo no tiene un formato válido' })
+  @IsEmail(
+    { require_tld: true },
+    { message: 'El correo no tiene un formato válido' },
+  )
   correo: string;
 
   @Matches(REGEX_NOMBRE_USUARIO, {
@@ -49,4 +56,17 @@ export class RegistroDto {
     message: 'La descripción no puede superar los 200 caracteres',
   })
   descripcion?: string;
+
+  // Id del cuadro en promiedos (opcional). Que exista lo valida AuthService contra CuadrosService.
+  @IsOptional()
+  @IsString({ message: 'El cuadro no es válido' })
+  cuadroId?: string;
+
+  // Llega como texto (multipart/form-data): @Type lo convierte a número antes de validar
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'El número de camiseta tiene que ser un número entero' })
+  @Min(1, { message: 'El número de camiseta va del 1 al 99' })
+  @Max(99, { message: 'El número de camiseta va del 1 al 99' })
+  numeroCamiseta?: number;
 }

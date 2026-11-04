@@ -1,7 +1,10 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Cuadro } from '../../modelos/cuadro';
 import { Auth } from '../../servicios/auth';
+import { Cuadros } from '../../servicios/cuadros';
 import { Modal } from '../../servicios/modal';
 import { Usuarios } from '../../servicios/usuarios';
 import { mensajeDeError } from '../../utilidades/errores';
@@ -29,6 +32,10 @@ export class Registro implements OnDestroy {
   private auth = inject(Auth);
   private modal = inject(Modal);
   private router = inject(Router);
+
+  // toSignal: convierte el observable de la lista de cuadros en un signal para usarlo en el template
+  // (arranca vacío y se llena cuando responde el back)
+  readonly categorias = toSignal(inject(Cuadros).listar(), { initialValue: [] });
 
   readonly edadMinima = EDAD_MINIMA;
   readonly anio = new Date().getFullYear();
@@ -70,6 +77,11 @@ export class Registro implements OnDestroy {
         nonNullable: true,
         validators: [Validators.maxLength(200)],
       }),
+      // Opcionales: el cuadro del que es hincha y su número de camiseta
+      cuadroId: new FormControl('', { nonNullable: true }),
+      numeroCamiseta: new FormControl<number | null>(null, {
+        validators: [Validators.min(1), Validators.max(99), Validators.pattern(/^\d+$/)],
+      }),
     },
     // Validador del grupo: las dos contraseñas tienen que ser iguales
     { validators: [clavesCoincidenValidator('password', 'repetirPassword')] },
@@ -82,6 +94,14 @@ export class Registro implements OnDestroy {
 
   cargando = signal(false);
   verPassword = signal(false);
+
+  /** El cuadro elegido en el select (para mostrar su escudo al lado y en el carnet) */
+  cuadroElegido(): Cuadro | undefined {
+    const id = this.formRegistro.controls.cuadroId.value;
+    return this.categorias()
+      .flatMap((categoria) => categoria.cuadros)
+      .find((cuadro) => cuadro.id === id);
+  }
 
   /** Iniciales para el carnet de socio mientras no haya foto */
   inicialesCarnet(): string {
@@ -148,7 +168,12 @@ export class Registro implements OnDestroy {
     // multipart/form-data: así viajan juntos los datos y el archivo. repetirPassword no se manda.
     const { repetirPassword, ...datos } = this.formRegistro.getRawValue();
     const formData = new FormData();
-    Object.entries(datos).forEach(([campo, valor]) => formData.append(campo, valor));
+    // Los campos opcionales vacíos no se mandan (el back los guarda como null)
+    Object.entries(datos).forEach(([campo, valor]) => {
+      if (valor !== null && valor !== '') {
+        formData.append(campo, String(valor));
+      }
+    });
     const foto = this.foto();
     if (foto) {
       formData.append('fotoPerfil', foto);

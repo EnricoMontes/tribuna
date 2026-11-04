@@ -28,10 +28,17 @@
             <strong>{{ datos.nombre.value || 'Tu nombre' }} {{ datos.apellido.value }}</strong>
             <span>&#64;{{ datos.nombreUsuario.value || 'hincha' }}</span>
           </div>
-          <span class="carnet-numero">12</span>
+          <span class="carnet-numero">{{ datos.numeroCamiseta.valid && datos.numeroCamiseta.value ? datos.numeroCamiseta.value : 12 }}</span>
         </div>
         <div class="carnet-pie">
-          <span>Socio hincha · Platea Tribuna</span>
+          @if (cuadroElegido(); as cuadro) {
+            <span class="carnet-cuadro">
+              <img [src]="cuadro.escudo" alt="" width="20" height="20">
+              {{ cuadro.nombre }}
+            </span>
+          } @else {
+            <span>Socio hincha · Platea Tribuna</span>
+          }
           <span class="codigo"></span>
         </div>
       </div>
@@ -40,7 +47,7 @@
     <div class="acceso-form">
       <span class="etiqueta-seccion">Nueva cuenta</span>
       <h1>Crear cuenta</h1>
-      <p class="subtitulo">Todos los campos son obligatorios, salvo la foto y la descripción.</p>
+      <p class="subtitulo">Todos los campos son obligatorios, salvo la foto, la descripción, el cuadro y el número.</p>
 
       <form class="form" [formGroup]="formRegistro" (ngSubmit)="registrarse()" novalidate>
         <!-- Foto de perfil -->
@@ -167,6 +174,36 @@
               @else if (fecha.hasError('menorDeEdad')) { Tenés que tener al menos {{ edadMinima }} años }
             </p>
           }
+        </div>
+
+        <!-- Opcionales: de qué cuadro sos y qué número usás -->
+        <div class="fila fila-cuadro">
+          <div class="campo">
+            <label for="cuadroId">¿De qué cuadro sos? <span class="opcional">(opcional)</span></label>
+            <div class="con-escudo">
+              @if (cuadroElegido(); as cuadro) {
+                <img class="escudo" [src]="cuadro.escudo" alt="Escudo de {{ cuadro.nombre }}" width="36" height="36">
+              }
+              <select id="cuadroId" formControlName="cuadroId">
+                <option value="">Ninguno / prefiero no decir</option>
+                @for (categoria of categorias(); track categoria.nombre) {
+                  <optgroup [label]="categoria.nombre">
+                    @for (cuadro of categoria.cuadros; track cuadro.id) {
+                      <option [value]="cuadro.id">{{ cuadro.nombre }}</option>
+                    }
+                  </optgroup>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="campo campo-numero" [class.invalido]="mostrarError('numeroCamiseta')">
+            <label for="numeroCamiseta">N.º de camiseta <span class="opcional">(opcional)</span></label>
+            <input id="numeroCamiseta" type="number" formControlName="numeroCamiseta" min="1" max="99" placeholder="12">
+            @if (mostrarError('numeroCamiseta')) {
+              <p class="error">Tiene que ser un número entero del 1 al 99</p>
+            }
+          </div>
         </div>
 
         <div class="campo" [class.invalido]="mostrarError('descripcion')">

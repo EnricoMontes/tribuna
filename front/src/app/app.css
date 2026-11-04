@@ -35,13 +35,12 @@ main {
   white-space: nowrap;
 }
 
-/* pelotita blanca entre frase y frase */
+/* pelota entre frase y frase (la misma del escudo) */
 .cinta span::after {
   content: '';
   width: 24px;
   height: 24px;
-  background: var(--blanco);
-  mask: var(--icono-pelota) center / contain no-repeat;
+  background: url('/pelota.svg') center / contain no-repeat;
 }
 
 /* la pista tiene la lista dos veces: al correrse la mitad, vuelve a empezar sin que se note */

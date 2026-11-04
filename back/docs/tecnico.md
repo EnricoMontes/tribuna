@@ -46,9 +46,10 @@ Si algo falla, el service tira una excepción de Nest (`ConflictException`, `Una
 | Método | Ruta | Body | Respuestas |
 |---|---|---|---|
 | `GET` | `/` | — | `200` `{ estado: 'ok', api: 'Tribuna' }` |
-| `POST` | `/auth/registro` | `multipart/form-data`: `nombre`, `apellido`, `correo`, `nombreUsuario`, `password`, `fechaNacimiento` (yyyy-mm-dd), `descripcion?`, archivo `fotoPerfil?` | `201` usuario · `400` · `409` · `413` |
+| `POST` | `/auth/registro` | `multipart/form-data`: `nombre`, `apellido`, `correo`, `nombreUsuario`, `password`, `fechaNacimiento` (yyyy-mm-dd), `descripcion?`, `cuadroId?` (id de promiedos), `numeroCamiseta?` (1 a 99), archivo `fotoPerfil?` | `201` usuario · `400` · `409` · `413` |
 | `POST` | `/auth/login` | JSON `{ identificador, password }` (identificador = correo **o** usuario) | `200` usuario · `400` · `401` |
 | `GET` | `/usuarios/disponibilidad?campo=correo\|nombreUsuario&valor=...` | — | `200` `{ disponible }` · `400` |
+| `GET` | `/cuadros` | — | `200` `[{ nombre: 'Liga Profesional' \| 'Primera Nacional', cuadros: [{ id, nombre, escudo }] }]` |
 
 Hay una colección de Postman con todos los casos en [`postman/Tribuna.postman_collection.json`](../postman/Tribuna.postman_collection.json).
 
@@ -63,6 +64,8 @@ Hay una colección de Postman con todos los casos en [`postman/Tribuna.postman_c
 | `fechaNacimiento` | Date | `required` |
 | `descripcion` | String | Default `''` |
 | `fotoPerfil` | String \| null | URL de Cloudinary |
+| `cuadro` | `{ id, nombre, escudo }` \| null | Opcional. Copia del cuadro elegido (así el perfil no depende de promiedos) |
+| `numeroCamiseta` | Number \| null | Opcional, de 1 a 99 |
 | `perfil` | `'usuario'` \| `'administrador'` | `enum`, default `'usuario'` |
 | `createdAt`, `updatedAt` | Date | `timestamps: true` |
 
@@ -111,6 +114,15 @@ src/
   - Las credenciales están en `.env`, que está en el `.gitignore`; ver `.env.example`.
   - `MongooseModule.forRootAsync` espera a que `ConfigService` haya cargado el `.env` antes de conectar.
 - **CORS.** El front vive en otro dominio (Vercel). Sin `enableCors`, el navegador bloquea las respuestas.
+
+### Cuadros desde la API de promiedos (`cuadros/`)
+- `CuadrosService` consulta `https://api.promiedos.com.ar/league/tables_and_fixtures/{liga}` para la Liga Profesional (`hc`) y la Primera Nacional (`ebj`). Esa API no es pública: pide el header `X-VER` (la versión de su web).
+- Un equipo aparece en varias tablas (Apertura, Clausura y grupos): se usa un `Map` por id para sacar los repetidos.
+- **Caché en memoria de 24 h**: la lista casi no cambia, así que no se consulta en cada registro.
+- **Respaldo:** si promiedos no responde (timeout de 5 s o error), se usa `cuadros.respaldo.ts`, una copia de la lista. El registro nunca se rompe por un servicio externo.
+- El escudo es la URL `https://api.promiedos.com.ar/images/team/{id}/3`.
+- En el registro, `AuthService` valida el `cuadroId` contra esa lista (si no existe → **400**) y guarda una copia de `{ id, nombre, escudo }` en el usuario.
+- `numeroCamiseta` llega como texto (multipart): `@Type(() => Number)` de class-transformer lo convierte y `@IsInt`, `@Min(1)` y `@Max(99)` lo validan.
 
 ## Variables de entorno
 

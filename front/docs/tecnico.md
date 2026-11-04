@@ -69,6 +69,12 @@ src/app/
 
 Validar en el front da feedback inmediato. El back **vuelve a validar todo**, porque cualquiera puede llamar a la API sin pasar por el front (por ejemplo, con Postman).
 
+### Lista de cuadros (servicio `Cuadros`)
+- Pide `GET /cuadros` al back (el back la arma con la API de promiedos, la cachea y tiene respaldo).
+- `shareReplay(1)`: la primera vez hace la petición y después reutiliza la respuesta.
+- `catchError` devuelve `[]`: como el cuadro es opcional, si falla el registro sigue andando.
+- En el registro se usa `toSignal(...)` para pasar el observable a un signal. El `<select>` usa `<optgroup>` para separar Liga Profesional y Primera Nacional.
+
 ### HttpClient y Observables
 - Los servicios devuelven `Observable`. La petición sale recién cuando el componente hace `subscribe({ next, error })` (patrón **Observer**).
 - `tap` guarda la sesión sin modificar la respuesta. `map` transforma la respuesta (por ejemplo, `{ disponible }` → `boolean`).

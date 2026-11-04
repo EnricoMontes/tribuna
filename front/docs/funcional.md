@@ -12,7 +12,7 @@ azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el 
 - líneas de cancha reglamentarias en las cabeceras;
 - un tablero de estadio y la cancha vacía en Publicaciones;
 - un **carnet de socio** que se completa en vivo en el registro;
-- la camiseta con el 12 en Mi perfil;
+- en Mi perfil, el escudo del cuadro, "Hincha de ..." y el número de camiseta (si los cargó);
 - la tarjeta roja en los errores y el banderín del línea en el 404 ("Fuera de juego").
 
 ## Pantallas (Sprint 1)
@@ -38,6 +38,8 @@ azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el 
 | Correo | Obligatorio, formato completo `usuario@dominio.ext` (`hincha@gmail` **no** es válido) y **que no esté registrado** | El formato se marca mientras escribís, apenas ponés el `@`; si ya existe también se avisa |
 | Nombre de usuario | 3 a 20 caracteres (letras, números, `_` o `.`) y **que no esté registrado** | Se avisa mientras escribís si ya existe |
 | Contraseña | **8+ caracteres, una mayúscula y un número** | Checklist en vivo que marca cada regla cumplida |
+| Cuadro (opcional) | Se elige de una lista dividida en **Liga Profesional** y **Primera Nacional** | Al elegirlo aparece su escudo al lado y en el carnet de socio |
+| N.º de camiseta (opcional) | Número entero del 1 al 99 | "Tiene que ser un número entero del 1 al 99". Se ve en el carnet (si no hay, muestra el 12) |
 | Repetir contraseña | Igual a la contraseña | "Las contraseñas no coinciden" |
 | Fecha de nacimiento | No futura, **13 años o más** | Mensaje según el caso |
 | Descripción | Opcional, hasta 200 caracteres | Contador de caracteres |

@@ -27,7 +27,6 @@
   --fuente-texto: 'Manrope', system-ui, sans-serif;
 
   /* íconos dibujados en SVG para usar como máscara o fondo */
-  --icono-pelota: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22Zm0 5.2 3.9 2.8-1.5 4.6H9.6L8.1 9 12 6.2Z'/%3E%3C/svg%3E");
   --icono-flecha: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
   /* líneas reglamentarias de una cancha (105 x 68 m), horizontal y vertical, en blanco */
   --cancha-horizontal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1050 680' fill='none' stroke='white' stroke-width='3'%3E%3Crect x='5' y='5' width='1040' height='670'/%3E%3Cpath d='M525 5v670'/%3E%3Ccircle cx='525' cy='340' r='91.5'/%3E%3Cpath d='M5 138.4h165v403.2H5M5 248.4h55v183.2H5M1045 138.4H880v403.2h165M1045 248.4h-55v183.2h55'/%3E%3Cpath d='M170 270.9a91.5 91.5 0 0 1 0 138.2M880 270.9a91.5 91.5 0 0 0 0 138.2'/%3E%3Cg fill='white' stroke='none'%3E%3Ccircle cx='525' cy='340' r='5'/%3E%3Ccircle cx='110' cy='340' r='4'/%3E%3Ccircle cx='940' cy='340' r='4'/%3E%3C/g%3E%3C/svg%3E");
@@ -104,12 +103,12 @@ img {
   margin: 0 0 1.5rem;
 }
 
-/* ---------- etiqueta de sección: pelotita azul + texto en mayúsculas ---------- */
+/* ---------- etiqueta de sección: rayita azul + texto en mayúsculas (como el lema del logo) ---------- */
 
 .etiqueta-seccion {
   position: relative;
   display: inline-block;
-  padding-left: 30px;
+  padding-left: 34px;
   margin-bottom: 0.75rem;
   font-family: var(--fuente-titulos);
   font-size: 1.15rem;
@@ -123,11 +122,11 @@ img {
   position: absolute;
   left: 0;
   top: 50%;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 3px;
+  border-radius: 3px;
   transform: translateY(-50%);
   background: var(--azul);
-  mask: var(--icono-pelota) center / contain no-repeat;
 }
 
 /* ---------- cabecera de página (banda azul noche con el título) ---------- */
@@ -208,6 +207,7 @@ img {
 }
 
 .campo input,
+.campo select,
 .campo textarea {
   width: 100%;
   font: inherit;
@@ -225,6 +225,7 @@ img {
 }
 
 .campo input:focus,
+.campo select:focus,
 .campo textarea:focus {
   outline: none;
   background: var(--blanco);

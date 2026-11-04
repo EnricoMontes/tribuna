@@ -117,6 +117,312 @@
           }
         },
         {
+          "name": "201 - Registro con cuadro y número",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Guarda el cuadro con nombre y escudo\", () => {",
+                  "  const { cuadro } = pm.response.json();",
+                  "  pm.expect(cuadro.id).to.eql(\"igg\");",
+                  "  pm.expect(cuadro.nombre).to.eql(\"Boca Juniors\");",
+                  "  pm.expect(cuadro.escudo).to.include(\"/images/team/igg/\");",
+                  "});",
+                  "pm.test(\"Guarda el número como número\", () => pm.expect(pm.response.json().numeroCamiseta).to.eql(10));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "cuadroId",
+                  "value": "igg",
+                  "type": "text"
+                },
+                {
+                  "key": "numeroCamiseta",
+                  "value": "10",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Campos opcionales: cuadroId (id de promiedos, sale de GET /cuadros) y numeroCamiseta (1 a 99). El back valida que el cuadro exista y guarda una copia de su nombre y escudo."
+          }
+        },
+        {
+          "name": "400 - Cuadro inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.eql(\"El cuadro elegido no existe\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "cuadroId",
+                  "value": "no-existe",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Si el id del cuadro no está en la lista de GET /cuadros, AuthService responde 400."
+          }
+        },
+        {
+          "name": "400 - Número de camiseta fuera de rango",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje del DTO\", () => pm.expect(pm.response.json().message).to.include(\"El número de camiseta va del 1 al 99\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "numeroCamiseta",
+                  "value": "120",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "@Type(() => Number) convierte el texto del form a número y @Min(1) / @Max(99) lo validan."
+          }
+        },
+        {
+          "name": "400 - Correo sin extensión (hincha@gmail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje del DTO\", () => pm.expect(pm.response.json().message).to.include(\"El correo no tiene un formato válido\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}@gmail",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "@IsEmail({ require_tld: true }): después del dominio tiene que haber una extensión (.com, .ar...)."
+          }
+        },
+        {
           "name": "201 - Registro con foto (elegir archivo)",
           "event": [
             {
@@ -1066,6 +1372,45 @@
               ]
             },
             "description": "DisponibilidadDto: campo debe ser \"correo\" o \"nombreUsuario\" (@IsIn)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cuadros",
+      "item": [
+        {
+          "name": "200 - Listado de cuadros (desde promiedos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const categorias = pm.response.json();",
+                  "pm.test(\"Dos categorías\", () => pm.expect(categorias.map(c => c.nombre)).to.eql([\"Liga Profesional\", \"Primera Nacional\"]));",
+                  "pm.test(\"Cada cuadro trae id, nombre y escudo\", () => {",
+                  "  const cuadro = categorias[0].cuadros[0];",
+                  "  pm.expect(cuadro).to.have.all.keys(\"id\", \"nombre\", \"escudo\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cuadros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuadros"
+              ]
+            },
+            "description": "El back consulta la API de promiedos (header X-VER), saca los repetidos y cachea 24 h. Si promiedos no responde, usa la lista de respaldo (cuadros.respaldo.ts)."
           }
         }
       ]

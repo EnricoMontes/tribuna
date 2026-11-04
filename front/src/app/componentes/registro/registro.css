@@ -182,3 +182,43 @@
     transform: none;
   }
 }
+
+/* ---------- cuadro y número (opcionales) ---------- */
+
+.fila-cuadro {
+  grid-template-columns: minmax(0, 1fr) 190px;
+}
+
+.opcional {
+  font-weight: 500;
+  color: var(--texto-tenue);
+}
+
+.con-escudo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.escudo {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.carnet-cuadro {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--texto);
+}
+
+.carnet-cuadro img {
+  object-fit: contain;
+}
+
+@media (max-width: 520px) {
+  .fila-cuadro {
+    grid-template-columns: 1fr;
+  }
+}
