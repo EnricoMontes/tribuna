@@ -1,0 +1,19 @@
+# compilado
+/dist
+/node_modules
+/coverage
+
+# variables de entorno (tienen credenciales: NUNCA se suben)
+.env
+.env.*
+!.env.example
+
+# logs / sistema
+*.log
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+*.tsbuildinfo

@@ -1,0 +1,1074 @@
+{
+  "info": {
+    "name": "Tribuna API - Sprint 1",
+    "description": "Pruebas del back de Tribuna (NestJS + MongoDB Atlas + Cloudinary).\n\nVariable baseUrl: producción (Render) por defecto. Para probar en local cambiá su valor a http://localhost:3000 (está guardado en localUrl).\nEl primer pedido a Render puede tardar ~50 s porque el plan gratis se duerme.\n\nLos registros \"201\" usan {{$timestamp}} para generar correo y usuario únicos en cada ejecución.\nUsuarios de prueba: hincha_demo / Tribuna123 (usuario) y enrico_admin / Admin123 (administrador).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://tribuna-back-zeyk.onrender.com"
+    },
+    {
+      "key": "localUrl",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Estado de la API",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [],
+          "query": []
+        },
+        "description": "Chequeo rápido: responde {estado:\"ok\", api:\"Tribuna\"}. Sirve para despertar Render antes de la defensa."
+      }
+    },
+    {
+      "name": "Auth - Registro",
+      "item": [
+        {
+          "name": "201 - Registro sin foto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));",
+                  "pm.test(\"Perfil por defecto: usuario\", () => pm.expect(pm.response.json().perfil).to.eql(\"usuario\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Alta correcta. Devuelve el usuario creado con perfil \"usuario\" y sin la contraseña."
+          }
+        },
+        {
+          "name": "201 - Registro con foto (elegir archivo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));",
+                  "pm.test(\"Guarda la URL de Cloudinary\", () => pm.expect(pm.response.json().fotoPerfil).to.include(\"res.cloudinary.com\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hinchaf{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hinchaf{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "fotoPerfil",
+                  "type": "file",
+                  "src": [],
+                  "description": "Elegí un JPG/PNG/WEBP de hasta 2 MB"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Antes de enviar: en Body > form-data, en la fila fotoPerfil tocá \"Select Files\" y elegí una imagen.\nMulter (FileInterceptor + memoryStorage) la recibe, se sube a Cloudinary con upload_stream y en Mongo se guarda solo la URL."
+          }
+        },
+        {
+          "name": "409 - Correo ya registrado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "demo@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hinchar{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "El correo demo@tribuna.com ya existe -> 409 Conflict (los datos son válidos pero chocan con uno existente)."
+          }
+        },
+        {
+          "name": "409 - Nombre de usuario ya registrado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hinchau{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha_demo",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "El nombre de usuario hincha_demo ya existe -> 409 Conflict."
+          }
+        },
+        {
+          "name": "400 - Datos inválidos (DTO)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Trae los mensajes de validación\", () => pm.expect(pm.response.json().message).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "X",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "no-es-un-correo",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "a",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "corta",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "ayer",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "class-validator + ValidationPipe global: devuelve 400 con un mensaje por campo (stopAtFirstError)."
+          }
+        },
+        {
+          "name": "400 - Contraseña sin mayúscula",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hinchap{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hinchap{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "admin123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Regla del TP: mínimo 8 caracteres, una mayúscula y un número (@Matches con regex)."
+          }
+        },
+        {
+          "name": "400 - Intentar registrarse como administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hinchaa{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hinchaa{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "perfil",
+                  "value": "administrador",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "whitelist + forbidNonWhitelisted: \"perfil\" no está en el DTO, así que nadie puede autoasignarse administrador."
+          }
+        },
+        {
+          "name": "400 - Menor de 13 años",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincham{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincham{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2020-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Regla de negocio en AuthService.validarFechaNacimiento (el DTO solo valida que sea una fecha)."
+          }
+        },
+        {
+          "name": "400 - Fecha de nacimiento futura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hinchan{{$timestamp}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hinchan{{$timestamp}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2099-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "La fecha de nacimiento no puede ser futura."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth - Login",
+      "item": [
+        {
+          "name": "200 - Login con nombre de usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"hincha_demo\",\n  \"password\": \"Tribuna123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "bcrypt.compare hashea la contraseña recibida con el salt guardado y compara. Devuelve todos los datos del usuario (sin la contraseña). Es 200 y no 201 porque no crea nada."
+          }
+        },
+        {
+          "name": "200 - Login con correo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"demo@tribuna.com\",\n  \"password\": \"Tribuna123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "El identificador puede ser el correo o el nombre de usuario (los dos son únicos)."
+          }
+        },
+        {
+          "name": "200 - Login administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json()).to.not.have.property(\"password\"));",
+                  "pm.test(\"Es administrador\", () => pm.expect(pm.response.json().perfil).to.eql(\"administrador\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"enrico_admin\",\n  \"password\": \"Admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Usuario con perfil \"administrador\" (asignado desde la base, no desde el registro)."
+          }
+        },
+        {
+          "name": "401 - Contraseña incorrecta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"hincha_demo\",\n  \"password\": \"Incorrecta1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Mismo mensaje para \"no existe\" y \"contraseña incorrecta\": no le da pistas a un atacante."
+          }
+        },
+        {
+          "name": "401 - Usuario inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"no_existe_nadie\",\n  \"password\": \"Tribuna123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Mismo 401 y mismo mensaje que la contraseña incorrecta."
+          }
+        },
+        {
+          "name": "400 - Body vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "LoginDto exige identificador y password."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "200 - Correo en uso (disponible: false)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"No disponible\", () => pm.expect(pm.response.json().disponible).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/disponibilidad?campo=correo&valor=demo@tribuna.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "disponibilidad"
+              ],
+              "query": [
+                {
+                  "key": "campo",
+                  "value": "correo"
+                },
+                {
+                  "key": "valor",
+                  "value": "demo@tribuna.com"
+                }
+              ]
+            },
+            "description": "La usa el validador asíncrono del registro en Angular mientras el usuario escribe."
+          }
+        },
+        {
+          "name": "200 - Nombre de usuario libre (disponible: true)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Disponible\", () => pm.expect(pm.response.json().disponible).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/disponibilidad?campo=nombreUsuario&valor=libre{{$timestamp}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "disponibilidad"
+              ],
+              "query": [
+                {
+                  "key": "campo",
+                  "value": "nombreUsuario"
+                },
+                {
+                  "key": "valor",
+                  "value": "libre{{$timestamp}}"
+                }
+              ]
+            },
+            "description": "Nombre de usuario que no existe."
+          }
+        },
+        {
+          "name": "400 - Campo inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/disponibilidad?campo=telefono&valor=x",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "disponibilidad"
+              ],
+              "query": [
+                {
+                  "key": "campo",
+                  "value": "telefono"
+                },
+                {
+                  "key": "valor",
+                  "value": "x"
+                }
+              ]
+            },
+            "description": "DisponibilidadDto: campo debe ser \"correo\" o \"nombreUsuario\" (@IsIn)."
+          }
+        }
+      ]
+    }
+  ]
+}
