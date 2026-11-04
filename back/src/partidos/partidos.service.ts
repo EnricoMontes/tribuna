@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   EquipoPromiedos,
   LIGAS,
@@ -27,7 +28,20 @@ export interface Partido {
 export class PartidosService {
   private readonly logger = new Logger(PartidosService.name);
 
-  constructor(private readonly promiedos: PromiedosService) {}
+  // promiedos devuelve el horario en la zona horaria de QUIEN PREGUNTA (lo deduce por la IP).
+  // Desde Argentina contesta en hora argentina, pero Render está en EE.UU. y le contesta en esa hora.
+  // Por eso se configura en qué zona horaria nos responde (en Render: America/New_York).
+  private readonly zonaHoraria: string;
+
+  constructor(
+    private readonly promiedos: PromiedosService,
+    config: ConfigService,
+  ) {
+    this.zonaHoraria = config.get<string>(
+      'PROMIEDOS_ZONA_HORARIA',
+      'America/Argentina/Buenos_Aires',
+    );
+  }
 
   /** Partidos de la fecha actual de cada liga (la que promiedos marca como "selected") */
   async listar(): Promise<Partido[]> {
@@ -79,9 +93,34 @@ export class PartidosService {
     };
   }
 
-  /** "05-11-2026 15:00" (hora argentina, UTC-3) -> Date */
+  /** "05-11-2026 15:00" (en la zona horaria en la que contesta promiedos) -> Date (un instante exacto) */
   private leerHorario(texto: string): Date {
-    const [dia, mes, anio, hora, minutos] = texto.split(/[-\s:]/);
-    return new Date(`${anio}-${mes}-${dia}T${hora}:${minutos}:00-03:00`);
+    const [dia, mes, anio, hora, minutos] = texto.split(/[-\s:]/).map(Number);
+    // Primero se toma la hora como si fuera UTC y después se le resta la diferencia de la zona horaria
+    const comoUtc = Date.UTC(anio, mes - 1, dia, hora, minutos);
+    return new Date(comoUtc - this.diferenciaConUtc(comoUtc));
+  }
+
+  /** Cuántos ms está la zona horaria adelantada respecto de UTC en ese momento (Argentina: -3 h) */
+  private diferenciaConUtc(instante: number): number {
+    const partes = new Intl.DateTimeFormat('en-US', {
+      timeZone: this.zonaHoraria,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).formatToParts(new Date(instante));
+    const valor = (tipo: string) =>
+      Number(partes.find((p) => p.type === tipo)?.value);
+    const enLaZona = Date.UTC(
+      valor('year'),
+      valor('month') - 1,
+      valor('day'),
+      valor('hour'),
+      valor('minute'),
+    );
+    return enLaZona - instante;
   }
 }

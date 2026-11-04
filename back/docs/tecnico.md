@@ -156,6 +156,7 @@ src/
   - **Orden por me gusta**: Mongo no ordena por el largo de un array con un `sort` simple. Por eso existe el contador `cantidadMeGusta`, que se actualiza en la misma operación que agrega o saca el me gusta.
   - **Un me gusta por usuario**: `findOneAndUpdate({ _id, meGusta: { $ne: usuario } }, { $push, $inc: +1 })` es **atómico**. Si el usuario ya estaba, no actualiza nada y responde `409`. Para quitar es al revés, con `$pull` y `$inc: -1`.
   - **Baja lógica**: `activa: false`. Primero `404` si no existe y después `403` si no es el autor ni un administrador.
+  - **Horarios:** promiedos devuelve el horario como texto (`"05-11-2026 15:00"`) en la zona horaria **de quien pregunta**, según su IP. Desde Argentina contesta en hora argentina, pero a Render (EE.UU.) le contesta en hora de allá. Por eso `PROMIEDOS_ZONA_HORARIA` dice en qué zona viene el texto, y `PartidosService` lo convierte a un instante exacto (`Date`, en UTC) con `Intl.DateTimeFormat`. El front lo muestra en la hora del navegador.
   - El **partido** se valida contra la fecha actual de promiedos y se guarda una **copia**: si la API cambia de fecha o se cae, la publicación sigue mostrando su partido.
 
 ### Cuadros desde la API de promiedos (`cuadros/`)
@@ -174,6 +175,7 @@ src/
 | `PORT` | Puerto (Render lo define solo) |
 | `MONGO_URI` | Cadena de conexión de Atlas (`.../tribuna?...`: `tribuna` es el nombre de la base) |
 | `FRONT_URL` | Orígenes permitidos por CORS, separados por coma, sin `/` final |
+| `PROMIEDOS_ZONA_HORARIA` | Opcional. Zona horaria en la que contesta promiedos, que la deduce por la IP del servidor. Por defecto es `America/Argentina/Buenos_Aires`; en Render, `America/New_York` |
 | `JWT_SECRET` | Secreto para firmar los tokens. Texto largo y aleatorio (en Render: botón "Generate") |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Credenciales de Cloudinary |
 | `DNS_SERVERS` | Opcional, solo si Atlas tira `querySrv ECONNREFUSED` |
