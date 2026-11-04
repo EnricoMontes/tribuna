@@ -6,7 +6,7 @@ reaccionan a lo que publica el resto. TP #2 de Programación IV (UTN FRA, 2026 C
 | | |
 |---|---|
 | App en producción | https://tribuna-front-iota.vercel.app |
-| API (back) | https://tribuna-back-zeyk.onrender.com · repo [`tribuna-back`](https://github.com/EnricoMontes/tribuna-back) |
+| API (back) | https://tribuna-back-zeyk.onrender.com · código en [`../back`](../back) (mismo repo) |
 | Stack | Angular 22 (standalone, zoneless, signals) · Reactive Forms · HttpClient · CSS propio |
 | Estado | **Sprint 1**: registro, login, navegación y Mi perfil |
 

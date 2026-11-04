@@ -7,7 +7,13 @@
 
 Una red social para hinchas de fútbol. Cada usuario tiene su perfil con foto y descripción, y desde el Sprint 2 va a poder
 publicar opiniones y fotos de cancha, dar "me gusta" y comentar. El diseño tiene estética de club de fútbol:
-azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el pie.
+azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el pie. También tiene:
+- un **escudo** propio como logo y favicon;
+- líneas de cancha reglamentarias en las cabeceras;
+- un tablero de estadio y la cancha vacía en Publicaciones, con el reglamento de la tribuna (tarjetas verde, amarilla y roja);
+- un **carnet de socio** que se completa en vivo en el registro;
+- la camiseta con el 12 en Mi perfil;
+- la tarjeta roja en los errores y el banderín del línea en el 404 ("Fuera de juego").
 
 ## Pantallas (Sprint 1)
 
@@ -29,7 +35,7 @@ azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el 
 | Campo | Regla | Mensaje si falla |
 |---|---|---|
 | Nombre / Apellido | Obligatorios, hasta 50 caracteres | "Ingresá tu nombre" / "Máximo 50 caracteres" |
-| Correo | Obligatorio, formato válido y **que no esté registrado** | Se avisa mientras escribís si ya existe |
+| Correo | Obligatorio, formato completo `usuario@dominio.ext` (`hincha@gmail` **no** es válido) y **que no esté registrado** | El formato se marca mientras escribís, apenas ponés el `@`; si ya existe también se avisa |
 | Nombre de usuario | 3 a 20 caracteres (letras, números, `_` o `.`) y **que no esté registrado** | Se avisa mientras escribís si ya existe |
 | Contraseña | **8+ caracteres, una mayúscula y un número** | Checklist en vivo que marca cada regla cumplida |
 | Repetir contraseña | Igual a la contraseña | "Las contraseñas no coinciden" |

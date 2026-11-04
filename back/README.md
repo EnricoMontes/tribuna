@@ -6,7 +6,7 @@ Los hinchas se registran, opinan de cada partido, suben fotos de cancha y reacci
 | | |
 |---|---|
 | API en producción | https://tribuna-back-zeyk.onrender.com |
-| App (front) | https://tribuna-front-iota.vercel.app · repo [`tribuna-front`](https://github.com/EnricoMontes/tribuna-front) |
+| App (front) | https://tribuna-front-iota.vercel.app · código en [`../front`](../front) (mismo repo) |
 | Stack | NestJS 12 · MongoDB Atlas + Mongoose 9 · bcrypt · Multer + Cloudinary · class-validator |
 | Estado | **Sprint 1**: registro y login |
 

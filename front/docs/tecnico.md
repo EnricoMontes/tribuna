@@ -61,6 +61,7 @@ src/app/
 ### Formularios reactivos y validadores propios
 | Validador | Tipo | Qué hace |
 |---|---|---|
+| `correoValidator` | De control | Exige dominio con punto y extensión de 2+ letras. Reemplaza a `Validators.email`, que acepta `hincha@gmail` porque la norma permite dominios sin punto (redes internas) |
 | `passwordFuerteValidator` | De control | 8+ caracteres, una mayúscula y un número. Devuelve **un error por regla** para el checklist en vivo |
 | `edadMinimaValidator(13)` | De control | La fecha no puede ser futura y la edad tiene que ser ≥ 13 |
 | `clavesCoincidenValidator` | **De grupo** | Va en el `FormGroup` porque compara dos campos; se recalcula si cambia cualquiera de los dos |
@@ -104,7 +105,7 @@ Validar en el front da feedback inmediato. El back **vuelve a validar todo**, po
 
 ## Deploy en Vercel
 
-1. Importar el repo en Vercel. Detecta Angular solo (con auto-deploy en cada push a `main`).
-2. Output Directory: `dist/tribuna-front/browser`.
+1. Importar el repo `tribuna` en Vercel con **Root Directory: `front`** (el repo es un monorepo). Detecta Angular solo (con auto-deploy en cada push a `main`).
+2. Output Directory: `dist/tribuna-front/browser` (relativo a `front/`).
 3. `vercel.json` reescribe todas las rutas a `index.html`, para que recargar en `/mi-perfil` no dé 404.
 4. La URL de Vercel tiene que estar en `FRONT_URL` del back (CORS).

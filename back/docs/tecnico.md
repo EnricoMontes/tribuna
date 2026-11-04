@@ -124,8 +124,9 @@ src/
 
 ## Deploy en Render
 
-1. New → **Web Service** → conectar este repo (rama `main`, con auto-deploy en cada push).
+1. New → **Web Service** → conectar el repo `tribuna` (rama `main`, con auto-deploy en cada push).
 2. Configurar el servicio:
+   - **Root Directory: `back`** (el repo es un monorepo: Render solo mira esta carpeta y solo redeploya si cambia algo acá)
    - Build: `npm install && npm run build`
    - Start: `npm run start:prod`
 3. Environment: `MONGO_URI`, `FRONT_URL`, las 3 de Cloudinary y `NODE_VERSION=24.16.0`.
