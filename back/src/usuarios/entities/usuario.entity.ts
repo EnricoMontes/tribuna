@@ -36,6 +36,10 @@ export class Usuario {
   @Prop({ type: String, default: null })
   fotoPerfil: string | null;
 
+  // Foto de portada del perfil (URL de Cloudinary). Solo se carga desde Mi perfil; null = la portada azul
+  @Prop({ type: String, default: null })
+  banner?: string | null;
+
   // Cuadro del que es hincha (opcional). Se guarda una copia de id, nombre y escudo
   // para no depender de la API de promiedos cada vez que se muestra un perfil.
   @Prop({

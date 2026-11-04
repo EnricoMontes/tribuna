@@ -1,0 +1,169 @@
+.fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(3, 21, 33, 0.7);
+  backdrop-filter: blur(3px);
+  overflow-y: auto;
+}
+
+.ventana {
+  width: min(640px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: 0 30px 80px rgba(3, 21, 33, 0.35);
+  padding: 1.5rem;
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.encabezado h2 {
+  margin: 0;
+}
+
+.cerrar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--divisor);
+  background: var(--fondo);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* ---------- banner ---------- */
+
+.banner {
+  position: relative;
+  height: 140px;
+  border-radius: var(--radio-chico);
+  background: center / cover no-repeat;
+  overflow: hidden;
+}
+
+/* sin banner: la misma portada azul del perfil */
+.banner.por-defecto {
+  background:
+    radial-gradient(circle at 50% 100%, transparent 54px, rgba(255, 255, 255, 0.35) 55px 57px, transparent 58px),
+    linear-gradient(180deg, transparent 60%, rgba(255, 255, 255, 0.35) 60% calc(60% + 2px), transparent calc(60% + 2px)),
+    repeating-linear-gradient(90deg, var(--azul) 0 60px, var(--azul-oscuro) 60px 120px);
+}
+
+.banner-acciones {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chip {
+  font: 700 0.85rem var(--fuente-texto);
+  color: var(--blanco);
+  background: rgba(3, 21, 33, 0.75);
+  border: none;
+  border-radius: 100px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: var(--noche);
+}
+
+/* ---------- foto ---------- */
+
+.foto {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin: -48px 0 0 1rem;
+  position: relative;
+}
+
+.foto .avatar {
+  width: 96px;
+  height: 96px;
+  font-size: 2.2rem;
+  border-width: 4px;
+  box-shadow: var(--sombra);
+}
+
+.foto-acciones {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.foto-acciones .boton {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.foto-acciones .ayuda {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.quitar {
+  font: 600 0.85rem var(--fuente-texto);
+  color: var(--error);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fila-cuadro {
+  grid-template-columns: minmax(0, 1fr) 150px;
+}
+
+.con-escudo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.con-escudo img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.contador {
+  text-align: right;
+}
+
+.botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 520px) {
+  .fila-cuadro {
+    grid-template-columns: 1fr;
+  }
+
+  .foto {
+    margin-left: 0;
+  }
+}

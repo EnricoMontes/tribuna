@@ -25,6 +25,48 @@
     repeating-linear-gradient(90deg, var(--azul) 0 60px, var(--azul-oscuro) 60px 120px);
 }
 
+/* con banner: la foto del usuario reemplaza a la portada azul */
+.portada.con-banner {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* lápiz para editar, arriba a la derecha de la portada */
+.editar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  color: var(--noche);
+  background: var(--blanco);
+  box-shadow: 0 6px 18px rgba(3, 21, 33, 0.25);
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, color 0.2s;
+}
+
+.editar svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.editar:hover {
+  color: var(--blanco);
+  background: var(--azul);
+  transform: rotate(-8deg);
+}
+
 .cabecera {
   display: flex;
   align-items: flex-end;

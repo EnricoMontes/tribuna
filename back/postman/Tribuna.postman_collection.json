@@ -1538,8 +1538,432 @@
             },
             "description": "DisponibilidadDto: campo debe ser \"correo\" o \"nombreUsuario\" (@IsIn)."
           }
+        },
+        {
+          "name": "401 - Editar perfil sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "descripcion",
+                  "value": "x",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/mi-perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "mi-perfil"
+              ]
+            },
+            "description": "Solo el usuario logueado puede editar SU perfil.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "200 - Editar descripción, cuadro y número",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const u = pm.response.json();",
+                  "pm.test(\"Cambió lo que se mandó\", () => { pm.expect(u.descripcion).to.eql(\"Editado desde Postman\"); pm.expect(u.cuadro.nombre).to.eql(\"Boca Juniors\"); pm.expect(u.numeroCamiseta).to.eql(10); });",
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(u).to.not.have.property(\"password\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "descripcion",
+                  "value": "Editado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "cuadroId",
+                  "value": "igg",
+                  "type": "text"
+                },
+                {
+                  "key": "numeroCamiseta",
+                  "value": "10",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/mi-perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "mi-perfil"
+              ]
+            },
+            "description": "PATCH = modificación parcial: solo cambia lo que llega. El usuario sale del token (no se manda ningún id).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Subir banner y foto de perfil (elegir archivos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Guarda el banner en Cloudinary\", () => pm.expect(pm.response.json().banner).to.include(\"res.cloudinary.com\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "banner",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "fotoPerfil",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/mi-perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "mi-perfil"
+              ]
+            },
+            "description": "FileFieldsInterceptor: pueden venir dos archivos (banner y fotoPerfil). Elegí las imágenes a mano (JPG/PNG/WEBP hasta 2 MB).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Número de camiseta fuera de rango",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje del DTO\", () => pm.expect(pm.response.json().message).to.include(\"El número de camiseta va del 1 al 99\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "numeroCamiseta",
+                  "value": "150",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/mi-perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "mi-perfil"
+              ]
+            },
+            "description": "Mismas reglas que en el registro.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Cuadro inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.eql(\"El cuadro elegido no existe\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cuadroId",
+                  "value": "no-existe",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/mi-perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "mi-perfil"
+              ]
+            },
+            "description": "El cuadro tiene que estar en GET /cuadros.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Nombre vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/mi-perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "mi-perfil"
+              ]
+            },
+            "description": "Nombre y apellido no pueden quedar vacíos.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Intentar cambiarse el perfil a administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "perfil",
+                  "value": "administrador",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/mi-perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "mi-perfil"
+              ]
+            },
+            "description": "whitelist + forbidNonWhitelisted: el DTO no tiene \"perfil\", así que cualquier campo de más da 400.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Dejar el perfil como estaba (quitar cuadro, número y banner)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const u = pm.response.json();",
+                  "pm.test(\"Se sacaron cuadro, número y banner\", () => { pm.expect(u.cuadro).to.eql(null); pm.expect(u.numeroCamiseta).to.eql(null); pm.expect(u.banner).to.eql(null); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "descripcion",
+                  "value": "Usuario de prueba",
+                  "type": "text"
+                },
+                {
+                  "key": "cuadroId",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "numeroCamiseta",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "quitarBanner",
+                  "value": "true",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/mi-perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "mi-perfil"
+              ]
+            },
+            "description": "Un texto vacío en cuadroId o numeroCamiseta los saca (null). quitarBanner=true / quitarFotoPerfil=true sacan las imágenes.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
         }
-      ]
+      ],
+      "description": "Disponibilidad (registro) y edición de Mi perfil (PATCH /usuarios/mi-perfil, con token: correr antes \"Auth - Login\")."
     },
     {
       "name": "Partidos",

@@ -48,7 +48,11 @@ una copia guardada, así que el registro siempre funciona.
 Mientras alguien completa el registro, la app pregunta si el correo o el nombre de usuario ya existen,
 para avisarle antes de enviar el formulario.
 
-### 5. Partidos y publicaciones (Sprint 2)
+### 5. Editar Mi perfil
+
+Cada hincha puede cambiar su **nombre, apellido, descripción, cuadro, número de camiseta, foto de perfil** y una **foto de portada (banner)**. El banner solo se carga desde el perfil, no en el registro; si no hay banner se ve la portada azul. También se pueden sacar la foto, el banner, el cuadro o el número. El correo, el nombre de usuario, la contraseña y la fecha de nacimiento no se cambian.
+
+### 6. Partidos y publicaciones (Sprint 2)
 
 Para todo lo que sigue hay que **haber ingresado**: el login devuelve un "pase" (token) que vence a los 15 minutos.
 

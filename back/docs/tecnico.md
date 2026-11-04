@@ -60,6 +60,7 @@ Si algo falla, el service tira una excepción de Nest (`ConflictException`, `Una
 
 | Método | Ruta | Body / query | Respuestas |
 |---|---|---|---|
+| `PATCH` | `/usuarios/mi-perfil` | `multipart/form-data`, todo opcional: `nombre`, `apellido`, `descripcion`, `cuadroId` (`''` = sacarlo), `numeroCamiseta` (`''` = sacarlo), `quitarFotoPerfil`/`quitarBanner` (`'true'`) + archivos `fotoPerfil?` y `banner?` | `200` usuario actualizado · `400` · `401` · `413` |
 | `GET` | `/partidos` | — | `200` partidos ya jugados, del más reciente al más viejo: `[{ id, liga, fecha, local, visitante, inicio, goles: { local, visitante } }]` |
 | `POST` | `/publicaciones` | `multipart/form-data`: `titulo`, `mensaje`, `partidoId` + archivo `imagen?` | `201` publicación · `400` (datos o partido inválido) · `413` |
 | `GET` | `/publicaciones` | `?orden=fecha\|meGusta&offset=0&limit=10&usuario=<id>&partido=<id>` | `200` `{ total, offset, limit, publicaciones }` · `400` |
@@ -80,6 +81,7 @@ Hay una colección de Postman con todos los casos en [`postman/Tribuna.postman_c
 | `fechaNacimiento` | Date | `required` |
 | `descripcion` | String | Default `''` |
 | `fotoPerfil` | String \| null | URL de Cloudinary |
+| `banner` | String \| null | Foto de portada (Cloudinary, carpeta `tribuna/banners`). Solo se carga desde Mi perfil |
 | `cuadro` | `{ id, nombre, escudo }` \| null | Opcional. Copia del cuadro elegido (así el perfil no depende de promiedos) |
 | `numeroCamiseta` | Number \| null | Opcional, de 1 a 99 |
 | `perfil` | `'usuario'` \| `'administrador'` | `enum`, default `'usuario'` |
@@ -151,6 +153,12 @@ src/
   - `AuthGuard` es manual, como el del profe: `extractToken` + `jwtService.verify`, y pone los datos en `request.usuario`. El decorador `@UsuarioActual()` los lee en el controller.
   - El autor de una publicación y quién da me gusta **salen del token**, nunca del body. Así nadie puede hacerse pasar por otro.
   - Quedan para el Sprint 3: `POST /auth/autorizar`, `POST /auth/refrescar`, la pantalla de carga y el modal de los 10 minutos.
+- **Editar Mi perfil** (`PATCH /usuarios/mi-perfil`).
+  - Es **PATCH** y no PUT porque es una modificación parcial: solo cambia lo que llega.
+  - El usuario sale del token (`@UsuarioActual()`), así nadie puede editar el perfil de otro.
+  - **`FileFieldsInterceptor`** (y no `FileInterceptor`) porque pueden venir **dos** archivos, `fotoPerfil` y `banner`. Usa las mismas opciones de Multer: 2 MB, JPG/PNG/WEBP.
+  - En el DTO, `@Transform` convierte `''` en `null`, así un texto vacío en `cuadroId` o `numeroCamiseta` los saca. Como no tiene `perfil`, nadie puede hacerse administrador (whitelist → `400`).
+  - Correo, nombre de usuario, contraseña y fecha de nacimiento no se editan acá.
 - **Publicaciones.**
   - **Paginación** con `skip(offset)` y `limit(limit)`. El `countDocuments` se hace en paralelo (`Promise.all`) para devolver el `total`.
   - **Orden por me gusta**: Mongo no ordena por el largo de un array con un `sort` simple. Por eso existe el contador `cantidadMeGusta`, que se actualiza en la misma operación que agrega o saca el me gusta.

@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { Usuario } from '../modelos/usuario';
 
 @Service()
 export class Usuarios {
@@ -14,5 +15,10 @@ export class Usuarios {
     return this.http
       .get<{ disponible: boolean }>(`${this.url}/disponibilidad`, { params })
       .pipe(map((respuesta) => respuesta.disponible));
+  }
+
+  /** PATCH /usuarios/mi-perfil (multipart: datos + fotoPerfil y/o banner). Devuelve el usuario actualizado. */
+  editarPerfil(datos: FormData): Observable<Usuario> {
+    return this.http.patch<Usuario>(`${this.url}/mi-perfil`, datos);
   }
 }

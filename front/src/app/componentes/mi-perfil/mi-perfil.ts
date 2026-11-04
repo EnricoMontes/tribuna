@@ -1,16 +1,30 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Usuario } from '../../modelos/usuario';
 import { Auth } from '../../servicios/auth';
+import { Modal } from '../../servicios/modal';
+import { EditarPerfil } from '../editar-perfil/editar-perfil';
 import { ListaPublicaciones } from '../lista-publicaciones/lista-publicaciones';
 
 @Component({
-  imports: [RouterLink, DatePipe, ListaPublicaciones],
+  imports: [RouterLink, DatePipe, ListaPublicaciones, EditarPerfil],
   selector: 'app-mi-perfil',
   styleUrl: './mi-perfil.css',
   templateUrl: './mi-perfil.html',
 })
 export class MiPerfil {
+  private modal = inject(Modal);
+
+  // Se abre la ventana de edición con el lápiz
+  editando = signal(false);
+
+  alGuardar(usuario: Usuario) {
+    this.auth.actualizarUsuario(usuario); // el signal cambia -> el perfil y la navbar se actualizan solos
+    this.editando.set(false);
+    this.modal.exito('Perfil actualizado', 'Tus cambios ya se ven en la tribuna.');
+  }
+
   // computed: se recalculan solos cuando cambia el signal auth.usuario()
   iniciales = computed(() => {
     const usuario = this.auth.usuario();

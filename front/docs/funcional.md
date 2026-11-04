@@ -24,7 +24,7 @@ azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el 
 | **Publicaciones** (`/publicaciones`) | Todas las publicaciones, de a 5 por página. Se ordenan por **más nuevas** (por defecto) o por **más me gusta**. Cada una muestra el autor, el texto, la foto y, **al costado, el partido** (escudos, liga y horario): al tocarlo se entra a ese partido. Al lado de la lista están los **partidos de la fecha** |
 | **Partido** (`/partidos/:id`) | El partido como un marcador (escudos, VS, día y hora) y **todas las publicaciones de ese partido**, con el mismo orden y las mismas páginas. Botón para publicar de ese partido |
 | **Publicar** (`/publicar`) | Se elige el **partido de la fecha** (Liga Profesional o Primera Nacional), se escribe un título y un mensaje, y se puede agregar una foto con vista previa |
-| **Mi perfil** (`/mi-perfil`) | Foto (o iniciales si no subió), nombre, @usuario, correo, fecha de nacimiento y edad, descripción, tipo de perfil, cuadro y número. Abajo, **mis últimas 3 publicaciones** |
+| **Mi perfil** (`/mi-perfil`) | Foto (o iniciales si no subió), nombre, @usuario, correo, fecha de nacimiento y edad, descripción, tipo de perfil, cuadro y número. Arriba, la **portada** (mi banner o la azul). Con el **lápiz** se abre una ventana para editar nombre, apellido, descripción, cuadro, número, foto y portada, con vista previa. Abajo, **mis últimas 3 publicaciones** |
 | **Fuera de juego** (404) | Si se entra a una dirección que no existe |
 
 - **Barra de navegación:** links a todas las pantallas, avatar y @usuario de quien está logueado, y botón **Salir**.

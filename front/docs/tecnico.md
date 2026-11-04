@@ -42,7 +42,8 @@ src/app/
 │   ├── tarjeta-publicacion/ UNA publicación: input() publicacion / output() meGusta y eliminar
 │   ├── partido/             /partidos/:id (el id llega como input) + lista filtrada por partido
 │   ├── publicar/            form reactivo: partido (optgroup por liga), título, mensaje, foto
-│   ├── mi-perfil/           datos + edad e iniciales (computed) + mis últimas 3 (la misma lista)
+│   ├── mi-perfil/           datos + edad e iniciales (computed) + mis últimas 3 (la misma lista) + lápiz
+│   ├── editar-perfil/       ventana de edición: input usuario / output guardado y cerrar; banner + foto con vista previa
 │   ├── pagina-error/        404 "Fuera de juego"
 │   └── modal-mensaje/       dibuja el modal; effect() le da foco; @HostListener para Escape
 ├── servicios/
@@ -121,6 +122,11 @@ Validar en el front da feedback inmediato. El back **vuelve a validar todo**, po
 - **Rutas con parámetros como input**: con `withComponentInputBinding()`, el `:id` de `/partidos/:id` y el `?partido=` de `/publicar` llegan directo como `input()`.
 - **Confirmación sin `confirm()`**: `modal.confirmar(titulo, mensaje, textoBoton, alConfirmar)` muestra dos botones; la acción se ejecuta solo si se acepta.
 - **Guard `sesionGuard`** (`canActivate`): si no hay sesión, devuelve un `UrlTree` al login. Con `canMatch` el chunk lazy ni siquiera se descargaría.
+
+### Editar perfil
+- `EditarPerfil` recibe el usuario con `input.required()` y en **`ngOnInit`** carga el formulario: en el constructor los inputs todavía no tienen valor.
+- Avisa con `output()`: `guardado` (con el usuario que devolvió la API) y `cerrar`. Mi perfil llama a `auth.actualizarUsuario(...)`, y como `usuario` es un signal, el perfil y la navbar se actualizan solos.
+- Las vistas previas usan `URL.createObjectURL` y se liberan en **`ngOnDestroy`**.
 
 ### Horarios en hora argentina
 - `DATE_PIPE_DEFAULT_OPTIONS` con `timezone: '-0300'`: el pipe `date` muestra siempre la hora argentina, aunque la compu del usuario tenga otra zona horaria configurada. Argentina no tiene horario de verano, así que `-0300` sirve todo el año.

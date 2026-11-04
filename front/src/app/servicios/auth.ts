@@ -42,6 +42,12 @@ export class Auth {
     return localStorage.getItem(CLAVE_TOKEN);
   }
 
+  /** Después de editar el perfil: el signal y el localStorage quedan con los datos nuevos */
+  actualizarUsuario(usuario: Usuario) {
+    localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuario));
+    this.usuario.set(usuario);
+  }
+
   cerrarSesion() {
     localStorage.removeItem(CLAVE_USUARIO);
     localStorage.removeItem(CLAVE_TOKEN);

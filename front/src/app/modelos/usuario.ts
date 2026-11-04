@@ -10,6 +10,7 @@ export interface Usuario {
   fechaNacimiento: string;
   descripcion: string;
   fotoPerfil: string | null;
+  banner?: string | null; // foto de portada (se carga desde Mi perfil)
   perfil: Perfil;
   cuadro: { id: string; nombre: string; escudo: string } | null;
   numeroCamiseta: number | null;

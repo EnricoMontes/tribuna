@@ -1,0 +1,98 @@
+<div class="fondo" (click)="cerrar.emit()">
+  <form class="ventana form" [formGroup]="form" (ngSubmit)="guardar()" (click)="$event.stopPropagation()"
+        role="dialog" aria-modal="true" aria-labelledby="titulo-editar" novalidate>
+    <div class="encabezado">
+      <h2 id="titulo-editar">Editar perfil</h2>
+      <button type="button" class="cerrar" aria-label="Cerrar" (click)="cerrar.emit()">✕</button>
+    </div>
+
+    <!-- Banner + foto, como se van a ver en el perfil -->
+    <div class="banner" [style.background-image]="imagenActual('banner') ? 'url(' + imagenActual('banner') + ')' : null"
+         [class.por-defecto]="!imagenActual('banner')">
+      <div class="banner-acciones">
+        <label class="chip" for="archivoBanner">{{ imagenActual('banner') ? 'Cambiar portada' : 'Poner portada' }}</label>
+        @if (imagenActual('banner')) {
+          <button type="button" class="chip" (click)="quitarImagen('banner')">Quitar</button>
+        }
+      </div>
+      <input id="archivoBanner" class="oculto" type="file" accept="image/jpeg,image/png,image/webp" (change)="elegirImagen('banner', $event)">
+    </div>
+
+    <div class="foto">
+      @if (imagenActual('foto'); as url) {
+        <img class="avatar" [src]="url" alt="Foto de perfil" width="96" height="96">
+      } @else {
+        <span class="avatar">{{ (form.controls.nombre.value[0] ?? '') + (form.controls.apellido.value[0] ?? '') }}</span>
+      }
+      <div class="foto-acciones">
+        <label class="boton secundario" for="archivoFoto">Cambiar foto</label>
+        @if (imagenActual('foto')) {
+          <button type="button" class="quitar" (click)="quitarImagen('foto')">Quitar foto</button>
+        }
+        <p class="ayuda">JPG, PNG o WEBP · hasta 2 MB (también la portada)</p>
+      </div>
+      <input id="archivoFoto" class="oculto" type="file" accept="image/jpeg,image/png,image/webp" (change)="elegirImagen('foto', $event)">
+    </div>
+    @if (foto().error || banner().error) {
+      <p class="error">{{ foto().error || banner().error }}</p>
+    }
+
+    <div class="fila">
+      <div class="campo" [class.invalido]="mostrarError('nombre')">
+        <label for="editarNombre">Nombre</label>
+        <input id="editarNombre" type="text" formControlName="nombre">
+        @if (mostrarError('nombre')) {
+          <p class="error">@if (form.controls.nombre.hasError('required')) { Ingresá tu nombre } @else { Máximo 50 caracteres }</p>
+        }
+      </div>
+      <div class="campo" [class.invalido]="mostrarError('apellido')">
+        <label for="editarApellido">Apellido</label>
+        <input id="editarApellido" type="text" formControlName="apellido">
+        @if (mostrarError('apellido')) {
+          <p class="error">@if (form.controls.apellido.hasError('required')) { Ingresá tu apellido } @else { Máximo 50 caracteres }</p>
+        }
+      </div>
+    </div>
+
+    <div class="campo" [class.invalido]="mostrarError('descripcion')">
+      <label for="editarDescripcion">Descripción</label>
+      <textarea id="editarDescripcion" formControlName="descripcion" maxlength="200"></textarea>
+      <p class="ayuda contador">{{ form.controls.descripcion.value.length }}/200</p>
+    </div>
+
+    <div class="fila fila-cuadro">
+      <div class="campo">
+        <label for="editarCuadro">¿De qué cuadro sos?</label>
+        <div class="con-escudo">
+          @if (escudoElegido(); as escudo) {
+            <img [src]="escudo" alt="" width="34" height="34">
+          }
+          <select id="editarCuadro" formControlName="cuadroId">
+            <option value="">Ninguno</option>
+            @for (categoria of categorias(); track categoria.nombre) {
+              <optgroup [label]="categoria.nombre">
+                @for (cuadro of categoria.cuadros; track cuadro.id) {
+                  <option [value]="cuadro.id">{{ cuadro.nombre }}</option>
+                }
+              </optgroup>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="campo" [class.invalido]="mostrarError('numeroCamiseta')">
+        <label for="editarNumero">N.º de camiseta</label>
+        <input id="editarNumero" type="number" formControlName="numeroCamiseta" min="1" max="99" placeholder="12">
+        @if (mostrarError('numeroCamiseta')) {
+          <p class="error">Del 1 al 99</p>
+        }
+      </div>
+    </div>
+
+    <div class="botones">
+      <button type="button" class="boton secundario" (click)="cerrar.emit()">Cancelar</button>
+      <button type="submit" class="boton" [disabled]="guardando()">
+        @if (guardando()) { Guardando... } @else { Guardar cambios }
+      </button>
+    </div>
+  </form>
+</div>
