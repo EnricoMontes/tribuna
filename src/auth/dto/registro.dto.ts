@@ -24,7 +24,8 @@ export class RegistroDto {
   @MaxLength(50, { message: 'El apellido no puede superar los 50 caracteres' })
   apellido: string;
 
-  @IsEmail({}, { message: 'El correo no tiene un formato válido' })
+  // require_tld: exige la extensión después del dominio ("hincha@gmail" → 400; "hincha@gmail.com" → OK)
+  @IsEmail({ require_tld: true }, { message: 'El correo no tiene un formato válido' })
   correo: string;
 
   @Matches(REGEX_NOMBRE_USUARIO, {
