@@ -26,7 +26,8 @@ export class Partido {
       .listar()
       .pipe(catchError(() => of<DatosPartido[]>([]))),
   );
-  // Si el partido ya no es de la fecha actual, los datos se toman de la copia que tiene la primera publicación
+  // Si el partido no está en la lista (por ejemplo, de un torneo anterior), los datos se toman
+  // de la copia que tiene la primera publicación
   private delaPublicacion = signal<DatosPartido | null>(null);
 
   partido = computed(

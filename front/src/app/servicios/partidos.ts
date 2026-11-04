@@ -8,7 +8,7 @@ import { Partido } from '../modelos/partido';
 export class Partidos {
   private http = inject(HttpClient);
 
-  /** Partidos de la fecha actual (Liga Profesional y Primera Nacional), ordenados por horario */
+  /** Partidos ya jugados del torneo actual de la Liga Profesional, del más reciente al más viejo */
   listar(): Observable<Partido[]> {
     return this.http.get<Partido[]>(`${environment.apiUrl}/partidos`);
   }

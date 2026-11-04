@@ -34,6 +34,7 @@ export class Publicacion {
       local: equipo,
       visitante: equipo,
       inicio: Date,
+      goles: { local: Number, visitante: Number, _id: false },
       _id: false,
     },
     required: true,
@@ -45,6 +46,7 @@ export class Publicacion {
     local: { id: string; nombre: string; escudo: string };
     visitante: { id: string; nombre: string; escudo: string };
     inicio: Date;
+    goles: { local: number; visitante: number };
   };
 
   // Quiénes dieron me gusta. Guardar los ids permite que cada usuario dé UN solo me gusta.

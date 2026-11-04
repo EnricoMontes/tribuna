@@ -14,7 +14,7 @@ Los hinchas se registran, opinan de cada partido, suben fotos de cancha y reacci
 
 - 📋 **[Funcional](docs/funcional.md)**: qué hace la API, explicado sin código (reglas, mensajes, qué responde en cada caso).
 - 🛠️ **[Técnica](docs/tecnico.md)**: arquitectura, endpoints, estructura, decisiones, variables de entorno y deploy.
-- 📮 **Postman**: [`postman/Tribuna.postman_collection.json`](postman/Tribuna.postman_collection.json). Tiene todos los casos (201, 400, 401 y 409) con tests.
+- 📮 **Postman**: [`postman/Tribuna-Sprint2.postman_collection.json`](postman/Tribuna-Sprint2.postman_collection.json). Tiene todos los casos (201, 400, 401 y 409) con tests.
 
 ## Cómo correrlo en local
 

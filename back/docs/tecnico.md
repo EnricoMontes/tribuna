@@ -43,7 +43,7 @@ Si algo falla, el service tira una excepción de Nest (`ConflictException`, `Una
 | `ArchivosModule` | `ArchivosService` (Cloudinary) y las opciones de Multer | Exporta `ArchivosService`; se reutiliza en el Sprint 2 |
 | `PromiedosModule` | `PromiedosService`: consulta la API de promiedos (header `X-VER`) y cachea 10 min por liga | Lo usan `CuadrosModule` y `PartidosModule` |
 | `CuadrosModule` | `GET /cuadros` + `CuadrosService` (con lista de respaldo) | Exporta `CuadrosService` (valida el cuadro del registro) |
-| `PartidosModule` | `GET /partidos` + `PartidosService` (fecha actual de las dos ligas) | Exporta `PartidosService` (valida el partido de una publicación) |
+| `PartidosModule` | `GET /partidos` + `PartidosService` (partidos ya jugados del torneo actual de la Liga Profesional) | Exporta `PartidosService` (valida el partido de una publicación) |
 | `PublicacionesModule` | Schema `Publicacion`, `PublicacionesService` y las rutas `/publicaciones` | Importa `ArchivosModule` y `PartidosModule` |
 
 ## Endpoints
@@ -60,14 +60,14 @@ Si algo falla, el service tira una excepción de Nest (`ConflictException`, `Una
 
 | Método | Ruta | Body / query | Respuestas |
 |---|---|---|---|
-| `GET` | `/partidos` | — | `200` partidos de la fecha actual: `[{ id, liga, fecha, local, visitante, inicio, estado }]` |
+| `GET` | `/partidos` | — | `200` partidos ya jugados, del más reciente al más viejo: `[{ id, liga, fecha, local, visitante, inicio, goles: { local, visitante } }]` |
 | `POST` | `/publicaciones` | `multipart/form-data`: `titulo`, `mensaje`, `partidoId` + archivo `imagen?` | `201` publicación · `400` (datos o partido inválido) · `413` |
 | `GET` | `/publicaciones` | `?orden=fecha\|meGusta&offset=0&limit=10&usuario=<id>&partido=<id>` | `200` `{ total, offset, limit, publicaciones }` · `400` |
 | `DELETE` | `/publicaciones/:id` | — | `200` (baja lógica) · `400` (id mal formado) · `403` (no es autor ni admin) · `404` |
 | `POST` | `/publicaciones/:id/me-gusta` | — | `201` `{ cantidadMeGusta, meGustaMio }` · `404` · `409` (ya lo había dado) |
 | `DELETE` | `/publicaciones/:id/me-gusta` | — | `200` · `404` · `409` (no lo había dado) |
 
-Hay una colección de Postman con todos los casos en [`postman/Tribuna.postman_collection.json`](../postman/Tribuna.postman_collection.json).
+Hay una colección de Postman con todos los casos en [`postman/Tribuna-Sprint2.postman_collection.json`](../postman/Tribuna-Sprint2.postman_collection.json).
 
 ## Modelo de datos: `usuarios`
 
@@ -157,7 +157,8 @@ src/
   - **Un me gusta por usuario**: `findOneAndUpdate({ _id, meGusta: { $ne: usuario } }, { $push, $inc: +1 })` es **atómico**. Si el usuario ya estaba, no actualiza nada y responde `409`. Para quitar es al revés, con `$pull` y `$inc: -1`.
   - **Baja lógica**: `activa: false`. Primero `404` si no existe y después `403` si no es el autor ni un administrador.
   - **Horarios:** promiedos devuelve el horario como texto (`"05-11-2026 15:00"`) en la zona horaria **de quien pregunta**, según su IP. Desde Argentina contesta en hora argentina, pero a Render (EE.UU.) le contesta en hora de allá. Por eso `PROMIEDOS_ZONA_HORARIA` dice en qué zona viene el texto, y `PartidosService` lo convierte a un instante exacto (`Date`, en UTC) con `Intl.DateTimeFormat`. El front lo muestra en la hora del navegador.
-  - El **partido** se valida contra la fecha actual de promiedos y se guarda una **copia**: si la API cambia de fecha o se cae, la publicación sigue mostrando su partido.
+  - **Partidos ya jugados:** `/league/tables_and_fixtures/hc` trae la lista de fechas del año (`games.filters`), y la marcada como `selected` es la actual. Su `key` (`72_228_8_16`) sin el último número identifica al torneo (el Clausura). Se piden **en paralelo** (`Promise.all`) todas las fechas de ese torneo hasta la actual, con `/league/games/hc/{key}`, y se quedan solo los partidos **finalizados** (`status.enum === 3`), con su resultado (`scores`). Las fechas viejas no cambian, así que se cachean 6 horas.
+  - El **partido** se valida contra esa lista y se guarda una **copia** con el resultado: si la API cambia o se cae, la publicación sigue mostrando su partido.
 
 ### Cuadros desde la API de promiedos (`cuadros/`)
 - `CuadrosService` consulta `https://api.promiedos.com.ar/league/tables_and_fixtures/{liga}` para la Liga Profesional (`hc`) y la Primera Nacional (`ebj`). Esa API no es pública: pide el header `X-VER` (la versión de su web).

@@ -1,5 +1,5 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
@@ -16,7 +16,7 @@ import { ListaPublicaciones } from '../lista-publicaciones/lista-publicaciones';
 export class Publicaciones {
   auth = inject(Auth);
 
-  // Partidos de la fecha (lateral). Si falla, la lista de publicaciones se ve igual.
+  // Partidos ya jugados (lateral). Si falla, la lista de publicaciones se ve igual.
   partidos = toSignal(
     inject(Partidos)
       .listar()
@@ -25,6 +25,9 @@ export class Publicaciones {
       initialValue: [],
     },
   );
+
+  // En el lateral, solo los 10 más recientes (la API ya los manda del más nuevo al más viejo)
+  ultimos = computed(() => this.partidos().slice(0, 10));
 
   // El total lo informa la lista (output "cargada") cada vez que trae una página
   total = signal(0);

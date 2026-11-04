@@ -18,7 +18,7 @@
       </div>
       <div class="tablero-dato">
         <span class="tablero-numero">{{ partidos().length | number: '2.0-0' }}</span>
-        <span class="tablero-nombre">Partidos de la fecha</span>
+        <span class="tablero-nombre">Partidos jugados</span>
       </div>
       <a class="boton crear" routerLink="/publicar">Publicar</a>
     </div>
@@ -35,7 +35,7 @@
         </div>
         <span class="etiqueta-seccion">Previa</span>
         <h2>La cancha está vacía</h2>
-        <p>Todavía nadie publicó nada. Elegí un partido de la fecha y arrancá vos.</p>
+        <p>Todavía nadie publicó nada. Elegí un partido que ya se jugó y subí tu foto.</p>
         <div class="acciones">
           <a class="boton" routerLink="/publicar">Publicar</a>
         </div>
@@ -45,21 +45,23 @@
 
   <aside class="lateral">
     <div class="panel bloque">
-      <span class="etiqueta-seccion">Partidos de la fecha</span>
+      <span class="etiqueta-seccion">Últimos resultados</span>
       @if (partidos().length) {
         <ul class="partidos">
-          @for (partido of partidos(); track partido.id) {
+          @for (partido of ultimos(); track partido.id) {
             <li>
               <a [routerLink]="['/partidos', partido.id]">
                 <span class="equipos">
                   <img [src]="partido.local.escudo" alt="" width="24" height="24" />
                   <span>{{ partido.local.nombre }}</span>
+                  <strong class="goles">{{ partido.goles.local }}</strong>
                 </span>
                 <span class="equipos">
                   <img [src]="partido.visitante.escudo" alt="" width="24" height="24" />
                   <span>{{ partido.visitante.nombre }}</span>
+                  <strong class="goles">{{ partido.goles.visitante }}</strong>
                 </span>
-                <span class="hora">{{ partido.inicio | date: 'EEE d/M · HH:mm' }}</span>
+                <span class="hora">{{ partido.fecha }} · {{ partido.inicio | date: 'EEE d/M' }}</span>
               </a>
             </li>
           }

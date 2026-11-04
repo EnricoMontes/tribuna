@@ -1,7 +1,8 @@
 {
   "info": {
-    "name": "Tribuna API - Sprint 1",
-    "description": "Pruebas del back de Tribuna (NestJS + MongoDB Atlas + Cloudinary).\n\nVariable baseUrl: producción (Render) por defecto. Para probar en local cambiá su valor a http://localhost:3000 (está guardado en localUrl).\nEl primer pedido a Render puede tardar ~50 s porque el plan gratis se duerme.\n\nLos registros \"201\" usan {{$timestamp}} para generar correo y usuario únicos en cada ejecución.\nUsuarios de prueba: hincha_demo / Tribuna123 (usuario) y enrico_admin / Admin123 (administrador).",
+    "_postman_id": "41eb1371-2f0a-4c21-b177-b37eaa8faa19",
+    "name": "Tribuna API - Sprint 2",
+    "description": "Pruebas del back de Tribuna (NestJS + MongoDB Atlas + Cloudinary + API de promiedos).\n\nORDEN PARA CORRERLA (Run collection o carpeta por carpeta):\n1. Estado de la API (despierta Render: el plan gratis se duerme y la primera petición tarda ~50 s).\n2. Cuadros: la lista sale de promiedos (Liga Profesional y Primera Nacional).\n3. Auth - Registro: incluye los campos nuevos cuadroId y numeroCamiseta (opcionales).\n4. Auth - Login: GUARDA el token en {{token}} (hincha_demo) y {{tokenAdmin}} (enrico_admin).\n5. Usuarios: disponibilidad de correo / nombre de usuario.\n6. Partidos: partidos YA JUGADOS del torneo actual de la Liga Profesional (con resultado). Guarda {{partidoId}}.\n7. Publicaciones: crear, listar (orden, offset/limit, filtros), me gusta y baja lógica.\n\nPartidos y Publicaciones piden \"Authorization: Bearer {{token}}\" (ya configurado en cada petición).\nEl token vence a los 15 minutos: si da 401, volvé a correr \"Auth - Login\".\nLos pedidos \"(elegir archivo)\" necesitan que elijas una imagen a mano en el body.\n\nVariable baseUrl: producción (Render). Para probar en local cambiala por {{localUrl}} (http://localhost:3000).\nUsuarios de prueba: hincha_demo / Tribuna123 (usuario) y enrico_admin / Admin123 (administrador).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -67,6 +68,45 @@
       }
     },
     {
+      "name": "Cuadros",
+      "item": [
+        {
+          "name": "200 - Listado de cuadros (desde promiedos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const categorias = pm.response.json();",
+                  "pm.test(\"Dos categorías\", () => pm.expect(categorias.map(c => c.nombre)).to.eql([\"Liga Profesional\", \"Primera Nacional\"]));",
+                  "pm.test(\"Cada cuadro trae id, nombre y escudo\", () => {",
+                  "  const cuadro = categorias[0].cuadros[0];",
+                  "  pm.expect(cuadro).to.have.all.keys(\"id\", \"nombre\", \"escudo\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cuadros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cuadros"
+              ]
+            },
+            "description": "El back consulta la API de promiedos (header X-VER), saca los repetidos y cachea 24 h. Si promiedos no responde, usa la lista de respaldo (cuadros.respaldo.ts)."
+          }
+        }
+      ]
+    },
+    {
       "name": "Auth - Registro",
       "item": [
         {
@@ -79,7 +119,8 @@
                 "exec": [
                   "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
                   "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json().usuario).to.not.have.property(\"password\"));",
-                  "pm.test(\"Perfil por defecto: usuario\", () => pm.expect(pm.response.json().usuario.perfil).to.eql(\"usuario\"));"
+                  "pm.test(\"Perfil por defecto: usuario\", () => pm.expect(pm.response.json().usuario.perfil).to.eql(\"usuario\"));",
+                  "pm.test(\"Devuelve el token\", () => pm.expect(pm.response.json().token).to.be.a(\"string\"));"
                 ]
               }
             }
@@ -102,12 +143,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hincha{{$timestamp}}@tribuna.com",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hincha{{$timestamp}}",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -155,7 +196,8 @@
                   "  pm.expect(cuadro.nombre).to.eql(\"Boca Juniors\");",
                   "  pm.expect(cuadro.escudo).to.include(\"/images/team/igg/\");",
                   "});",
-                  "pm.test(\"Guarda el número como número\", () => pm.expect(pm.response.json().usuario.numeroCamiseta).to.eql(10));"
+                  "pm.test(\"Guarda el número como número\", () => pm.expect(pm.response.json().usuario.numeroCamiseta).to.eql(10));",
+                  "pm.test(\"Devuelve el token\", () => pm.expect(pm.response.json().token).to.be.a(\"string\"));"
                 ]
               }
             }
@@ -178,12 +220,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hincha{{$timestamp}}@tribuna.com",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hincha{{$timestamp}}",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -227,6 +269,96 @@
           }
         },
         {
+          "name": "201 - Registro completo: foto + cuadro + número (elegir archivo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "const { usuario, token } = pm.response.json();",
+                  "pm.test(\"Devuelve el token\", () => pm.expect(token).to.be.a(\"string\"));",
+                  "pm.test(\"Guarda la foto en Cloudinary\", () => pm.expect(usuario.fotoPerfil).to.include(\"res.cloudinary.com\"));",
+                  "pm.test(\"Guarda el cuadro con su escudo\", () => { pm.expect(usuario.cuadro.nombre).to.eql(\"Racing Club\"); pm.expect(usuario.cuadro.escudo).to.include(\"/images/team/ihg/\"); });",
+                  "pm.test(\"Guarda el número\", () => pm.expect(usuario.numeroCamiseta).to.eql(7));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "cuadroId",
+                  "value": "ihg",
+                  "type": "text",
+                  "description": "Racing Club (ids en GET /cuadros)"
+                },
+                {
+                  "key": "numeroCamiseta",
+                  "value": "7",
+                  "type": "text"
+                },
+                {
+                  "key": "fotoPerfil",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Todos los campos del registro, incluidos los opcionales nuevos: cuadroId (id de promiedos) y numeroCamiseta (1 a 99). Elegí una imagen en fotoPerfil."
+          }
+        },
+        {
           "name": "400 - Cuadro inexistente",
           "event": [
             {
@@ -258,12 +390,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hincha{{$timestamp}}@tribuna.com",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hincha{{$timestamp}}",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -333,12 +465,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hincha{{$timestamp}}@tribuna.com",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hincha{{$timestamp}}",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -408,7 +540,7 @@
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hincha{{$timestamp}}",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -428,7 +560,7 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hincha{{$timestamp}}@gmail",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@gmail",
                   "type": "text"
                 }
               ]
@@ -456,7 +588,8 @@
                 "exec": [
                   "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
                   "pm.test(\"No devuelve la contraseña\", () => pm.expect(pm.response.json().usuario).to.not.have.property(\"password\"));",
-                  "pm.test(\"Guarda la URL de Cloudinary\", () => pm.expect(pm.response.json().usuario.fotoPerfil).to.include(\"res.cloudinary.com\"));"
+                  "pm.test(\"Guarda la URL de Cloudinary\", () => pm.expect(pm.response.json().usuario.fotoPerfil).to.include(\"res.cloudinary.com\"));",
+                  "pm.test(\"Devuelve el token\", () => pm.expect(pm.response.json().token).to.be.a(\"string\"));"
                 ]
               }
             }
@@ -479,12 +612,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hinchaf{{$timestamp}}@tribuna.com",
+                  "value": "hinchaf{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hinchaf{{$timestamp}}",
+                  "value": "hinchaf{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -559,7 +692,7 @@
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hinchar{{$timestamp}}",
+                  "value": "hinchar{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -623,7 +756,7 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hinchau{{$timestamp}}@tribuna.com",
+                  "value": "hinchau{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
@@ -757,12 +890,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hinchap{{$timestamp}}@tribuna.com",
+                  "value": "hinchap{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hinchap{{$timestamp}}",
+                  "value": "hinchap{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -826,12 +959,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hinchaa{{$timestamp}}@tribuna.com",
+                  "value": "hinchaa{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hinchaa{{$timestamp}}",
+                  "value": "hinchaa{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -900,12 +1033,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hincham{{$timestamp}}@tribuna.com",
+                  "value": "hincham{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hincham{{$timestamp}}",
+                  "value": "hincham{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -969,12 +1102,12 @@
                 },
                 {
                   "key": "correo",
-                  "value": "hinchan{{$timestamp}}@tribuna.com",
+                  "value": "hinchan{{$timestamp}}{{$randomInt}}@tribuna.com",
                   "type": "text"
                 },
                 {
                   "key": "nombreUsuario",
-                  "value": "hinchan{{$timestamp}}",
+                  "value": "hinchan{{$timestamp}}{{$randomInt}}",
                   "type": "text"
                 },
                 {
@@ -1007,7 +1140,8 @@
             "description": "La fecha de nacimiento no puede ser futura."
           }
         }
-      ]
+      ],
+      "description": "multipart/form-data. Campos nuevos (opcionales): cuadroId y numeroCamiseta. Responde { usuario, token }."
     },
     {
       "name": "Auth - Login",
@@ -1408,47 +1542,8 @@
       ]
     },
     {
-      "name": "Cuadros",
-      "item": [
-        {
-          "name": "200 - Listado de cuadros (desde promiedos)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "const categorias = pm.response.json();",
-                  "pm.test(\"Dos categorías\", () => pm.expect(categorias.map(c => c.nombre)).to.eql([\"Liga Profesional\", \"Primera Nacional\"]));",
-                  "pm.test(\"Cada cuadro trae id, nombre y escudo\", () => {",
-                  "  const cuadro = categorias[0].cuadros[0];",
-                  "  pm.expect(cuadro).to.have.all.keys(\"id\", \"nombre\", \"escudo\");",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/cuadros",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "cuadros"
-              ]
-            },
-            "description": "El back consulta la API de promiedos (header X-VER), saca los repetidos y cachea 24 h. Si promiedos no responde, usa la lista de respaldo (cuadros.respaldo.ts)."
-          }
-        }
-      ]
-    },
-    {
       "name": "Partidos",
-      "description": "Correr antes \"Auth - Login\" para tener {{token}}.",
+      "description": "Partidos YA JUGADOS del torneo actual de la Liga Profesional, del más reciente al más viejo, con el resultado. Correr antes \"Auth - Login\".",
       "item": [
         {
           "name": "401 - Sin token",
@@ -1482,7 +1577,7 @@
           }
         },
         {
-          "name": "200 - Partidos de la fecha actual",
+          "name": "200 - Partidos ya jugados (con resultado)",
           "event": [
             {
               "listen": "test",
@@ -1491,11 +1586,16 @@
                 "exec": [
                   "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
                   "const partidos = pm.response.json();",
-                  "pm.test(\"Trae partidos con local, visitante y horario\", () => {",
+                  "pm.test(\"Trae partidos con equipos, resultado y horario\", () => {",
                   "  pm.expect(partidos.length).to.be.above(0);",
-                  "  pm.expect(partidos[0]).to.include.keys(\"id\", \"liga\", \"fecha\", \"local\", \"visitante\", \"inicio\");",
+                  "  pm.expect(partidos[0]).to.include.keys(\"id\", \"liga\", \"fecha\", \"local\", \"visitante\", \"inicio\", \"goles\");",
+                  "  pm.expect(partidos[0].goles).to.have.all.keys(\"local\", \"visitante\");",
                   "});",
-                  "// Se guarda el primero para crear publicaciones",
+                  "pm.test(\"Del más reciente al más viejo\", () => {",
+                  "  for (let i = 1; i < partidos.length; i++) pm.expect(new Date(partidos[i - 1].inicio) >= new Date(partidos[i].inicio)).to.be.true;",
+                  "});",
+                  "pm.test(\"Todos ya se jugaron\", () => partidos.forEach(p => pm.expect(new Date(p.inicio) < new Date()).to.be.true));",
+                  "// Se guarda el más reciente para crear publicaciones",
                   "pm.collectionVariables.set(\"partidoId\", partidos[0].id);"
                 ]
               }
@@ -1513,7 +1613,7 @@
                 "partidos"
               ]
             },
-            "description": "Sale de la API de promiedos (misma respuesta que los cuadros): la fecha actual de Liga Profesional y Primera Nacional.",
+            "description": "Sale de la API de promiedos: la lista de fechas del torneo actual (/league/tables_and_fixtures/hc) y los partidos de cada fecha (/league/games/hc/{fecha}), filtrando los finalizados.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1576,7 +1676,8 @@
                   "pm.test(\"El autor sale del token\", () => pm.expect(p.autor._id).to.eql(pm.collectionVariables.get(\"usuarioId\")));",
                   "pm.test(\"Guarda una copia del partido\", () => pm.expect(p.partido.id).to.eql(pm.collectionVariables.get(\"partidoId\")));",
                   "pm.test(\"Arranca sin me gusta\", () => { pm.expect(p.cantidadMeGusta).to.eql(0); pm.expect(p.meGustaMio).to.eql(false); });",
-                  "pm.collectionVariables.set(\"publicacionId\", p._id);"
+                  "pm.collectionVariables.set(\"publicacionId\", p._id);",
+                  "pm.test(\"Guarda el resultado del partido\", () => pm.expect(pm.response.json().partido.goles).to.have.all.keys(\"local\", \"visitante\"));"
                 ]
               }
             }
@@ -1691,7 +1792,7 @@
           }
         },
         {
-          "name": "400 - Partido que no es de la fecha actual",
+          "name": "400 - Partido que no es uno ya jugado",
           "event": [
             {
               "listen": "test",
@@ -1699,7 +1800,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
-                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.eql(\"El partido elegido no está en la fecha actual\"));"
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.eql(\"El partido elegido no es un partido ya jugado del torneo actual\"));"
                 ]
               }
             }
@@ -1716,7 +1817,7 @@
                 "publicaciones"
               ]
             },
-            "description": "El partido tiene que ser uno de GET /partidos.",
+            "description": "El partido tiene que ser uno de GET /partidos (ya jugado, torneo actual).",
             "auth": {
               "type": "bearer",
               "bearer": [

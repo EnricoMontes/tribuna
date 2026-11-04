@@ -14,11 +14,9 @@
           <h1>{{ p.local.nombre }}</h1>
         </div>
         <div class="centro">
-          <span class="vs">VS</span>
+          <span class="vs">{{ p.goles.local }} - {{ p.goles.visitante }}</span>
           <span class="hora">{{ p.inicio | date: 'EEEE d/M · HH:mm' }}</span>
-          @if (p.estado) {
-            <span class="estado">{{ p.estado }}</span>
-          }
+          <span class="estado">Final</span>
         </div>
         <div class="equipo">
           <img
@@ -36,7 +34,7 @@
     } @else if (noEncontrado()) {
       <span class="etiqueta-seccion">Partido</span>
       <h1>No encontramos el partido</h1>
-      <p>No es de la fecha actual y nadie publicó sobre él.</p>
+      <p>No es un partido jugado de este torneo y nadie publicó sobre él.</p>
     } @else {
       <span class="etiqueta-seccion">Partido</span>
       <h1>Cargando...</h1>

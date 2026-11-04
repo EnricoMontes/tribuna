@@ -34,11 +34,12 @@ export class Publicar implements OnDestroy {
     { initialValue: [] },
   );
 
-  // Los partidos agrupados por liga para el <select> con <optgroup>
-  ligas = computed(() => {
+  // Los partidos agrupados por fecha ("Fecha 15", "Fecha 14"...) para el <select> con <optgroup>.
+  // Como vienen del más reciente al más viejo, la primera fecha es la última que se jugó.
+  fechas = computed(() => {
     const grupos = new Map<string, Partido[]>();
     for (const partido of this.partidos()) {
-      grupos.set(partido.liga, [...(grupos.get(partido.liga) ?? []), partido]);
+      grupos.set(partido.fecha, [...(grupos.get(partido.fecha) ?? []), partido]);
     }
     return [...grupos].map(([nombre, partidos]) => ({ nombre, partidos }));
   });

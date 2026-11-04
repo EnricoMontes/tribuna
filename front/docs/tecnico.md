@@ -122,6 +122,9 @@ Validar en el front da feedback inmediato. El back **vuelve a validar todo**, po
 - **Confirmación sin `confirm()`**: `modal.confirmar(titulo, mensaje, textoBoton, alConfirmar)` muestra dos botones; la acción se ejecuta solo si se acepta.
 - **Guard `sesionGuard`** (`canActivate`): si no hay sesión, devuelve un `UrlTree` al login. Con `canMatch` el chunk lazy ni siquiera se descargaría.
 
+### Horarios en hora argentina
+- `DATE_PIPE_DEFAULT_OPTIONS` con `timezone: '-0300'`: el pipe `date` muestra siempre la hora argentina, aunque la compu del usuario tenga otra zona horaria configurada. Argentina no tiene horario de verano, así que `-0300` sirve todo el año.
+
 ### Lazy loading
 - Cada pantalla es un chunk aparte que se descarga recién al visitarla. Así la carga inicial es más liviana.
 

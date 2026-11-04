@@ -145,6 +145,13 @@
   object-fit: contain;
 }
 
+.goles {
+  margin-left: auto;
+  font-family: var(--fuente-titulos);
+  font-weight: 400;
+  font-size: 1.2rem;
+}
+
 .hora {
   font-size: 0.78rem;
   color: var(--texto-tenue);

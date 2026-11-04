@@ -34,11 +34,11 @@ export class PublicacionesService {
     usuario: DatosToken,
     imagen?: Express.Multer.File,
   ) {
-    // El partido tiene que ser uno de la fecha actual -> si no, 400
+    // El partido tiene que ser uno ya jugado del torneo actual -> si no, 400
     const partido = await this.partidosService.buscar(datos.partidoId);
     if (!partido) {
       throw new BadRequestException(
-        'El partido elegido no está en la fecha actual',
+        'El partido elegido no es un partido ya jugado del torneo actual',
       );
     }
 
@@ -47,13 +47,12 @@ export class PublicacionesService {
       ? await this.archivosService.subirImagen(imagen, 'publicaciones')
       : null;
 
-    const { estado: _estado, ...copiaPartido } = partido; // el estado cambia con el tiempo: no se guarda
     const publicacion = await this.publicacionModel.create({
       titulo: datos.titulo,
       mensaje: datos.mensaje,
       imagen: urlImagen,
       autor: new Types.ObjectId(usuario.sub), // el autor sale del TOKEN, no del body
-      partido: copiaPartido,
+      partido, // copia del partido (con el resultado)
     });
     await publicacion.populate('autor', CAMPOS_AUTOR);
     return this.paraRespuesta(publicacion, usuario.sub);

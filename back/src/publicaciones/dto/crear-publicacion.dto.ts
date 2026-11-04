@@ -12,7 +12,7 @@ export class CrearPublicacionDto {
   @MaxLength(500, { message: 'El mensaje no puede superar los 500 caracteres' })
   mensaje: string;
 
-  // Id del partido de promiedos. Que sea de la fecha actual lo valida el service.
+  // Id del partido de promiedos. Que sea un partido ya jugado lo valida el service.
   @IsString({ message: 'Elegí el partido de la publicación' })
   @IsNotEmpty({ message: 'Elegí el partido de la publicación' })
   partidoId: string;

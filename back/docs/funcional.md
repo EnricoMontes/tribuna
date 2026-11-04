@@ -52,8 +52,8 @@ para avisarle antes de enviar el formulario.
 
 Para todo lo que sigue hay que **haber ingresado**: el login devuelve un "pase" (token) que vence a los 15 minutos.
 
-- **Partidos:** la app muestra los partidos de la **fecha actual** de la Liga Profesional y de la Primera Nacional, con los escudos y el horario. Salen de promiedos.
-- **Publicar:** título, mensaje, el **partido** del que se habla y, si querés, una foto (JPG, PNG o WEBP de hasta 2 MB). El partido tiene que ser de la fecha actual.
+- **Partidos:** la app muestra los partidos **ya jugados** del torneo actual de la **Liga Profesional**, del más reciente al más viejo, con los escudos, el **resultado** y el horario. Salen de promiedos. Son ya jugados para que la gente suba sus fotos del partido.
+- **Publicar:** título, mensaje, el **partido** del que se habla y, si querés, una foto (JPG, PNG o WEBP de hasta 2 MB). El partido tiene que ser uno ya jugado del torneo actual.
 - **Ver publicaciones:** de a una página por vez, ordenadas por **fecha** (las más nuevas primero) o por **cantidad de me gusta**. Se pueden ver solo las de un partido o solo las de un usuario.
 - **Me gusta:** cada hincha puede dar **un solo** me gusta por publicación, y sacarlo si quiere.
 - **Eliminar:** cada uno puede borrar **sus** publicaciones, y un administrador puede borrar cualquiera. La publicación no se borra de la base: se oculta (baja lógica).

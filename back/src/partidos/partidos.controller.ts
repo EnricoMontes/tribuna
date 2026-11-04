@@ -7,7 +7,8 @@ import { PartidosService } from './partidos.service.js';
 export class PartidosController {
   constructor(private readonly partidosService: PartidosService) {}
 
-  // GET /partidos -> partidos de la fecha actual (Liga Profesional y Primera Nacional), ordenados por horario
+  // GET /partidos -> partidos YA JUGADOS del torneo actual de la Liga Profesional (con el resultado),
+  // del más reciente al más viejo
   @Get()
   listar() {
     return this.partidosService.listar();

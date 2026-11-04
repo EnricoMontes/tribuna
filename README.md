@@ -26,7 +26,7 @@ tribuna/
 | **Back** | [back/docs/funcional.md](back/docs/funcional.md) | [back/docs/tecnico.md](back/docs/tecnico.md) |
 | **Front** | [front/docs/funcional.md](front/docs/funcional.md) | [front/docs/tecnico.md](front/docs/tecnico.md) |
 
-Colección de Postman con todos los casos (201, 400, 401, 409): [`back/postman/Tribuna.postman_collection.json`](back/postman/Tribuna.postman_collection.json).
+Colección de Postman con todos los casos (201, 400, 401, 409): [`back/postman/Tribuna-Sprint2.postman_collection.json`](back/postman/Tribuna-Sprint2.postman_collection.json).
 
 ## Cómo correrlo en local
 

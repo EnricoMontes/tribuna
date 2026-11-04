@@ -7,6 +7,8 @@ const API = 'https://api.promiedos.com.ar';
 const VERSION_API = '1.11.7.5';
 // Los partidos cambian de estado (Prog. -> En vivo -> Final): no conviene guardar la respuesta mucho tiempo
 const DIEZ_MINUTOS = 10 * 60 * 1000;
+// Una fecha que ya se jugó no cambia más: se puede guardar más tiempo
+const SEIS_HORAS = 6 * 60 * 60 * 1000;
 
 export const LIGAS = [
   { id: 'hc', nombre: 'Liga Profesional' },
@@ -21,9 +23,12 @@ export interface EquipoPromiedos {
 export interface PartidoPromiedos {
   id: string;
   teams: [EquipoPromiedos, EquipoPromiedos];
-  start_time: string; // "05-11-2026 15:00" (hora argentina)
-  status: { name: string }; // "Prog.", "Final", "ET"...
+  start_time: string; // "05-11-2026 15:00" (en la zona horaria de quien pregunta)
+  status: { enum: number; name: string }; // enum 3 = "Finalizado"
+  scores?: [number, number]; // goles de local y visitante (cuando ya se jugó)
 }
+
+export const PARTIDO_FINALIZADO = 3;
 
 /** Forma (resumida) de lo que devuelve /league/tables_and_fixtures/:id */
 export interface RespuestaLiga {
@@ -31,40 +36,62 @@ export interface RespuestaLiga {
     tables: { table: { rows: { entity: { object: EquipoPromiedos } }[] } }[];
   }[];
   games?: {
-    filters: { name: string; selected?: boolean; games?: PartidoPromiedos[] }[];
+    // Cada filtro es una fecha ("Fecha 1", "Fecha 2"...). La "selected" es la actual y trae sus partidos.
+    filters: {
+      key: string;
+      name: string;
+      selected?: boolean;
+      games?: PartidoPromiedos[];
+    }[];
   };
 }
 
 @Injectable()
 export class PromiedosService {
   // Caché en memoria por liga: así cuadros y partidos no le pegan a promiedos en cada petición
-  private cache = new Map<string, { datos: RespuestaLiga; vence: number }>();
+  private cache = new Map<string, { datos: unknown; vence: number }>();
 
   /** URL del escudo de un equipo (PNG de 200x200) */
   escudo(idEquipo: string) {
     return `${API}/images/team/${idEquipo}/3`;
   }
 
+  /** Tablas de posiciones + lista de fechas de la liga (con los partidos de la fecha actual) */
   async liga(idLiga: string): Promise<RespuestaLiga> {
-    const guardado = this.cache.get(idLiga);
-    if (guardado && guardado.vence > Date.now()) {
-      return guardado.datos;
-    }
-    const respuesta = await fetch(
-      `${API}/league/tables_and_fixtures/${idLiga}`,
-      {
-        headers: { 'X-VER': VERSION_API },
-        signal: AbortSignal.timeout(5000), // si tarda más de 5 s, se corta
-      },
+    const datos = await this.pedir<RespuestaLiga>(
+      `/league/tables_and_fixtures/${idLiga}`,
+      DIEZ_MINUTOS,
     );
-    if (!respuesta.ok) {
-      throw new Error(`promiedos respondió HTTP ${respuesta.status}`);
-    }
-    const datos = (await respuesta.json()) as RespuestaLiga;
     if (!datos.tables_groups) {
       throw new Error('promiedos respondió sin datos');
     }
-    this.cache.set(idLiga, { datos, vence: Date.now() + DIEZ_MINUTOS });
+    return datos;
+  }
+
+  /** Partidos de una fecha puntual (la "key" sale de la lista de fechas de liga()) */
+  async fecha(idLiga: string, clave: string): Promise<PartidoPromiedos[]> {
+    const datos = await this.pedir<{ games?: PartidoPromiedos[] }>(
+      `/league/games/${idLiga}/${clave}`,
+      SEIS_HORAS,
+    );
+    return datos.games ?? [];
+  }
+
+  // GET a la API con el header X-VER, guardando la respuesta en la caché el tiempo indicado
+  private async pedir<T>(ruta: string, duracion: number): Promise<T> {
+    const guardado = this.cache.get(ruta);
+    if (guardado && guardado.vence > Date.now()) {
+      return guardado.datos as T;
+    }
+    const respuesta = await fetch(`${API}${ruta}`, {
+      headers: { 'X-VER': VERSION_API },
+      signal: AbortSignal.timeout(5000), // si tarda más de 5 s, se corta
+    });
+    if (!respuesta.ok) {
+      throw new Error(`promiedos respondió HTTP ${respuesta.status}`);
+    }
+    const datos = (await respuesta.json()) as T;
+    this.cache.set(ruta, { datos, vence: Date.now() + duracion });
     return datos;
   }
 }

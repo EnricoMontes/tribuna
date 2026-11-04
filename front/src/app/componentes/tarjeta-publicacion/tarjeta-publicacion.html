@@ -70,7 +70,7 @@
         <img [src]="p.partido.local.escudo" alt="" width="40" height="40" />
         {{ p.partido.local.nombre }}
       </span>
-      <span class="vs">vs</span>
+      <span class="vs">{{ p.partido.goles.local }} - {{ p.partido.goles.visitante }}</span>
       <span class="equipo">
         <img [src]="p.partido.visitante.escudo" alt="" width="40" height="40" />
         {{ p.partido.visitante.nombre }}
