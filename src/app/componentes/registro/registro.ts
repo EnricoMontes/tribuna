@@ -7,6 +7,7 @@ import { Usuarios } from '../../servicios/usuarios';
 import { mensajeDeError } from '../../utilidades/errores';
 import {
   clavesCoincidenValidator,
+  correoValidator,
   disponibleValidator,
   edadMinimaValidator,
   passwordFuerteValidator,
@@ -30,6 +31,7 @@ export class Registro implements OnDestroy {
   private router = inject(Router);
 
   readonly edadMinima = EDAD_MINIMA;
+  readonly anio = new Date().getFullYear();
   readonly hoy = new Date().toISOString().slice(0, 10); // tope del input date
 
   formRegistro = new FormGroup(
@@ -44,7 +46,7 @@ export class Registro implements OnDestroy {
       }),
       correo: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required, Validators.email],
+        validators: [Validators.required, correoValidator()],
         asyncValidators: [disponibleValidator(this.usuarios, 'correo')],
       }),
       nombreUsuario: new FormControl('', {
@@ -81,10 +83,26 @@ export class Registro implements OnDestroy {
   cargando = signal(false);
   verPassword = signal(false);
 
+  /** Iniciales para el carnet de socio mientras no haya foto */
+  inicialesCarnet(): string {
+    const { nombre, apellido } = this.formRegistro.controls;
+    return `${nombre.value.trim()[0] ?? ''}${apellido.value.trim()[0] ?? ''}`.toUpperCase() || '?';
+  }
+
   /** true si el campo se tocó y tiene errores (para pintar el borde rojo) */
   mostrarError(campo: keyof Registro['formRegistro']['controls']): boolean {
     const control = this.formRegistro.controls[campo];
     return control.touched && control.invalid;
+  }
+
+  /**
+   * El correo se valida mientras se escribe, apenas aparece el @ (así "hincha@gmail" ya muestra
+   * el error sin tener que salir del campo). Antes del @ esperamos al blur para no marcar en rojo
+   * a la primera letra.
+   */
+  mostrarErrorCorreo(): boolean {
+    const correo = this.formRegistro.controls.correo;
+    return correo.invalid && (correo.touched || (correo.dirty && correo.value.includes('@')));
   }
 
   get noCoinciden(): boolean {

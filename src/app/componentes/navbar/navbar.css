@@ -7,6 +7,14 @@ header {
   border-bottom: 1px solid var(--divisor-oscuro);
 }
 
+/* franja de arriba con los colores del club, como una bufanda de cancha */
+header::before {
+  content: '';
+  display: block;
+  height: 5px;
+  background: repeating-linear-gradient(90deg, var(--azul) 0 28px, var(--blanco) 28px 36px, var(--noche) 36px 44px, var(--blanco) 44px 52px);
+}
+
 .barra {
   width: min(1200px, 100% - 2rem);
   margin: 0 auto;
@@ -17,17 +25,6 @@ header {
   flex-wrap: wrap;
 }
 
-.marca {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  text-decoration: none;
-  color: var(--blanco);
-  font-family: var(--fuente-titulos);
-  font-size: 2rem;
-  letter-spacing: 0.08em;
-  line-height: 1;
-}
 
 .links {
   display: flex;
@@ -131,10 +128,6 @@ header {
 
   .arroba {
     display: none;
-  }
-
-  .marca {
-    font-size: 1.6rem;
   }
 
   .sesion .translucido {

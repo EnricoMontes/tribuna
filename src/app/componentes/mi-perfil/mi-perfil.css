@@ -113,6 +113,29 @@ dd {
   margin-top: 1.5rem;
 }
 
+/* camiseta de espaldas con el apellido */
+.camiseta {
+  width: 92px;
+  height: 92px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 8px 14px rgba(3, 21, 33, 0.18));
+  transform: rotate(4deg);
+}
+
+.camiseta-apellido {
+  fill: var(--blanco);
+  font-family: var(--fuente-titulos);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.camiseta-numero {
+  fill: var(--blanco);
+  font-family: var(--fuente-titulos);
+  font-size: 36px;
+}
+
 @media (max-width: 640px) {
   .perfil {
     margin-top: -4rem;

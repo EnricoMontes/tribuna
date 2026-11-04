@@ -11,6 +11,8 @@
 }
 
 .ventana {
+  position: relative;
+  overflow: hidden;
   width: min(440px, 100%);
   text-align: center;
   color: var(--texto);
@@ -41,8 +43,35 @@
 }
 
 .tipo-error .icono {
+  background: rgba(211, 58, 58, 0.12);
+  box-shadow: 0 0 0 8px rgba(211, 58, 58, 0.06);
+}
+
+/* error = tarjeta roja del árbitro */
+.tarjeta-roja {
+  width: 28px;
+  height: 38px;
+  border-radius: 4px;
+  background: #d93030;
+  transform: rotate(-12deg);
+  box-shadow: 0 4px 10px rgba(217, 48, 48, 0.4);
+}
+
+/* franja de colores arriba, igual que la de la barra */
+.ventana::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+  background: var(--azul);
+}
+
+.tipo-exito::before {
+  background: var(--exito);
+}
+
+.tipo-error::before {
   background: var(--error);
-  box-shadow: 0 0 0 8px rgba(211, 58, 58, 0.15);
 }
 
 h2 {

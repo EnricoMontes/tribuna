@@ -18,6 +18,24 @@ export function passwordFuerteValidator(): ValidatorFn {
 }
 
 /**
+ * Correo con dominio completo: usuario@dominio.ext (por ejemplo hincha@gmail.com).
+ * Validators.email de Angular acepta "hincha@gmail" (sin .com) porque sigue la norma, que lo permite
+ * para redes internas. Para una red social pedimos que después del @ haya un dominio con punto
+ * y una extensión de al menos 2 letras.
+ */
+export const PATRON_CORREO = /^[^\s@]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
+
+export function correoValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const valor: string = (control.value ?? '').trim();
+    if (!valor) {
+      return null; // de "vacío" se encarga Validators.required
+    }
+    return PATRON_CORREO.test(valor) ? null : { correoInvalido: true };
+  };
+}
+
+/**
  * Validador de GRUPO: compara dos controles del mismo formulario.
  * Va en el FormGroup (y no en un control) para que se recalcule si cambia cualquiera de los dos.
  */

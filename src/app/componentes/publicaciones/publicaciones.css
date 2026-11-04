@@ -1,18 +1,92 @@
-.vacio {
-  text-align: center;
-  padding: 3.5rem 1.5rem;
-  max-width: 680px;
-  margin: 0 auto;
+/* ---------- tablero del estadio ---------- */
+
+.tablero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
 }
 
-.vacio p {
+.tablero-dato {
+  display: grid;
+  min-width: 130px;
+  padding: 0.8rem 1.1rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--divisor-oscuro);
+  border-radius: var(--radio-chico);
+  line-height: 1;
+}
+
+/* números como los de un tablero electrónico */
+.tablero-numero {
+  font-family: var(--fuente-titulos);
+  font-size: 2.6rem;
+  color: #ffd84a;
+  text-shadow: 0 0 14px rgba(255, 216, 74, 0.45);
+  font-variant-numeric: tabular-nums;
+}
+
+.tablero-nombre {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.tablero-dato.en-vivo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  align-self: stretch;
+}
+
+.tablero-dato.en-vivo .tablero-nombre {
+  margin: 0;
+}
+
+.punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--exito);
+  box-shadow: 0 0 0 0 rgba(30, 158, 90, 0.6);
+  animation: latido 1.8s infinite;
+}
+
+/* ---------- grilla: cancha vacía + lateral ---------- */
+
+.grilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.cancha-vacia {
+  text-align: center;
+}
+
+.cancha-vacia p {
   color: var(--texto-suave);
   max-width: 480px;
   margin: 0 auto;
 }
 
+.mini-cancha {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 240px;
+  margin: -0.5rem -0.5rem 2rem;
+  border-radius: calc(var(--radio) - 6px);
+  overflow: hidden;
+  background: var(--cancha-horizontal) center / 92% 84% no-repeat, var(--cesped);
+}
+
 .pelota {
-  margin-bottom: 1.25rem;
+  filter: drop-shadow(0 12px 10px rgba(3, 21, 33, 0.35));
   animation: pique 1.6s ease-in-out infinite;
 }
 
@@ -24,8 +98,76 @@
   margin-top: 2rem;
 }
 
+/* ---------- lateral ---------- */
+
+.lateral {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.bloque {
+  padding: 1.5rem;
+}
+
+.pasos,
+.reglamento {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.pasos li,
+.reglamento li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.pasos p,
+.reglamento p {
+  margin: 0;
+  color: var(--texto-suave);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* número de camiseta */
+.dorsal {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px 10px 14px 14px;
+  font-family: var(--fuente-titulos);
+  font-size: 1.4rem;
+  color: var(--blanco);
+  background: linear-gradient(90deg, var(--azul) 0 33%, var(--azul-oscuro) 33% 66%, var(--azul) 66%);
+}
+
+.reglamento li {
+  align-items: center;
+}
+
 @keyframes pique {
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes latido {
+  70% {
+    box-shadow: 0 0 0 10px rgba(30, 158, 90, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(30, 158, 90, 0);
+  }
+}
+
+@media (max-width: 900px) {
+  .grilla {
+    grid-template-columns: 1fr;
   }
 }

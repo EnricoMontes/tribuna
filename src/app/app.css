@@ -74,13 +74,4 @@ footer {
   margin: 0;
 }
 
-.marca {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  text-decoration: none;
-  color: var(--blanco);
-  font-family: var(--fuente-titulos);
-  font-size: 1.8rem;
-  letter-spacing: 0.08em;
-}
+

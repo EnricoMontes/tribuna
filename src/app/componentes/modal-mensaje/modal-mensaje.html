@@ -12,8 +12,8 @@
       <div class="icono" aria-hidden="true">
         @switch (datos.tipo) {
           @case ('exito') { ✓ }
-          @case ('error') { ! }
-          @default { i }
+          @case ('error') { <span class="tarjeta-roja"></span> }
+          @default { <img src="pelota.svg" alt="" width="40" height="40"> }
         }
       </div>
       <h2 id="modal-titulo">{{ datos.titulo }}</h2>

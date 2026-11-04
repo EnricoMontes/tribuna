@@ -9,6 +9,32 @@
         <li>Dale me gusta a lo mejor de la tribuna</li>
         <li>Comentá cada jugada</li>
       </ul>
+
+      <!-- Carnet de socio: vista previa en vivo de lo que se va completando en el formulario -->
+      @let datos = formRegistro.controls;
+      <div class="carnet" aria-hidden="true">
+        <div class="carnet-cabeza">
+          <img src="escudo.svg" alt="" width="30" height="34">
+          <span>Carnet de socio</span>
+          <span class="carnet-anio">{{ anio }}</span>
+        </div>
+        <div class="carnet-cuerpo">
+          @if (vistaPrevia()) {
+            <img class="avatar" [src]="vistaPrevia()" alt="" width="64" height="64">
+          } @else {
+            <span class="avatar">{{ inicialesCarnet() }}</span>
+          }
+          <div class="carnet-datos">
+            <strong>{{ datos.nombre.value || 'Tu nombre' }} {{ datos.apellido.value }}</strong>
+            <span>&#64;{{ datos.nombreUsuario.value || 'hincha' }}</span>
+          </div>
+          <span class="carnet-numero">12</span>
+        </div>
+        <div class="carnet-pie">
+          <span>Socio hincha · Platea Tribuna</span>
+          <span class="codigo"></span>
+        </div>
+      </div>
     </aside>
 
     <div class="acceso-form">
@@ -65,16 +91,16 @@
         </div>
 
         <div class="fila">
-          <div class="campo" [class.invalido]="mostrarError('correo')">
+          <div class="campo" [class.invalido]="mostrarErrorCorreo()">
             <label for="correo">Correo</label>
-            <input id="correo" type="email" formControlName="correo" autocomplete="email">
+            <input id="correo" type="email" formControlName="correo" autocomplete="email" placeholder="hincha@gmail.com">
             @let correo = formRegistro.controls.correo;
             @if (correo.pending) {
               <p class="ayuda">Verificando...</p>
-            } @else if (mostrarError('correo')) {
+            } @else if (mostrarErrorCorreo()) {
               <p class="error">
                 @if (correo.hasError('required')) { Ingresá tu correo }
-                @else if (correo.hasError('email')) { El correo no tiene un formato válido }
+                @else if (correo.hasError('correoInvalido')) { El correo no tiene un formato válido (ej: hincha&#64;gmail.com) }
                 @else if (correo.hasError('enUso')) { Ya existe una cuenta con ese correo }
               </p>
             }

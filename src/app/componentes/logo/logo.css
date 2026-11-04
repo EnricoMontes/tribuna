@@ -1,0 +1,58 @@
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: var(--blanco);
+}
+
+img {
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  transition: transform 0.3s;
+}
+
+.marca:hover img {
+  transform: rotate(-6deg) scale(1.05);
+}
+
+.textos {
+  display: grid;
+  line-height: 1;
+}
+
+.nombre {
+  font-family: var(--fuente-titulos);
+  font-size: 2rem;
+  letter-spacing: 0.12em;
+}
+
+/* lema chico con una rayita azul adelante, como en los escudos de los clubes */
+.lema {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.lema::before {
+  content: '';
+  width: 14px;
+  height: 2px;
+  background: var(--azul);
+}
+
+@media (max-width: 760px) {
+  .nombre {
+    font-size: 1.6rem;
+  }
+
+  .lema {
+    display: none;
+  }
+}
