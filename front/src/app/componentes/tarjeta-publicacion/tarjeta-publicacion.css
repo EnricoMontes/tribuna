@@ -129,6 +129,13 @@ h3 {
   border-color: var(--azul);
 }
 
+/* ya le di me gusta: al pasar el mouse se oscurece (las letras siguen en blanco) */
+.me-gusta.activo:hover:not(:disabled) {
+  color: var(--blanco);
+  background: var(--azul-oscuro);
+  border-color: var(--azul-oscuro);
+}
+
 .me-gusta.activo svg {
   fill: currentColor;
   transform: scale(1.1);
