@@ -39,8 +39,15 @@
     }
     <p class="mensaje">{{ p.mensaje }}</p>
 
+    <!-- La foto también lleva a la página de la publicación (salvo que ya estemos ahí) -->
     @if (p.imagen) {
-      <img class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
+      @if (grande()) {
+        <img class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
+      } @else {
+        <a class="foto-link" [routerLink]="['/publicaciones', p._id]" title="Ver la publicación">
+          <img class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
+        </a>
+      }
     }
 
     <footer class="acciones">

@@ -84,6 +84,23 @@ h3 {
   margin-bottom: 1rem;
 }
 
+/* foto clickeable: zoom suave al pasar el mouse (el overflow recorta la imagen agrandada) */
+.foto-link {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radio-chico);
+  margin-bottom: 1rem;
+}
+
+.foto-link .foto {
+  margin-bottom: 0;
+  transition: transform 0.4s ease;
+}
+
+.foto-link:hover .foto {
+  transform: scale(1.03);
+}
+
 /* ---------- acciones ---------- */
 
 .acciones {
