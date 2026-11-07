@@ -182,12 +182,20 @@ h3 {
 
 .tarjeta.grande {
   grid-template-columns: minmax(0, 1fr) 240px;
+  /* la columna del partido sigue oscura hasta abajo, aunque el panel no ocupe todo el alto */
+  background: linear-gradient(90deg, var(--blanco) calc(100% - 240px), var(--noche) 0);
+  /* clip y no hidden: overflow hidden anula el position: sticky del panel del partido */
+  overflow: clip;
 }
 
-/* la tarjeta grande es muy alta: el partido va arriba y no centrado (si no, queda fuera de vista) */
+/* La tarjeta grande es muy alta (foto + comentarios): el panel del partido mide lo que la pantalla
+   (menos la navbar), queda centrado y es sticky, así acompaña mientras se baja por los comentarios */
 .tarjeta.grande .partido {
-  justify-content: flex-start;
-  padding-top: 2.2rem;
+  position: sticky;
+  top: 83px; /* alto de la navbar, que también es sticky */
+  align-self: start;
+  height: calc(100vh - 83px);
+  max-height: 100%;
 }
 
 .tarjeta.grande .contenido {
@@ -316,6 +324,13 @@ h3 {
   .tarjeta,
   .tarjeta.grande {
     grid-template-columns: 1fr;
+    background: var(--blanco);
+  }
+
+  .tarjeta.grande .partido {
+    position: relative;
+    top: 0;
+    height: auto;
   }
 
   .tarjeta.grande .contenido {
