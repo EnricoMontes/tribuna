@@ -12,15 +12,17 @@
       placeholder="Equipo o fecha: river, boca racing, fecha 16..."
       role="combobox"
       aria-controls="resultados-partidos"
-      [attr.aria-expanded]="texto().trim().length > 0"
+      [attr.aria-expanded]="abierto() && texto().trim().length > 0"
       [attr.aria-activedescendant]="resultados().length ? 'resultado-' + activo() : null"
       [value]="texto()"
       (input)="escribir($any($event.target).value)"
       (keydown)="teclado($event)"
+      (focus)="abrir()"
+      (click)="abrir()"
     />
   </div>
 
-  @if (texto().trim()) {
+  @if (abierto() && texto().trim()) {
     <ul id="resultados-partidos" class="resultados" role="listbox" aria-label="Partidos encontrados">
       @for (p of resultados(); track p.id; let i = $index) {
         <li

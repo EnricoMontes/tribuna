@@ -1,6 +1,8 @@
-/* El buscador va en la cabecera oscura del inicio. Los resultados van "en el flujo" (no flotando):
-   la cabecera tiene overflow: hidden y una lista flotante quedaría cortada. */
+/* El buscador va en la cabecera oscura del inicio. El desplegable FLOTA encima de lo que hay
+   abajo (position: absolute), así no empuja el contenido. Para que no lo corte la cabecera, en
+   la pantalla Publicaciones la cabecera recorta con clip-path y no con overflow: hidden. */
 .buscador {
+  position: relative;
   max-width: 680px;
   margin-top: 1.75rem;
 }
@@ -62,8 +64,15 @@ input:focus {
 /* ---------- resultados ---------- */
 
 .resultados {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: min(480px, 70vh);
+  overflow-y: auto;
   list-style: none;
-  margin: 0.6rem 0 0;
+  margin: 0.5rem 0 0;
   padding: 0.4rem;
   background: var(--blanco);
   border-radius: var(--radio-chico);

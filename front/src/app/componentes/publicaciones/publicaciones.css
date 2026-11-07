@@ -1,3 +1,16 @@
+/* La cabecera normalmente recorta todo (overflow: hidden) para que los dibujos de la cancha no se
+   salgan. Acá el desplegable del buscador tiene que poder salir por abajo y quedar encima de las
+   publicaciones:
+   - overflow-x: clip -> recorta a los costados sin crear scroll horizontal
+   - overflow-y: visible -> deja salir lo que pasa por abajo
+   - clip-path -> recorta arriba y a los costados, pero deja 100vh de margen por abajo */
+.cabecera-pagina {
+  overflow-x: clip;
+  overflow-y: visible;
+  clip-path: inset(0 0 -100vh 0);
+  z-index: 2; /* por encima de la sección de publicaciones que viene después */
+}
+
 /* ---------- tablero del estadio ---------- */
 
 .tablero {
