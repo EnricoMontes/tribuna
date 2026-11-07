@@ -5,10 +5,11 @@ import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { Auth } from '../../servicios/auth';
 import { Partidos } from '../../servicios/partidos';
+import { BuscadorPartidos } from '../buscador-partidos/buscador-partidos';
 import { ListaPublicaciones } from '../lista-publicaciones/lista-publicaciones';
 
 @Component({
-  imports: [RouterLink, DecimalPipe, DatePipe, ListaPublicaciones],
+  imports: [RouterLink, DecimalPipe, DatePipe, ListaPublicaciones, BuscadorPartidos],
   selector: 'app-publicaciones',
   styleUrl: './publicaciones.css',
   templateUrl: './publicaciones.html',

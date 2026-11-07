@@ -1,0 +1,55 @@
+<div class="buscador">
+  <label class="titulo-buscador" for="buscar-partido">Buscá un partido</label>
+  <div class="campo-busqueda">
+    <svg class="lupa" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </svg>
+    <input
+      id="buscar-partido"
+      type="search"
+      autocomplete="off"
+      placeholder="Equipo o fecha: river, boca racing, fecha 16..."
+      role="combobox"
+      aria-controls="resultados-partidos"
+      [attr.aria-expanded]="texto().trim().length > 0"
+      [attr.aria-activedescendant]="resultados().length ? 'resultado-' + activo() : null"
+      [value]="texto()"
+      (input)="escribir($any($event.target).value)"
+      (keydown)="teclado($event)"
+    />
+  </div>
+
+  @if (texto().trim()) {
+    <ul id="resultados-partidos" class="resultados" role="listbox" aria-label="Partidos encontrados">
+      @for (p of resultados(); track p.id; let i = $index) {
+        <li
+          [id]="'resultado-' + i"
+          role="option"
+          [attr.aria-selected]="i === activo()"
+          [class.activo]="i === activo()"
+          (click)="entrar(p)"
+          (mouseenter)="activo.set(i)"
+        >
+          <span class="equipo">
+            <img [src]="p.local.escudo" alt="" width="26" height="26" />
+            {{ p.local.nombre }}
+          </span>
+          <span class="marcador">{{ p.goles.local }} - {{ p.goles.visitante }}</span>
+          <span class="equipo visitante">
+            {{ p.visitante.nombre }}
+            <img [src]="p.visitante.escudo" alt="" width="26" height="26" />
+          </span>
+          <span class="cuando">{{ p.fecha }} · {{ p.inicio | date: 'EEE d/M' }}</span>
+        </li>
+      } @empty {
+        <li class="sin-resultados">No encontramos partidos jugados con "{{ texto().trim() }}".</li>
+      }
+      @if (coincidencias().length > resultados().length) {
+        <li class="mas">
+          y {{ coincidencias().length - resultados().length }} más: escribí otro equipo para achicar
+        </li>
+      }
+    </ul>
+  }
+</div>

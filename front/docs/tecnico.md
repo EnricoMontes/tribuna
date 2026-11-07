@@ -42,6 +42,7 @@ src/app/
 │   ├── tarjeta-publicacion/ UNA publicación: input() publicacion / output() meGusta y eliminar; versión grande y con comentarios
 │   ├── pagina-publicacion/  /publicaciones/:id: la publicación grande + sus comentarios
 │   ├── comentarios/         comentar, editar los míos y "cargar más" (offset = los que ya tengo)
+│   ├── buscador-partidos/   filtra en el navegador los partidos jugados (computed, sin tildes) y entra al elegido
 │   ├── cargando/            spinner con el escudo animado (CSS); también la pantalla de carga
 │   ├── partido/             /partidos/:id (el id llega como input) + lista filtrada por partido
 │   ├── publicar/            form reactivo: partido (optgroup por liga), título, mensaje, foto

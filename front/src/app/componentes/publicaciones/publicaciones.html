@@ -10,6 +10,9 @@
       }
     </p>
 
+    <!-- Buscador: filtra los partidos ya jugados y entra al que elijas -->
+    <app-buscador-partidos [partidos]="partidos()" />
+
     <!-- Tablero del estadio con datos reales -->
     <div class="tablero" aria-label="Resumen de la tribuna">
       <div class="tablero-dato">
