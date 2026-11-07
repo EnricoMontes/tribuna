@@ -32,14 +32,17 @@ Componente (pantalla) ──usa──▶ Servicio (@Service + inject) ──Http
 src/app/
 ├── app.routes.ts            rutas lazy (loadComponent) + title; '' → publicaciones; ** → 404
 ├── app.config.ts            provideRouter(withComponentInputBinding), provideHttpClient(withFetch, withInterceptors), es-AR
-├── app.html                 <app-navbar> + <router-outlet> + <app-modal-mensaje> (una sola vez)
+├── app.html                 <app-navbar> + <router-outlet> + pantalla de carga + <app-modal-mensaje> (una sola vez)
 ├── componentes/
 │   ├── navbar/              links (routerLinkActive), avatar o iniciales (computed), Salir
 │   ├── login/               form identificador + password, ver/ocultar contraseña
 │   ├── registro/            form completo + foto con vista previa (URL.createObjectURL)
 │   ├── publicaciones/       tablero + <app-lista-publicaciones> + partidos de la fecha (toSignal)
 │   ├── lista-publicaciones/ orden, paginación (offset/limit), me gusta y eliminar; la reusan 3 pantallas
-│   ├── tarjeta-publicacion/ UNA publicación: input() publicacion / output() meGusta y eliminar
+│   ├── tarjeta-publicacion/ UNA publicación: input() publicacion / output() meGusta y eliminar; versión grande y con comentarios
+│   ├── pagina-publicacion/  /publicaciones/:id: la publicación grande + sus comentarios
+│   ├── comentarios/         comentar, editar los míos y "cargar más" (offset = los que ya tengo)
+│   ├── cargando/            spinner con el escudo animado (CSS); también la pantalla de carga
 │   ├── partido/             /partidos/:id (el id llega como input) + lista filtrada por partido
 │   ├── publicar/            form reactivo: partido (optgroup por liga), título, mensaje, foto
 │   ├── mi-perfil/           datos + edad e iniciales (computed) + mis últimas 3 (la misma lista) + lápiz
@@ -47,17 +50,19 @@ src/app/
 │   ├── pagina-error/        404 "Fuera de juego"
 │   └── modal-mensaje/       dibuja el modal; effect() le da foco; @HostListener para Escape
 ├── servicios/
-│   ├── auth.ts              usuario = signal, logueado = computed, registro/login/cerrarSesion
+│   ├── auth.ts              usuario = signal, logueado = computed, registro/login/cerrarSesion,
+│   │                        verificarSesion (autorizar), refrescar y los timers de la sesión
 │   ├── usuarios.ts          disponible(campo, valor) → Observable<boolean>
 │   ├── modal.ts             datos = signal; exito / error / info / confirmar / cerrar
-│   ├── publicaciones.ts     listar (HttpParams) / crear / eliminar / darMeGusta / quitarMeGusta
+│   ├── publicaciones.ts     listar (HttpParams) / obtener / crear / eliminar / darMeGusta / quitarMeGusta
+│   ├── comentarios.ts       listar (offset, limit) / crear / editar
 │   ├── partidos.ts          GET /partidos
 │   └── cuadros.ts           GET /cuadros (shareReplay)
 ├── interceptores/token.interceptor.ts   agrega el Bearer y, si hay 401, vuelve al login
-├── guards/sesion.guard.ts   canActivate: sin sesión -> /login
+├── guards/sesion.guard.ts   canActivate: espera la verificación inicial; sin sesión -> /login
 ├── validadores/registro.validadores.ts
 ├── utilidades/errores.ts    traduce el error de Nest ({statusCode, message}) a texto
-└── modelos/usuario.ts       interfaz Usuario
+└── modelos/                 usuario · cuadro · partido · publicacion · comentario
 ```
 
 ## Decisiones técnicas
@@ -110,7 +115,12 @@ Validar en el front da feedback inmediato. El back **vuelve a validar todo**, po
 - **Interceptor HTTP** (`interceptores/token.interceptor.ts`): es una función que Angular ejecuta en **cada** petición de `HttpClient`. Si hay token, **clona** la petición (porque las peticiones son inmutables) y le agrega `Authorization: Bearer <token>`. Se registra con `provideHttpClient(withInterceptors([tokenInterceptor]))`.
 - Solo agrega el token a las peticiones a nuestra API (`environment.apiUrl`), no a otros sitios.
 - Si hay usuario guardado pero no token (una sesión vieja del Sprint 1), se considera que no hay sesión.
-- En el Sprint 3 se agregan `POST /auth/autorizar` al abrir la app, el refresco del token y la redirección al login si una petición da `401`.
+- **Pantalla de carga (Sprint 3):** `App` llama a `auth.verificarSesion()` al iniciar y `app.html` muestra `<app-cargando pantallaCompleta>` mientras `auth.verificando()` es true.
+  - `verificarSesion()` hace `POST /auth/autorizar` junto con un `timer(800)` (`forkJoin`), para que el spinner no sea un parpadeo, y usa `shareReplay(1)` para que la petición salga una sola vez aunque se suscriban App y el guard.
+  - El **guard** devuelve ese Observable mientras se verifica (Angular espera a que emita): válido → entra; inválido → `UrlTree` al login.
+- **Modal a los 10 minutos:** dos `setTimeout`, uno a los 10 minutos (abre `modal.confirmar` con "Extender sesión", que llama a `POST /auth/refrescar` y reprograma los timers) y otro a los 15 (cierra la sesión y vuelve al login con un aviso). Se cancelan con `clearTimeout` al salir.
+  - El vencimiento se guarda como `Date.now() + (exp - iat) * 1000` (la duración del token, leída del payload con `atob`), no con `exp` directo: `exp` es la hora del servidor, y si la compu tiene la hora corrida el aviso saldría a destiempo.
+- **401:** el interceptor llama a `auth.sesionVencida()` (cierra sesión, va al login y avisa). El 401 de `/auth/autorizar` lo resuelve el guard, sin aviso.
 
 ### Publicaciones: componentes que se comunican
 - **`TarjetaPublicacion`** (la consigna pide que cada publicación sea un componente) recibe la publicación con **`input.required()`** y avisa con **`output()`** cuando se toca me gusta o eliminar. **No llama a la API**: solo muestra y avisa. Así sirve igual en el listado, en el partido y en Mi perfil.
@@ -122,6 +132,19 @@ Validar en el front da feedback inmediato. El back **vuelve a validar todo**, po
 - **Rutas con parámetros como input**: con `withComponentInputBinding()`, el `:id` de `/partidos/:id` y el `?partido=` de `/publicar` llegan directo como `input()`.
 - **Confirmación sin `confirm()`**: `modal.confirmar(titulo, mensaje, textoBoton, alConfirmar)` muestra dos botones; la acción se ejecuta solo si se acepta.
 - **Guard `sesionGuard`** (`canActivate`): si no hay sesión, devuelve un `UrlTree` al login. Con `canMatch` el chunk lazy ni siquiera se descargaría.
+
+### Comentarios (Sprint 3)
+- `Comentarios` recibe `publicacionId` y `porPagina` (`input()`) y avisa el total nuevo con `output()` `totalCambio`.
+- **"Cargar más"**: pide `offset = comentarios().length` y **suma** lo que llega al final del signal (`update`), filtrando repetidos por `_id`. `hayMas` es un `computed` (`length < total`).
+- Comentar agrega el nuevo **arriba** (la API ordena del más reciente al más viejo). Editar reemplaza solo ese comentario, que vuelve con `modificado: true` y se muestra "(editado)".
+- Validación del textarea: `required`, `maxLength(500)` y `pattern(/\S/)` (no solo espacios).
+- Los forms usan `(submit)="$event.preventDefault(); …"` y no `(ngSubmit)`: `ngSubmit` lo emite un form con `[formGroup]`, y acá cada form tiene un `FormControl` suelto.
+- La tarjeta guarda la cantidad en un **`linkedSignal`**: toma el valor del input, se puede cambiar al comentar y vuelve a tomar el del input si cambia la publicación.
+
+### Spinner con el escudo (`app-cargando`)
+- El SVG del escudo va escrito en el template (no como `<img>`) para que el CSS pueda animar cada parte: la pelota gira (`transform-box: fill-box`), una luz recorre el borde (`stroke-dasharray` + `stroke-dashoffset`, con `pathLength="100"`) y el escudo late.
+- Cada instancia genera ids propios para el gradiente y el `clipPath`: si dos spinners compartieran id, el segundo usaría el recorte del primero.
+- Con `prefers-reduced-motion` solo queda la luz del borde, más lenta.
 
 ### Editar perfil
 - `EditarPerfil` recibe el usuario con `input.required()` y en **`ngOnInit`** carga el formulario: en el constructor los inputs todavía no tienen valor.

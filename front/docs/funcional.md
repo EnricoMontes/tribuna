@@ -22,15 +22,18 @@ azul noche, títulos en mayúsculas y una cinta con frases de la hinchada en el 
 | **Crear cuenta** (`/registro`) | Formulario completo con foto de perfil y vista previa. Avisa en vivo si algún dato está mal |
 | **Ingresar** (`/login`) | Ingreso con correo **o** nombre de usuario, más la contraseña. Botón para ver u ocultar la contraseña |
 | **Publicaciones** (`/publicaciones`) | Todas las publicaciones, de a 5 por página. Se ordenan por **más nuevas** (por defecto) o por **más me gusta**. Cada una muestra el autor, el texto, la foto y, **al costado, el partido** (escudos, liga y horario): al tocarlo se entra a ese partido. Al lado de la lista están los **partidos de la fecha** |
-| **Partido** (`/partidos/:id`) | El partido como un marcador (escudos, VS, día y hora) y **todas las publicaciones de ese partido**, con el mismo orden y las mismas páginas. Botón para publicar de ese partido |
+| **Publicación** (`/publicaciones/:id`) | Una publicación **grande**, con sus **comentarios** abajo: los 5 más nuevos y un botón **"Cargar más"** que trae los siguientes sin borrar los que ya se ven. Se puede **comentar** y **editar mis comentarios** (los editados dicen "(editado)"). Se entra tocando el título o "N comentarios" en cualquier tarjeta. Botón **← Volver** |
+| **Partido** (`/partidos/:id`) | El partido como un marcador (escudos, VS, día y hora) y **todas las publicaciones de ese partido**, con el mismo orden y las mismas páginas. Botón para publicar de ese partido y botón **← Todas las publicaciones** |
 | **Publicar** (`/publicar`) | Se elige el **partido de la fecha** (Liga Profesional o Primera Nacional), se escribe un título y un mensaje, y se puede agregar una foto con vista previa |
-| **Mi perfil** (`/mi-perfil`) | Foto (o iniciales si no subió), nombre, @usuario, correo, fecha de nacimiento y edad, descripción, tipo de perfil, cuadro y número. Arriba, la **portada** (mi banner o la azul). Con el **lápiz** se abre una ventana para editar nombre, apellido, descripción, cuadro, número, foto y portada, con vista previa. Abajo, **mis últimas 3 publicaciones** |
+| **Mi perfil** (`/mi-perfil`) | Foto (o iniciales si no subió), nombre, @usuario, correo, fecha de nacimiento y edad, descripción, tipo de perfil, cuadro y número. Arriba, la **portada** (mi banner o la azul). Con el **lápiz** se abre una ventana para editar nombre, apellido, descripción, cuadro, número, foto y portada, con vista previa. Abajo, **mis últimas 3 publicaciones con sus comentarios** |
 | **Fuera de juego** (404) | Si se entra a una dirección que no existe |
 
 - **Barra de navegación:** links a todas las pantallas, avatar y @usuario de quien está logueado, y botón **Salir**.
 - **Me gusta:** se toca el corazón para darlo y otra vez para sacarlo. Cada hincha puede dar uno solo por publicación.
 - **Eliminar:** aparece solo en **mis** publicaciones (o en todas si soy administrador) y pide confirmación en un modal.
-- Publicaciones, Partido, Publicar y Mi perfil piden **haber ingresado**: si no, la app manda al login. Si la sesión vence (15 minutos), también vuelve al login.
+- Publicaciones, Publicación, Partido, Publicar y Mi perfil piden **haber ingresado**: si no, la app manda al login.
+- **Pantalla de carga:** al abrir la app aparece el escudo animado ("Entrando a la cancha...") mientras se verifica que la sesión guardada siga sirviendo. Si sirve, entra a Publicaciones (o a la pantalla donde estaba, si se recargó con F5); si no, va al login.
+- **Sesión de 15 minutos:** a los **10 minutos** aparece un aviso *"Tu sesión vence en 5 minutos"* con el botón **Extender sesión** (da 15 minutos más). Si no se extiende, a los 15 minutos la app vuelve al login y avisa *"Tu sesión venció"*. Si el servidor responde que la sesión no es válida, también vuelve al login.
 - Al recargar la página (F5) la sesión se mantiene.
 - Se puede usar desde el celular (diseño adaptable).
 
@@ -67,5 +70,4 @@ aparecen en un **modal propio** que se cierra con **Aceptar**, con la tecla **Es
 | Sprint | Funcionalidad |
 |---|---|
 | 2 | Listado de publicaciones (por fecha o por me gusta, paginado), crear con imagen, me gusta, borrar las propias; Mi perfil con mis últimas 3 publicaciones |
-| 3 | Ver una publicación con sus comentarios ("cargar más"), editar comentarios, sesión con token y pantalla de carga |
 | 4 | Panel de administración y estadísticas; la app se va a poder instalar (PWA) |

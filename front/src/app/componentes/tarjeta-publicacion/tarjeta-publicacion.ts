@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, linkedSignal, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Publicacion } from '../../modelos/publicacion';
+import { Comentarios } from '../comentarios/comentarios';
 
 /**
  * Una publicación (la consigna pide que cada publicación sea un componente).
@@ -11,7 +12,7 @@ import { Publicacion } from '../../modelos/publicacion';
  *   (así la misma tarjeta sirve en cualquier pantalla).
  */
 @Component({
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, Comentarios],
   selector: 'app-tarjeta-publicacion',
   styleUrl: './tarjeta-publicacion.css',
   templateUrl: './tarjeta-publicacion.html',
@@ -21,9 +22,16 @@ export class TarjetaPublicacion {
   puedeEliminar = input(false); // el padre sabe si es mía o si soy administrador
   ocupado = input(false); // mientras se procesa un me gusta, el botón queda deshabilitado
   mostrarPartido = input(true); // en la página del partido no hace falta repetirlo
+  conComentarios = input(false); // muestra los comentarios abajo (página de la publicación y Mi perfil)
+  comentariosPorPagina = input(5);
+  grande = input(false); // la página de la publicación la muestra "grande en la pantalla"
 
   meGusta = output<Publicacion>();
   eliminar = output<Publicacion>();
+
+  // linkedSignal: arranca con el valor que vino de la API, se puede cambiar acá (al comentar) y
+  // si llega otra publicación por el input vuelve a tomar el valor nuevo
+  cantidadComentarios = linkedSignal(() => this.publicacion().cantidadComentarios ?? 0);
 
   iniciales = computed(() => {
     const { nombre, apellido } = this.publicacion().autor;

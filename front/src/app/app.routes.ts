@@ -3,6 +3,8 @@ import { sesionGuard } from './guards/sesion.guard';
 
 // Todas las pantallas con lazy loading (loadComponent): cada una se descarga recién al visitarla.
 // Sprint 2: las pantallas de la red social piden sesión (sesionGuard); login y registro son libres.
+// Sprint 3: al abrir la app, el guard espera a que POST /auth/autorizar valide el token
+// (mientras tanto se ve la pantalla de carga). Válido -> publicaciones; si no -> login.
 export const routes: Routes = [
   { path: '', redirectTo: 'publicaciones', pathMatch: 'full' },
   {
@@ -21,6 +23,16 @@ export const routes: Routes = [
     canActivate: [sesionGuard],
     loadComponent: () =>
       import('./componentes/publicaciones/publicaciones').then((m) => m.Publicaciones),
+  },
+  {
+    // Una publicación grande, con sus comentarios
+    path: 'publicaciones/:id',
+    title: 'Publicación · Tribuna',
+    canActivate: [sesionGuard],
+    loadComponent: () =>
+      import('./componentes/pagina-publicacion/pagina-publicacion').then(
+        (m) => m.PaginaPublicacion,
+      ),
   },
   {
     // :id -> llega al componente como input (withComponentInputBinding en app.config.ts)

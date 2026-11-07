@@ -21,6 +21,11 @@ export class Publicaciones {
     return this.http.get<PaginaPublicaciones>(this.url, { params });
   }
 
+  /** GET /publicaciones/:id -> una publicación (la página de la publicación) */
+  obtener(id: string): Observable<Publicacion> {
+    return this.http.get<Publicacion>(`${this.url}/${id}`);
+  }
+
   /** FormData: titulo, mensaje, partidoId y la imagen (opcional) */
   crear(datos: FormData): Observable<Publicacion> {
     return this.http.post<Publicacion>(this.url, datos);

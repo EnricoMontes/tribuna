@@ -7,6 +7,7 @@ export interface DatosModal {
   titulo: string;
   mensaje: string;
   textoConfirmar?: string; // solo en 'confirmar': texto del botón principal
+  peligroso?: boolean; // solo en 'confirmar': botón rojo (eliminar) o azul (extender la sesión)
 }
 
 // Reemplaza a alert() y confirm(): cualquier componente pide mostrar un mensaje y
@@ -30,8 +31,14 @@ export class Modal {
   }
 
   /** Reemplazo de confirm(): dos botones. alConfirmar se ejecuta solo si el usuario acepta. */
-  confirmar(titulo: string, mensaje: string, textoConfirmar: string, alConfirmar: () => void) {
-    this.mostrar({ tipo: 'confirmar', titulo, mensaje, textoConfirmar });
+  confirmar(
+    titulo: string,
+    mensaje: string,
+    textoConfirmar: string,
+    alConfirmar: () => void,
+    peligroso = true,
+  ) {
+    this.mostrar({ tipo: 'confirmar', titulo, mensaje, textoConfirmar, peligroso });
     this.alConfirmar = alConfirmar;
   }
 

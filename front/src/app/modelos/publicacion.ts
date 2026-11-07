@@ -13,6 +13,7 @@ export interface Publicacion {
   partido: Partido;
   cantidadMeGusta: number;
   meGustaMio: boolean; // si el usuario logueado ya le dio me gusta
+  cantidadComentarios: number;
   createdAt: string;
   updatedAt: string;
 }

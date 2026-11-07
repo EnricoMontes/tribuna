@@ -1,0 +1,102 @@
+<section class="comentarios" aria-label="Comentarios">
+  <h4 class="titulo">
+    Comentarios <span class="cantidad">{{ total() }}</span>
+  </h4>
+
+  <!-- Escribir un comentario.
+       (submit) + preventDefault y no (ngSubmit): ngSubmit lo emite un form con [formGroup], y acá
+       hay un FormControl suelto. Sin preventDefault el navegador mandaría el form y recargaría. -->
+  <form class="nuevo" (submit)="$event.preventDefault(); comentar()">
+    <label class="sr-only" [for]="'nuevo-' + publicacionId()">Escribí un comentario</label>
+    <textarea
+      [id]="'nuevo-' + publicacionId()"
+      [formControl]="nuevo"
+      rows="2"
+      [maxlength]="maximo"
+      placeholder="¿Qué te pareció? Escribí un comentario..."
+      [class.invalido]="nuevo.invalid && nuevo.touched"
+    ></textarea>
+    <div class="pie-form">
+      <span class="contador">{{ nuevo.value.length }}/{{ maximo }}</span>
+      <button class="boton-chico" type="submit" [disabled]="enviando()">
+        @if (enviando()) {
+          Enviando...
+        } @else {
+          Comentar
+        }
+      </button>
+    </div>
+    @if (nuevo.invalid && nuevo.touched) {
+      <p class="error">Escribí algo antes de comentar.</p>
+    }
+  </form>
+
+  <!-- Lista: uno debajo del otro, los más recientes primero -->
+  <ul class="lista">
+    @for (c of comentarios(); track c._id) {
+      <li class="comentario">
+        @if (c.autor.fotoPerfil) {
+          <img class="avatar" [src]="c.autor.fotoPerfil" alt="" width="34" height="34" />
+        } @else {
+          <span class="avatar">{{ iniciales(c.autor) }}</span>
+        }
+        <div class="cuerpo">
+          <header>
+            <strong>{{ c.autor.nombre }} {{ c.autor.apellido }}</strong>
+            <span class="usuario">&#64;{{ c.autor.nombreUsuario }}</span>
+            <time [attr.datetime]="c.createdAt">{{ c.createdAt | date: 'd MMM, HH:mm' }}</time>
+            @if (c.modificado) {
+              <span class="editado" [title]="'Editado el ' + (c.updatedAt | date: 'd/M HH:mm')">
+                (editado)
+              </span>
+            }
+            @if (esMio(c) && editando() !== c._id) {
+              <button type="button" class="link" (click)="empezarEdicion(c)">Editar</button>
+            }
+          </header>
+
+          @if (editando() === c._id) {
+            <form class="edicion" (submit)="$event.preventDefault(); guardarEdicion(c)">
+              <label class="sr-only" [for]="'edicion-' + c._id">Editar comentario</label>
+              <textarea
+                [id]="'edicion-' + c._id"
+                [formControl]="edicion"
+                rows="2"
+                [maxlength]="maximo"
+                [class.invalido]="edicion.invalid && edicion.touched"
+              ></textarea>
+              <div class="pie-form">
+                <button type="button" class="link" (click)="cancelarEdicion()">Cancelar</button>
+                <button class="boton-chico" type="submit" [disabled]="guardando()">
+                  @if (guardando()) {
+                    Guardando...
+                  } @else {
+                    Guardar
+                  }
+                </button>
+              </div>
+            </form>
+          } @else {
+            <p class="mensaje">{{ c.mensaje }}</p>
+          }
+        </div>
+      </li>
+    } @empty {
+      @if (!cargando() && !error()) {
+        <li class="vacio">Todavía no hay comentarios. ¡Arrancá la charla!</li>
+      }
+    }
+  </ul>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <app-cargando [tamano]="34" />
+  } @else if (hayMas()) {
+    <button type="button" class="cargar-mas" (click)="cargarMas()">
+      Cargar más ({{ total() - comentarios().length }})
+    </button>
+  }
+</section>

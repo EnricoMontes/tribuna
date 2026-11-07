@@ -32,7 +32,8 @@
           <button class="boton secundario" type="button" (click)="modal.cerrar()">Cancelar</button>
           <button
             #botonAceptar
-            class="boton peligro"
+            class="boton"
+            [class.peligro]="datos.peligroso"
             type="button"
             (click)="modal.aceptarConfirmacion()"
           >

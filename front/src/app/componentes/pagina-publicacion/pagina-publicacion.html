@@ -1,0 +1,41 @@
+<header class="cabecera-pagina">
+  <div class="interior">
+    <button class="boton translucido volver" type="button" (click)="volver()">← Volver</button>
+    <span class="etiqueta-seccion">Publicación</span>
+    @if (publicacion(); as p) {
+      <h1>{{ p.titulo }}</h1>
+      <p class="subtitulo-cabecera">
+        Por &#64;{{ p.autor.nombreUsuario }} · {{ p.partido.local.nombre }}
+        {{ p.partido.goles.local }}-{{ p.partido.goles.visitante }}
+        {{ p.partido.visitante.nombre }}
+      </p>
+    } @else if (error()) {
+      <h1>No encontramos la publicación</h1>
+    } @else {
+      <h1>Cargando...</h1>
+    }
+  </div>
+</header>
+
+<section class="contenedor angosto">
+  @if (publicacion(); as p) {
+    <app-tarjeta-publicacion
+      [publicacion]="p"
+      [grande]="true"
+      [conComentarios]="true"
+      [comentariosPorPagina]="5"
+      [puedeEliminar]="puedeEliminar()"
+      [ocupado]="procesando()"
+      (meGusta)="alternarMeGusta($event)"
+      (eliminar)="confirmarEliminar($event)"
+    />
+  } @else if (error()) {
+    <div class="panel aviso">
+      <p class="error">{{ error() }}</p>
+      <p>Puede que la hayan eliminado.</p>
+      <a class="boton" routerLink="/publicaciones">Ver todas las publicaciones</a>
+    </div>
+  } @else {
+    <app-cargando texto="Cargando publicación..." />
+  }
+</section>

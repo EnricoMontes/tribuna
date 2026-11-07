@@ -13,6 +13,7 @@ import { Auth } from '../../servicios/auth';
 import { Modal } from '../../servicios/modal';
 import { Publicaciones } from '../../servicios/publicaciones';
 import { mensajeDeError } from '../../utilidades/errores';
+import { Cargando } from '../cargando/cargando';
 import { TarjetaPublicacion } from '../tarjeta-publicacion/tarjeta-publicacion';
 
 /**
@@ -21,7 +22,7 @@ import { TarjetaPublicacion } from '../tarjeta-publicacion/tarjeta-publicacion';
  * y Mi perfil (input usuario, 3 por página y sin controles: "mis últimas 3").
  */
 @Component({
-  imports: [TarjetaPublicacion],
+  imports: [Cargando, TarjetaPublicacion],
   selector: 'app-lista-publicaciones',
   styleUrl: './lista-publicaciones.css',
   templateUrl: './lista-publicaciones.html',
@@ -36,6 +37,7 @@ export class ListaPublicaciones {
   porPagina = input(5);
   conControles = input(true); // orden y paginación
   mostrarPartido = input(true);
+  conComentarios = input(false); // Mi perfil: cada publicación con sus comentarios abajo
   cargada = output<PaginaPublicaciones>(); // avisa al padre cada vez que llega una página (total, etc.)
 
   orden = signal<Orden>('fecha'); // la consigna pide "por fecha por defecto"

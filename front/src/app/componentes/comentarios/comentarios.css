@@ -1,0 +1,215 @@
+.comentarios {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--divisor);
+}
+
+.titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.8rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.cantidad {
+  font-family: var(--fuente-texto);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.15rem 0.55rem;
+  border-radius: 100px;
+  background: var(--azul-claro);
+  color: var(--azul);
+}
+
+/* ---------- formularios (nuevo y edición) ---------- */
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  resize: vertical;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--texto);
+  background: var(--fondo);
+  border: 1px solid var(--divisor);
+  border-radius: var(--radio-chico);
+  padding: 0.65rem 0.8rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+textarea:focus {
+  outline: none;
+  background: var(--blanco);
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px var(--azul-claro);
+}
+
+textarea.invalido {
+  border-color: var(--error);
+}
+
+.pie-form {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.contador {
+  margin-right: auto;
+  font-size: 0.75rem;
+  color: var(--texto-tenue);
+}
+
+.boton-chico {
+  font: 700 0.85rem var(--fuente-texto);
+  color: var(--blanco);
+  background: var(--azul);
+  border: none;
+  border-radius: 100px;
+  padding: 0.5rem 1.15rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.boton-chico:hover:not(:disabled) {
+  background: var(--azul-oscuro);
+}
+
+.boton-chico:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.link {
+  font: 700 0.8rem var(--fuente-texto);
+  color: var(--azul);
+  background: none;
+  border: none;
+  padding: 0.2rem;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.error {
+  margin-top: 0.4rem;
+}
+
+/* ---------- lista ---------- */
+
+.lista {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.comentario {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+
+.comentario .avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 0.9rem;
+  border-width: 2px;
+  border-color: var(--azul-claro);
+}
+
+/* el comentario como un "globo" gris al lado de la foto */
+.cuerpo {
+  flex: 1;
+  min-width: 0;
+  background: var(--fondo);
+  border-radius: 4px var(--radio-chico) var(--radio-chico) var(--radio-chico);
+  padding: 0.6rem 0.85rem;
+}
+
+.cuerpo header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.45rem;
+  font-size: 0.85rem;
+}
+
+.usuario {
+  color: var(--azul);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+time {
+  color: var(--texto-tenue);
+  font-size: 0.75rem;
+}
+
+.editado {
+  color: var(--texto-tenue);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.cuerpo header .link {
+  margin-left: auto;
+}
+
+.mensaje {
+  margin: 0.25rem 0 0;
+  font-size: 0.92rem;
+  color: var(--texto);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.edicion {
+  margin-top: 0.45rem;
+}
+
+.edicion textarea {
+  background: var(--blanco);
+}
+
+.vacio {
+  padding: 0.8rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--texto-tenue);
+}
+
+.cargar-mas {
+  display: block;
+  width: 100%;
+  margin-top: 0.8rem;
+  font: 700 0.85rem var(--fuente-texto);
+  color: var(--azul);
+  background: transparent;
+  border: 1px dashed rgba(31, 91, 216, 0.4);
+  border-radius: var(--radio-chico);
+  padding: 0.6rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cargar-mas:hover {
+  background: var(--azul-claro);
+}
+
+app-cargando {
+  padding: 0.75rem;
+}

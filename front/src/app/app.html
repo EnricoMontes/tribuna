@@ -22,5 +22,10 @@
   </div>
 </footer>
 
+<!-- Pantalla de carga al iniciar la app: tapa todo mientras se valida el token -->
+@if (auth.verificando()) {
+  <app-cargando pantallaCompleta texto="Entrando a la cancha..." />
+}
+
 <!-- Una sola instancia del modal para toda la app (lo maneja el servicio Modal) -->
 <app-modal-mensaje />

@@ -36,6 +36,8 @@
           [puedeEliminar]="esMia(publicacion)"
           [ocupado]="procesando() === publicacion._id"
           [mostrarPartido]="mostrarPartido()"
+          [conComentarios]="conComentarios()"
+          [comentariosPorPagina]="3"
           (meGusta)="alternarMeGusta($event)"
           (eliminar)="confirmarEliminar($event)"
         />
@@ -68,5 +70,5 @@
     <ng-content select="[vacio]" />
   }
 } @else {
-  <div class="panel aviso"><p class="ayuda">Cargando publicaciones...</p></div>
+  <app-cargando texto="Cargando publicaciones..." />
 }

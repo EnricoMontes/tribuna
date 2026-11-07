@@ -1,15 +1,10 @@
+/* botón para volver: usa el .boton.translucido global (pensado para fondos oscuros) */
 .volver {
-  display: block;
+  display: flex;
   width: fit-content;
   margin-bottom: 1.25rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.volver:hover {
-  color: var(--blanco);
+  padding: 0.7rem 1.3rem;
+  font-size: 1rem;
 }
 
 /* el partido como un marcador: local · VS · visitante */

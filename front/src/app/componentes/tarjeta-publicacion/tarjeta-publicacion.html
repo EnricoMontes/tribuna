@@ -1,5 +1,5 @@
 @let p = publicacion();
-<article class="tarjeta" [class.sin-partido]="!mostrarPartido()">
+<article class="tarjeta" [class.sin-partido]="!mostrarPartido()" [class.grande]="grande()">
   <div class="contenido">
     <header class="autor">
       @if (p.autor.fotoPerfil) {
@@ -29,7 +29,14 @@
       }}</time>
     </header>
 
-    <h3>{{ p.titulo }}</h3>
+    <!-- El título lleva a la página de la publicación (salvo que ya estemos ahí) -->
+    @if (grande()) {
+      <h3>{{ p.titulo }}</h3>
+    } @else {
+      <h3>
+        <a class="titulo-link" [routerLink]="['/publicaciones', p._id]">{{ p.titulo }}</a>
+      </h3>
+    }
     <p class="mensaje">{{ p.mensaje }}</p>
 
     @if (p.imagen) {
@@ -52,10 +59,31 @@
         </svg>
         {{ p.cantidadMeGusta }} me gusta
       </button>
+      @if (!conComentarios()) {
+        <a
+          class="ver-comentarios"
+          [routerLink]="['/publicaciones', p._id]"
+          title="Ver la publicación con sus comentarios"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5h16v11H9l-5 4Z" />
+          </svg>
+          {{ cantidadComentarios() }}
+          {{ cantidadComentarios() === 1 ? 'comentario' : 'comentarios' }}
+        </a>
+      }
       @if (puedeEliminar()) {
         <button type="button" class="borrar" (click)="eliminar.emit(p)">Eliminar</button>
       }
     </footer>
+
+    @if (conComentarios()) {
+      <app-comentarios
+        [publicacionId]="p._id"
+        [porPagina]="comentariosPorPagina()"
+        (totalCambio)="cantidadComentarios.set($event)"
+      />
+    }
   </div>
 
   <!-- Al costado: de qué partido es. Se puede entrar a ver todas las publicaciones de ese partido. -->

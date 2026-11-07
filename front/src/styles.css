@@ -392,6 +392,20 @@ img {
   flex-shrink: 0;
 }
 
+/* Texto solo para lectores de pantalla (por ejemplo, el label de un textarea que ya se entiende
+   por el placeholder): no se ve, pero sigue siendo accesible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- lista con checks (como la del hero) ---------- */
 
 .lista-check {

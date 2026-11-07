@@ -9,10 +9,19 @@
   @if (auth.usuario(); as usuario) {
     <article class="panel perfil">
       <!-- Portada: el banner del usuario o, si no puso uno, la azul por defecto -->
-      <div class="portada" aria-hidden="true"
-           [class.con-banner]="usuario.banner"
-           [style.background-image]="usuario.banner ? 'url(' + usuario.banner + ')' : null"></div>
-      <button type="button" class="editar" (click)="editando.set(true)" aria-label="Editar perfil" title="Editar perfil">
+      <div
+        class="portada"
+        aria-hidden="true"
+        [class.con-banner]="usuario.banner"
+        [style.background-image]="usuario.banner ? 'url(' + usuario.banner + ')' : null"
+      ></div>
+      <button
+        type="button"
+        class="editar"
+        (click)="editando.set(true)"
+        aria-label="Editar perfil"
+        title="Editar perfil"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 20h4L19 9l-4-4L4 16v4Z" />
           <path d="m14 6 4 4" />
@@ -96,7 +105,13 @@
         <span class="etiqueta-seccion">Mis últimas publicaciones</span>
         <a class="boton secundario" routerLink="/publicar">Publicar</a>
       </div>
-      <app-lista-publicaciones [usuario]="usuario._id" [porPagina]="3" [conControles]="false">
+      <!-- Mis últimas 3 publicaciones y sus comentarios -->
+      <app-lista-publicaciones
+        [usuario]="usuario._id"
+        [porPagina]="3"
+        [conControles]="false"
+        [conComentarios]="true"
+      >
         <div vacio class="panel sin-publicaciones">
           <p>Todavía no publicaste nada.</p>
         </div>
@@ -104,7 +119,11 @@
     </section>
 
     @if (editando()) {
-      <app-editar-perfil [usuario]="usuario" (cerrar)="editando.set(false)" (guardado)="alGuardar($event)" />
+      <app-editar-perfil
+        [usuario]="usuario"
+        (cerrar)="editando.set(false)"
+        (guardado)="alGuardar($event)"
+      />
     }
   } @else {
     <div class="panel sin-sesion">

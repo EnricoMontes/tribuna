@@ -1,0 +1,110 @@
+:host {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 2rem 1rem;
+}
+
+/* Pantalla de carga: tapa toda la app con el fondo azul noche (la usa el inicio de sesión) */
+:host(.pantalla-completa) {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  align-content: center;
+  background: var(--noche);
+  color: var(--blanco);
+}
+
+.escudo {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 6px 14px rgba(3, 21, 33, 0.35));
+  animation: latido 1.6s ease-in-out infinite;
+}
+
+/* transform-box: fill-box → el centro del giro es el centro de la pelota (no el del SVG) */
+.pelota {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: girar 1.1s linear infinite;
+}
+
+/* Luz que recorre el borde: un trazo de 18% del largo (y 82% de hueco) que se va corriendo */
+.luz {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 18 82;
+  animation: recorrer 1.6s linear infinite;
+  opacity: 0.9;
+}
+
+.estrella {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: brillo 1.6s ease-in-out infinite;
+}
+
+.texto {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+:host(.pantalla-completa) .texto {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes recorrer {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes latido {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes brillo {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.85);
+  }
+}
+
+/* Si el usuario pidió menos movimiento en su sistema: solo un parpadeo suave */
+@media (prefers-reduced-motion: reduce) {
+  .escudo,
+  .pelota,
+  .estrella {
+    animation: none;
+  }
+
+  .luz {
+    animation: recorrer 4s linear infinite;
+  }
+}
