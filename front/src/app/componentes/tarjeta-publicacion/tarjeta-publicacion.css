@@ -178,6 +178,48 @@ h3 {
   color: var(--azul);
 }
 
+/* ---------- adelanto de comentarios (listado) ---------- */
+
+.adelanto {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--divisor);
+  font-size: 0.88rem;
+}
+
+.adelanto-comentario {
+  margin: 0;
+  color: var(--texto-suave);
+  overflow-wrap: anywhere;
+  /* una sola línea: el comentario completo está en la página de la publicación */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adelanto-comentario strong {
+  color: var(--texto);
+}
+
+.editado {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--texto-tenue);
+}
+
+.adelanto-mas {
+  width: fit-content;
+  font-weight: 700;
+  color: var(--azul);
+  text-decoration: none;
+}
+
+.adelanto-mas:hover {
+  text-decoration: underline;
+}
+
 /* ---------- versión grande (página de la publicación) ---------- */
 
 .tarjeta.grande {

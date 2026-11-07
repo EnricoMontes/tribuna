@@ -13,18 +13,26 @@ import { PartidosService } from '../partidos/partidos.service.js';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto.js';
 import {
+  Comentario,
+  ComentarioDocument,
+} from './entities/comentario.entity.js';
+import {
   Publicacion,
   PublicacionDocument,
 } from './entities/publicacion.entity.js';
 
 // Datos del autor que se muestran en cada publicación (nunca la contraseña ni el correo)
 const CAMPOS_AUTOR = 'nombre apellido nombreUsuario fotoPerfil cuadro';
+// Cuántos comentarios se muestran de adelanto en cada tarjeta del listado
+const COMENTARIOS_ADELANTO = 2;
 
 @Injectable()
 export class PublicacionesService {
   constructor(
     @InjectModel(Publicacion.name)
     private readonly publicacionModel: Model<PublicacionDocument>,
+    @InjectModel(Comentario.name)
+    private readonly comentarioModel: Model<ComentarioDocument>,
     private readonly partidosService: PartidosService,
     private readonly archivosService: ArchivosService,
   ) {}
@@ -81,14 +89,54 @@ export class PublicacionesService {
       this.publicacionModel.countDocuments(condicion),
     ]);
 
+    // Los últimos comentarios de TODAS las publicaciones de la página, en una sola consulta
+    const adelantos = await this.ultimosComentarios(
+      publicaciones.map((p) => p._id),
+    );
+
     return {
       total,
       offset: filtros.offset,
       limit: filtros.limit,
-      publicaciones: publicaciones.map((p) =>
-        this.paraRespuesta(p, usuario.sub),
-      ),
+      publicaciones: publicaciones.map((p) => ({
+        ...this.paraRespuesta(p, usuario.sub),
+        ultimosComentarios: adelantos.get(p._id.toString()) ?? [],
+      })),
     };
+  }
+
+  /**
+   * Para la tarjeta del listado: los 2 comentarios más recientes de cada publicación.
+   * Una sola agregación para toda la página (y no una consulta por publicación):
+   * 1) $match: solo los comentarios de esas publicaciones
+   * 2) $sort: del más nuevo al más viejo
+   * 3) $group: los junta por publicación (en ese orden)
+   * 4) $project + $slice: se queda con los primeros 2 de cada una
+   * Después populate completa el autor (Model.populate funciona sobre objetos planos).
+   */
+  private async ultimosComentarios(ids: Types.ObjectId[]) {
+    const grupos = await this.comentarioModel.aggregate<{
+      _id: Types.ObjectId;
+      comentarios: Comentario[];
+    }>([
+      { $match: { publicacion: { $in: ids } } },
+      { $sort: { createdAt: -1, _id: -1 } },
+      { $group: { _id: '$publicacion', comentarios: { $push: '$$ROOT' } } },
+      {
+        $project: {
+          comentarios: { $slice: ['$comentarios', COMENTARIOS_ADELANTO] },
+        },
+      },
+    ]);
+    const porPublicacion = new Map<string, Comentario[]>();
+    for (const grupo of grupos) {
+      await this.comentarioModel.populate(grupo.comentarios, {
+        path: 'autor',
+        select: 'nombre apellido nombreUsuario fotoPerfil',
+      });
+      porPublicacion.set(grupo._id.toString(), grupo.comentarios);
+    }
+    return porPublicacion;
   }
 
   /** Una sola publicación (la página de la publicación, con sus comentarios) */

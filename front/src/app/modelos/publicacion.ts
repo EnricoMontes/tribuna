@@ -1,3 +1,4 @@
+import { Comentario } from './comentario';
 import { Partido } from './partido';
 import { Usuario } from './usuario';
 
@@ -14,6 +15,7 @@ export interface Publicacion {
   cantidadMeGusta: number;
   meGustaMio: boolean; // si el usuario logueado ya le dio me gusta
   cantidadComentarios: number;
+  ultimosComentarios?: Comentario[]; // solo en el listado: los 2 más recientes, de adelanto
   createdAt: string;
   updatedAt: string;
 }

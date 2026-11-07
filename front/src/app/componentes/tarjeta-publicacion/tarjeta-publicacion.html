@@ -84,6 +84,25 @@
       }
     </footer>
 
+    <!-- En el listado: adelanto con los últimos comentarios (los completos están en la página) -->
+    @if (!conComentarios() && p.ultimosComentarios?.length) {
+      <div class="adelanto">
+        @for (c of p.ultimosComentarios; track c._id) {
+          <p class="adelanto-comentario">
+            <strong>&#64;{{ c.autor.nombreUsuario }}</strong> {{ c.mensaje }}
+            @if (c.modificado) {
+              <span class="editado">(editado)</span>
+            }
+          </p>
+        }
+        @if (cantidadComentarios() > p.ultimosComentarios!.length) {
+          <a class="adelanto-mas" [routerLink]="['/publicaciones', p._id]">
+            Ver los {{ cantidadComentarios() }} comentarios
+          </a>
+        }
+      </div>
+    }
+
     @if (conComentarios()) {
       <app-comentarios
         [publicacionId]="p._id"
