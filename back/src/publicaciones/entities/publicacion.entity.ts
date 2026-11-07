@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 import { Usuario } from '../../usuarios/entities/usuario.entity.js';
 
 export type PublicacionDocument = HydratedDocument<Publicacion>;
@@ -20,8 +20,10 @@ export class Publicacion {
   @Prop({ type: String, default: null })
   imagen: string | null;
 
-  // ref + populate: en la base se guarda solo el _id del autor y al listar se "completa" con sus datos
-  @Prop({ type: Types.ObjectId, ref: Usuario.name, required: true })
+  // ref + populate: en la base se guarda solo el _id del autor y al listar se "completa" con sus datos.
+  // SchemaTypes.ObjectId (el TIPO de esquema) y no Types.ObjectId (la clase del valor): en Mongoose 9
+  // Types.ObjectId acá deja el campo como "Mixed" y las búsquedas por id en texto no lo convierten.
+  @Prop({ type: SchemaTypes.ObjectId, ref: Usuario.name, required: true })
   autor: Types.ObjectId;
 
   // Copia del partido al momento de publicar: si después cambia la fecha en promiedos, la publicación
@@ -50,13 +52,17 @@ export class Publicacion {
   };
 
   // Quiénes dieron me gusta. Guardar los ids permite que cada usuario dé UN solo me gusta.
-  @Prop({ type: [{ type: Types.ObjectId, ref: Usuario.name }], default: [] })
+  @Prop({ type: [{ type: SchemaTypes.ObjectId, ref: Usuario.name }], default: [] })
   meGusta: Types.ObjectId[];
 
   // Contador aparte: Mongo no puede ordenar por el largo de un array con un simple sort,
   // así que se mantiene este número (+1 / -1) en la misma operación que agrega o saca el me gusta
   @Prop({ default: 0 })
   cantidadMeGusta: number;
+
+  // Cuántos comentarios tiene (+1 al comentar), para mostrarlo en la tarjeta sin otra consulta
+  @Prop({ default: 0 })
+  cantidadComentarios: number;
 
   // Baja lógica: no se borra de la base, se marca como inactiva y deja de listarse
   @Prop({ default: true })

@@ -91,6 +91,18 @@ export class PublicacionesService {
     };
   }
 
+  /** Una sola publicación (la página de la publicación, con sus comentarios) */
+  async obtener(id: string, usuario: DatosToken) {
+    const publicacion = await this.publicacionModel
+      .findOne({ _id: id, activa: true })
+      .populate('autor', CAMPOS_AUTOR)
+      .exec();
+    if (!publicacion) {
+      throw new NotFoundException('La publicación no existe');
+    }
+    return this.paraRespuesta(publicacion, usuario.sub);
+  }
+
   /** Baja lógica: solo el autor o un administrador */
   async eliminar(id: string, usuario: DatosToken) {
     const publicacion = await this.publicacionModel.findOne({

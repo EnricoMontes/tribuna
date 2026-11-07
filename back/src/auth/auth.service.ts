@@ -87,6 +87,29 @@ export class AuthService {
     return this.respuestaConToken(usuario);
   }
 
+  /**
+   * POST /auth/autorizar: el AuthGuard ya verificó la firma y que el token no esté vencido
+   * (si no, respondió 401). Acá se devuelven los datos ACTUALES del usuario desde la base.
+   * Si el usuario ya no existe (lo borraron después de emitir el token) -> también 401.
+   */
+  async autorizar(datosToken: DatosToken) {
+    const usuario = await this.usuariosService.buscarPorId(datosToken.sub);
+    if (!usuario) {
+      throw new UnauthorizedException('La sesión no es válida');
+    }
+    return { usuario: usuario.toJSON() };
+  }
+
+  /**
+   * POST /auth/refrescar: devuelve un token NUEVO con la misma payload y otros 15 minutos.
+   * El token viejo trae además "iat" (cuándo se emitió) y "exp" (cuándo vence): se descartan,
+   * porque sign() los vuelve a calcular. Si se copiaran, el nuevo vencería igual que el viejo.
+   */
+  refrescar({ sub, nombreUsuario, perfil }: DatosToken) {
+    const datos: DatosToken = { sub, nombreUsuario, perfil };
+    return { token: this.jwtService.sign(datos) };
+  }
+
   /** Login y registro devuelven los datos del usuario + el token firmado (vence en 15 min) */
   private respuestaConToken(usuario: UsuarioDocument) {
     const datos: DatosToken = {

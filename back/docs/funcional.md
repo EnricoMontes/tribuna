@@ -9,7 +9,7 @@ Una red social de fútbol. Cada hincha tiene una cuenta con su perfil y su foto,
 publicar opiniones y fotos de cancha, dar "me gusta" y comentar.
 Esta API es el **servidor**: guarda los datos, verifica quién es cada usuario y valida todo lo que llega.
 
-## Lo que se puede hacer hoy (Sprint 1)
+## Lo que se puede hacer hoy
 
 ### 1. Crear una cuenta (registro)
 
@@ -62,6 +62,14 @@ Para todo lo que sigue hay que **haber ingresado**: el login devuelve un "pase" 
 - **Me gusta:** cada hincha puede dar **un solo** me gusta por publicación, y sacarlo si quiere.
 - **Eliminar:** cada uno puede borrar **sus** publicaciones, y un administrador puede borrar cualquiera. La publicación no se borra de la base: se oculta (baja lógica).
 
+### 7. Comentarios y sesión (Sprint 3)
+
+- **Ver una publicación:** se puede abrir una publicación sola, con sus comentarios.
+- **Comentar:** cualquier hincha que haya ingresado puede comentar una publicación. Se guarda quién lo escribió y cuándo.
+- **Ver comentarios:** salen los más nuevos primero, de a pocos. Se pueden pedir los siguientes ("cargar más").
+- **Editar un comentario:** solo quien lo escribió. Queda marcado como editado.
+- **Sesión:** el pase (token) vence a los 15 minutos. La app puede preguntar si el pase sigue sirviendo (al abrirse) y pedir uno nuevo antes de que venza (para extender la sesión).
+
 ## Qué responde el servidor en cada caso
 
 | Situación | Respuesta |
@@ -75,7 +83,8 @@ Para todo lo que sigue hay que **haber ingresado**: el login devuelve un "pase" 
 | Correo o contraseña incorrectos en el ingreso | ❌ **401** No autorizado |
 | Pedir partidos o publicaciones sin haber ingresado (o con la sesión vencida) | ❌ **401** |
 | Borrar la publicación de otro sin ser administrador | ❌ **403** Prohibido |
-| La publicación no existe o ya se borró | ❌ **404** No encontrado |
+| Editar el comentario de otro | ❌ **403** Prohibido |
+| La publicación (o el comentario) no existe o ya se borró | ❌ **404** No encontrado |
 | Dar me gusta dos veces, o sacar uno que no se había dado | ❌ **409** Conflicto |
 | Correo o nombre de usuario ya registrados | ❌ **409** Conflicto |
 | Foto de más de 2 MB | ❌ **413** Archivo demasiado grande |
@@ -86,5 +95,4 @@ Todos los mensajes de error están en castellano y la app los muestra en un moda
 
 | Sprint | Funcionalidad |
 |---|---|
-| 3 | Comentarios. Validar la sesión al abrir la app y poder extenderla antes de que venza |
 | 4 | Panel de administración de usuarios y estadísticas con gráficos |

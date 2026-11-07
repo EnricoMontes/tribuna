@@ -46,6 +46,15 @@ export class PublicacionesController {
     return this.publicacionesService.listar(filtros, usuario);
   }
 
+  // GET /publicaciones/:id -> una publicación (la página de la publicación). 404 si no existe o se dio de baja
+  @Get(':id')
+  obtener(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @UsuarioActual() usuario: DatosToken,
+  ) {
+    return this.publicacionesService.obtener(id.toString(), usuario);
+  }
+
   // DELETE /publicaciones/:id -> baja lógica (autor o administrador)
   // ParseObjectIdPipe: si el id no tiene formato de ObjectId de Mongo -> 400
   @Delete(':id')

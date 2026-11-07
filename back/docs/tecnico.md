@@ -38,13 +38,13 @@ Si algo falla, el service tira una excepción de Nest (`ConflictException`, `Una
 | Módulo | Contenido | Relación |
 |---|---|---|
 | `AppModule` | `ConfigModule.forRoot({ isGlobal: true })` + `MongooseModule.forRootAsync` (lee `MONGO_URI`) | Importa a todos |
-| `AuthModule` | `AuthController`, `AuthService` (registro y login), `AuthGuard` y el decorador `@UsuarioActual()`. Registra `JwtModule` como **global** | Importa `UsuariosModule`, `ArchivosModule` y `CuadrosModule`. **No toca la base directo** |
+| `AuthModule` | `AuthController`, `AuthService` (registro, login, autorizar y refrescar), `AuthGuard` y el decorador `@UsuarioActual()`. Registra `JwtModule` como **global** | Importa `UsuariosModule`, `ArchivosModule` y `CuadrosModule`. **No toca la base directo** |
 | `UsuariosModule` | Schema `Usuario`, `UsuariosService` y `GET /usuarios/disponibilidad` | **Exporta** `UsuariosService` |
 | `ArchivosModule` | `ArchivosService` (Cloudinary) y las opciones de Multer | Exporta `ArchivosService`; se reutiliza en el Sprint 2 |
 | `PromiedosModule` | `PromiedosService`: consulta la API de promiedos (header `X-VER`) y cachea 10 min por liga | Lo usan `CuadrosModule` y `PartidosModule` |
 | `CuadrosModule` | `GET /cuadros` + `CuadrosService` (con lista de respaldo) | Exporta `CuadrosService` (valida el cuadro del registro) |
 | `PartidosModule` | `GET /partidos` + `PartidosService` (partidos ya jugados del torneo actual de la Liga Profesional) | Exporta `PartidosService` (valida el partido de una publicación) |
-| `PublicacionesModule` | Schema `Publicacion`, `PublicacionesService` y las rutas `/publicaciones` | Importa `ArchivosModule` y `PartidosModule` |
+| `PublicacionesModule` | Schemas `Publicacion` y `Comentario`, `PublicacionesService` + `ComentariosService` y sus dos controllers (`/publicaciones` y `/publicaciones/:id/comentarios`) | Importa `ArchivosModule` y `PartidosModule` |
 
 ## Endpoints
 
@@ -60,13 +60,19 @@ Si algo falla, el service tira una excepción de Nest (`ConflictException`, `Una
 
 | Método | Ruta | Body / query | Respuestas |
 |---|---|---|---|
+| `POST` | `/auth/autorizar` | — | `200` `{ usuario }` (datos actuales de la base) · `401` (sin token, vencido, firma inválida o usuario inexistente) |
+| `POST` | `/auth/refrescar` | — | `200` `{ token }` nuevo, misma payload y otros 15 minutos · `401` |
 | `PATCH` | `/usuarios/mi-perfil` | `multipart/form-data`, todo opcional: `nombre`, `apellido`, `descripcion`, `cuadroId` (`''` = sacarlo), `numeroCamiseta` (`''` = sacarlo), `quitarFotoPerfil`/`quitarBanner` (`'true'`) + archivos `fotoPerfil?` y `banner?` | `200` usuario actualizado · `400` · `401` · `413` |
 | `GET` | `/partidos` | — | `200` partidos ya jugados, del más reciente al más viejo: `[{ id, liga, fecha, local, visitante, inicio, goles: { local, visitante } }]` |
 | `POST` | `/publicaciones` | `multipart/form-data`: `titulo`, `mensaje`, `partidoId` + archivo `imagen?` | `201` publicación · `400` (datos o partido inválido) · `413` |
 | `GET` | `/publicaciones` | `?orden=fecha\|meGusta&offset=0&limit=10&usuario=<id>&partido=<id>` | `200` `{ total, offset, limit, publicaciones }` · `400` |
+| `GET` | `/publicaciones/:id` | — | `200` una publicación · `400` (id mal formado) · `404` |
 | `DELETE` | `/publicaciones/:id` | — | `200` (baja lógica) · `400` (id mal formado) · `403` (no es autor ni admin) · `404` |
 | `POST` | `/publicaciones/:id/me-gusta` | — | `201` `{ cantidadMeGusta, meGustaMio }` · `404` · `409` (ya lo había dado) |
 | `DELETE` | `/publicaciones/:id/me-gusta` | — | `200` · `404` · `409` (no lo había dado) |
+| `GET` | `/publicaciones/:id/comentarios` | `?offset=0&limit=5` | `200` `{ total, offset, limit, comentarios }`, los más recientes primero · `400` · `404` (publicación inexistente o dada de baja) |
+| `POST` | `/publicaciones/:id/comentarios` | JSON `{ mensaje }` | `201` comentario con el autor · `400` · `404` |
+| `PUT` | `/publicaciones/:id/comentarios/:idComentario` | JSON `{ mensaje }` | `200` con `modificado: true` · `400` (también si se manda `modificado`) · `403` (no es el autor) · `404` |
 
 Hay una colección de Postman con todos los casos en [`postman/Tribuna.postman_collection.json`](../postman/Tribuna.postman_collection.json).
 
@@ -97,10 +103,25 @@ Hay una colección de Postman con todos los casos en [`postman/Tribuna.postman_c
 | `partido` | Objeto | **Copia** del partido al publicar: `id`, `liga`, `fecha`, `local` y `visitante` (`id`, `nombre`, `escudo`), `inicio` |
 | `meGusta` | ObjectId[] | Quiénes dieron me gusta (no se manda al front) |
 | `cantidadMeGusta` | Number | Contador para poder ordenar por me gusta |
+| `cantidadComentarios` | Number | Contador (`$inc` al comentar), para mostrar "N comentarios" sin otra consulta |
 | `activa` | Boolean | Baja lógica: `false` = eliminada |
 | `createdAt`, `updatedAt` | Date | `timestamps: true` |
 
 La colección se llama `publicaciones` porque se indica en `@Schema({ collection })`. Si no, Mongoose pluraliza en inglés y la llamaría `publicacions`.
+
+## Modelo de datos: `comentarios`
+
+| Campo | Tipo | Detalle |
+|---|---|---|
+| `mensaje` | String | `required`, `trim` (máx. 500 en el DTO) |
+| `autor` | ObjectId | `ref: 'Usuario'`. Sale del token. Al listar, `populate` con nombre, apellido, usuario y foto |
+| `publicacion` | ObjectId | `ref: 'Publicacion'` |
+| `modificado` | Boolean | Default `false`. El `PUT` lo pone en `true` |
+| `createdAt`, `updatedAt` | Date | `timestamps: true` (`createdAt` es la fecha del comentario) |
+
+Índice `{ publicacion: 1, createdAt: -1 }`, la misma consulta del `GET` paginado. Es una colección aparte (y no un array dentro de la publicación) para poder paginar con `skip`/`limit` y para que la publicación no crezca sin límite.
+
+Los campos de referencia usan **`SchemaTypes.ObjectId`** (el tipo de esquema). En Mongoose 9, `Types.ObjectId` (la clase del valor) deja el campo como `Mixed` y las búsquedas con el id en texto no lo convierten.
 
 ## Estructura
 
@@ -109,7 +130,7 @@ src/
 ├── main.ts                 CORS (FRONT_URL), ValidationPipe global, DNS_SERVERS opcional, puerto
 ├── app.module.ts           ConfigModule + conexión a Mongo + módulos
 ├── auth/
-│   ├── auth.controller.ts  POST /auth/registro (FileInterceptor) · POST /auth/login (@HttpCode 200)
+│   ├── auth.controller.ts  POST /auth/registro (FileInterceptor) · POST /auth/login · /auth/autorizar · /auth/refrescar (@HttpCode 200)
 │   ├── auth.service.ts     edad mínima, unicidad (409), subir foto, bcrypt.hash/compare, error 11000
 │   └── dto/                registro.dto.ts · login.dto.ts
 ├── usuarios/
@@ -120,7 +141,11 @@ src/
 ├── archivos/
 │   ├── archivos.service.ts upload_stream a Cloudinary
 │   └── imagen.filtro.ts    memoryStorage, límite de 2 MB, solo jpg/png/webp
-└── publicaciones/          (Sprint 2)
+└── publicaciones/
+    ├── entities/           publicacion.entity.ts · comentario.entity.ts
+    ├── dto/                crear-publicacion · listar-publicaciones · comentario · paginacion
+    ├── publicaciones.controller.ts / .service.ts
+    └── comentarios.controller.ts / .service.ts   (Sprint 3)
 ```
 
 ## Decisiones técnicas
@@ -147,12 +172,18 @@ src/
   - Las credenciales están en `.env`, que está en el `.gitignore`; ver `.env.example`.
   - `MongooseModule.forRootAsync` espera a que `ConfigService` haya cargado el `.env` antes de conectar.
 - **CORS.** El front vive en otro dominio (Vercel). Sin `enableCors`, el navegador bloquea las respuestas.
-- **JWT (adelantado del Sprint 3, solo lo mínimo).**
+- **JWT y sesión.**
   - `JwtModule.registerAsync({ global: true })` con el secreto de `JWT_SECRET` y `expiresIn: '15m'`.
   - Login y registro devuelven `{ usuario, token }`. El token lleva `sub` (el `_id`), `nombreUsuario` y `perfil`.
   - `AuthGuard` es manual, como el del profe: `extractToken` + `jwtService.verify`, y pone los datos en `request.usuario`. El decorador `@UsuarioActual()` los lee en el controller.
   - El autor de una publicación y quién da me gusta **salen del token**, nunca del body. Así nadie puede hacerse pasar por otro.
-  - Quedan para el Sprint 3: `POST /auth/autorizar`, `POST /auth/refrescar`, la pantalla de carga y el modal de los 10 minutos.
+  - `POST /auth/autorizar` (Sprint 3): el `AuthGuard` ya validó la firma y el vencimiento; el service busca el usuario por el `sub` del token y devuelve sus datos actuales. Si ya no existe, `401`. Lo usa la pantalla de carga del front al abrir la app.
+  - `POST /auth/refrescar` (Sprint 3): firma un token nuevo con la misma payload (`sub`, `nombreUsuario`, `perfil`) y otros 15 minutos. Se descartan `iat` y `exp` del token viejo para que `sign()` los calcule de nuevo.
+- **Comentarios** (Sprint 3).
+  - `ComentariosController` vive en el módulo publicaciones, con las rutas colgando de la publicación: `/publicaciones/:id/comentarios`.
+  - Antes de listar, crear o editar se verifica que la publicación exista y esté activa: si se dio de baja, sus comentarios dejan de estar disponibles (`404`).
+  - Orden: `sort({ createdAt: -1, _id: -1 })` (los más recientes primero; `_id` desempata). Paginación con `skip`/`limit` y `countDocuments` en paralelo.
+  - Editar: solo el autor (`403` si no). El back pone `modificado: true`; si el cliente manda `modificado`, el `ValidationPipe` responde `400`.
 - **Editar Mi perfil** (`PATCH /usuarios/mi-perfil`).
   - Es **PATCH** y no PUT porque es una modificación parcial: solo cambia lo que llega.
   - El usuario sale del token (`@UsuarioActual()`), así nadie puede editar el perfil de otro.

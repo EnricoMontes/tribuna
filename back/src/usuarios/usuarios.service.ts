@@ -95,6 +95,11 @@ export class UsuariosService {
       .exec();
   }
 
+  /** Para /auth/autorizar: los datos del usuario del token (sin la contraseña, que tiene select: false) */
+  buscarPorId(id: string) {
+    return this.usuarioModel.findById(id).exec();
+  }
+
   async correoEnUso(correo: string) {
     return (
       (await this.usuarioModel.exists({

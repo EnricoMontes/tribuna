@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "ceea2a88-7a26-461f-8de6-bc2f2249a575",
     "name": "Tribuna API",
-    "description": "Pruebas del back de Tribuna (NestJS + MongoDB Atlas + Cloudinary + API de promiedos).\n\nORDEN PARA CORRERLA (Run collection o carpeta por carpeta):\n1. Estado de la API (despierta Render: el plan gratis se duerme y la primera petición tarda ~50 s).\n2. Cuadros: la lista sale de promiedos (Liga Profesional y Primera Nacional).\n3. Auth - Registro: incluye los campos nuevos cuadroId y numeroCamiseta (opcionales).\n4. Auth - Login: GUARDA el token en {{token}} (hincha_demo) y {{tokenAdmin}} (enrico_admin).\n5. Usuarios: disponibilidad de correo / nombre de usuario.\n6. Partidos: partidos YA JUGADOS del torneo actual de la Liga Profesional (con resultado). Guarda {{partidoId}}.\n7. Publicaciones: crear, listar (orden, offset/limit, filtros), me gusta y baja lógica.\n\nPartidos y Publicaciones piden \"Authorization: Bearer {{token}}\" (ya configurado en cada petición).\nEl token vence a los 15 minutos: si da 401, volvé a correr \"Auth - Login\".\nLos pedidos \"(elegir archivo)\" necesitan que elijas una imagen a mano en el body.\n\nVariable baseUrl: producción (Render). Para probar en local cambiala por {{localUrl}} (http://localhost:3000).\nUsuarios de prueba: hincha_demo / Tribuna123 (usuario) y enrico_admin / Admin123 (administrador).",
+    "description": "Pruebas del back de Tribuna (NestJS + MongoDB Atlas + Cloudinary + API de promiedos).\n\nORDEN PARA CORRERLA (Run collection o carpeta por carpeta):\n1. Estado de la API (despierta Render: el plan gratis se duerme y la primera petición tarda ~50 s).\n2. Cuadros: la lista sale de promiedos (Liga Profesional y Primera Nacional).\n3. Auth - Registro: incluye los campos nuevos cuadroId y numeroCamiseta (opcionales).\n4. Auth - Login: GUARDA el token en {{token}} (hincha_demo) y {{tokenAdmin}} (enrico_admin).\n4b. Auth - Sesión: POST /auth/autorizar (validar el token) y POST /auth/refrescar (token nuevo con 15 minutos más).\n5. Usuarios: disponibilidad de correo / nombre de usuario.\n6. Partidos: partidos YA JUGADOS del torneo actual de la Liga Profesional (con resultado). Guarda {{partidoId}}.\n7. Publicaciones: crear, listar (orden, offset/limit, filtros), me gusta y baja lógica.\n8. Comentarios: ver una publicación, comentar, listar paginado (\"cargar más\") y editar (modificado: true).\n\nPartidos y Publicaciones piden \"Authorization: Bearer {{token}}\" (ya configurado en cada petición).\nEl token vence a los 15 minutos: si da 401, volvé a correr \"Auth - Login\".\nLos pedidos \"(elegir archivo)\" necesitan que elijas una imagen a mano en el body.\n\nVariable baseUrl: producción (Render). Para probar en local cambiala por {{localUrl}} (http://localhost:3000).\nUsuarios de prueba: hincha_demo / Tribuna123 (usuario) y enrico_admin / Admin123 (administrador).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -36,6 +36,22 @@
     },
     {
       "key": "publicacionAdminId",
+      "value": ""
+    },
+    {
+      "key": "publicacionComentadaId",
+      "value": ""
+    },
+    {
+      "key": "comentarioId",
+      "value": ""
+    },
+    {
+      "key": "comentarioAdminId",
+      "value": ""
+    },
+    {
+      "key": "tokenInvalido",
       "value": ""
     }
   ],
@@ -1413,6 +1429,216 @@
               ]
             },
             "description": "LoginDto exige identificador y password."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth - Sesión",
+      "description": "Sprint 3. Las dos rutas leen el token del header \"Authorization: Bearer <token>\" (lo verifica el AuthGuard: firma y vencimiento).\n- POST /auth/autorizar: la usa la pantalla de carga al abrir la app. Token válido -> 200 con los datos del usuario; si no -> 401.\n- POST /auth/refrescar: la usa el modal \"¿Extender sesión?\". Devuelve un token NUEVO con la misma payload y otros 15 minutos.\nCorrer antes \"Auth - Login\" (guarda {{token}}).",
+      "item": [
+        {
+          "name": "200 - Autorizar con token válido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const { usuario } = pm.response.json();",
+                  "pm.test(\"Devuelve los datos del usuario\", () => { pm.expect(usuario._id).to.eql(pm.collectionVariables.get(\"usuarioId\")); pm.expect(usuario.nombreUsuario).to.be.a(\"string\"); });",
+                  "pm.test(\"No devuelve la contraseña\", () => pm.expect(usuario).to.not.have.property(\"password\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/autorizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "autorizar"
+              ]
+            },
+            "description": "El guard ya validó firma y vencimiento; el service busca el usuario en la base y devuelve sus datos actuales.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "401 - Autorizar sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/autorizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "autorizar"
+              ]
+            },
+            "description": "Sin header Authorization -> el AuthGuard responde 401 (el front manda al login).",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "401 - Autorizar con token inválido",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Un token con la firma cambiada: jwtService.verify lo rechaza",
+                  "pm.collectionVariables.set(\"tokenInvalido\", pm.collectionVariables.get(\"token\").slice(0, -4) + \"abcd\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Mensaje de sesión inválida\", () => pm.expect(pm.response.json().message).to.include(\"sesión\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/autorizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "autorizar"
+              ]
+            },
+            "description": "Se modifica el final del token (la firma): el back detecta que no lo firmó él -> 401. Lo mismo pasa con un token vencido.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenInvalido}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Refrescar el token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const nuevo = pm.response.json().token;",
+                  "const leer = (t) => JSON.parse(atob(t.split(\".\")[1].replace(/-/g, \"+\").replace(/_/g, \"/\")));",
+                  "const viejo = leer(pm.collectionVariables.get(\"token\")), payload = leer(nuevo);",
+                  "pm.test(\"Devuelve un token\", () => pm.expect(nuevo).to.be.a(\"string\"));",
+                  "pm.test(\"Misma payload (sub, nombreUsuario, perfil)\", () => { pm.expect(payload.sub).to.eql(viejo.sub); pm.expect(payload.nombreUsuario).to.eql(viejo.nombreUsuario); pm.expect(payload.perfil).to.eql(viejo.perfil); });",
+                  "pm.test(\"Vence a los 15 minutos\", () => pm.expect(payload.exp - payload.iat).to.eql(900));",
+                  "pm.test(\"Vence después (o igual) que el anterior\", () => pm.expect(payload.exp).to.be.at.least(viejo.exp));",
+                  "// Se sigue usando el token nuevo",
+                  "pm.collectionVariables.set(\"token\", nuevo);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refrescar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refrescar"
+              ]
+            },
+            "description": "Con un token todavía válido: devuelve uno nuevo con la misma payload y otros 15 minutos. Se descartan iat/exp del viejo para que sign() calcule los nuevos.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "401 - Refrescar sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refrescar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refrescar"
+              ]
+            },
+            "description": "Si el token ya venció (o no se manda), no se puede refrescar: hay que volver a loguearse.",
+            "auth": {
+              "type": "noauth"
+            }
           }
         }
       ]
@@ -2981,6 +3207,1017 @@
               ]
             },
             "description": "ParseObjectIdPipe: el id tiene que tener formato de ObjectId de Mongo.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comentarios",
+      "description": "Sprint 3. Comentarios controller dentro del módulo publicaciones: /publicaciones/:id/comentarios\n- GET paginado (?offset=&limit=), los más recientes primero.\n- POST agrega un comentario con el usuario (del token) y la fecha (createdAt).\n- PUT modifica el mensaje y agrega modificado: true. Solo el autor.\nEsta carpeta crea su propia publicación al principio y la da de baja al final.\nCorrer antes \"Auth - Login\" (guarda {{token}} y {{tokenAdmin}}) y \"Partidos\" (guarda {{partidoId}}).",
+      "item": [
+        {
+          "name": "401 - Listar comentarios sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/6aebc132c0764c47cbdc0000/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "6aebc132c0764c47cbdc0000",
+                "comentarios"
+              ]
+            },
+            "description": "Como todo el módulo publicaciones, pide estar logueado. El AuthGuard corre antes que todo: responde 401 aunque el id no exista.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "201 - Crear una publicación para comentar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Arranca sin comentarios\", () => pm.expect(pm.response.json().cantidadComentarios).to.eql(0));",
+                  "pm.collectionVariables.set(\"publicacionComentadaId\", pm.response.json()._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "Publicación nueva (multipart/form-data) para probar los comentarios. Guarda {{publicacionComentadaId}}.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "PRUEBA Postman comentarios",
+                  "type": "text"
+                },
+                {
+                  "key": "mensaje",
+                  "value": "Publicación para probar los comentarios",
+                  "type": "text"
+                },
+                {
+                  "key": "partidoId",
+                  "value": "{{partidoId}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Ver una publicación (página de la publicación)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const p = pm.response.json();",
+                  "pm.test(\"Es la publicación pedida, con el autor\", () => { pm.expect(p._id).to.eql(pm.collectionVariables.get(\"publicacionComentadaId\")); pm.expect(p.autor.nombreUsuario).to.be.a(\"string\"); });",
+                  "pm.test(\"No manda la lista de quién dio me gusta\", () => pm.expect(p).to.not.have.property(\"meGusta\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}"
+              ]
+            },
+            "description": "GET /publicaciones/:id: la usa la página que muestra la publicación grande con sus comentarios.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 - Ver una publicación que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/6aebc132c0764c47cbdc0000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "6aebc132c0764c47cbdc0000"
+              ]
+            },
+            "description": "Id con formato válido pero que no está en la base (o está dada de baja).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 - Comentar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "const com = pm.response.json();",
+                  "pm.test(\"Guarda el mensaje, el autor (del token) y la fecha\", () => { pm.expect(com.mensaje).to.eql(\"Primer comentario: qué partidazo.\"); pm.expect(com.autor._id).to.eql(pm.collectionVariables.get(\"usuarioId\")); pm.expect(com.createdAt).to.be.a(\"string\"); });",
+                  "pm.test(\"Arranca sin modificar\", () => pm.expect(com.modificado).to.eql(false));",
+                  "pm.test(\"El autor no trae datos privados\", () => { pm.expect(com.autor).to.not.have.property(\"password\"); pm.expect(com.autor).to.not.have.property(\"correo\"); });",
+                  "pm.collectionVariables.set(\"comentarioId\", com._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ]
+            },
+            "description": "JSON { mensaje }. El autor sale del token (nunca del body) y la fecha es createdAt. Guarda {{comentarioId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Primer comentario: qué partidazo.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 - Comentar (administrador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"comentarioAdminId\", pm.response.json()._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ]
+            },
+            "description": "Otro usuario comenta (para probar la paginación y el 403 al editar).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Segundo comentario, del admin.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 - Comentar otra vez",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ]
+            },
+            "description": "Tercer comentario: es el más reciente, así que tiene que salir primero en el GET.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Tercer comentario: el más nuevo.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Comentario vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Explica el error\", () => pm.expect(pm.response.json().message).to.include(\"El comentario no puede estar vacío\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ]
+            },
+            "description": "Lo frena el DTO (class-validator) antes de llegar al service.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 - Comentar una publicación que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/6aebc132c0764c47cbdc0000/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "6aebc132c0764c47cbdc0000",
+                "comentarios"
+              ]
+            },
+            "description": "Antes de guardar se verifica que la publicación exista y esté activa.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Hola\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Id de publicación mal formado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/123/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "123",
+                "comentarios"
+              ]
+            },
+            "description": "ParseObjectIdPipe: \"123\" no tiene formato de ObjectId de Mongo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Hola\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Listar comentarios (página 1, los más nuevos primero)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Total 3 y trae 2 (limit)\", () => { pm.expect(r.total).to.eql(3); pm.expect(r.comentarios.length).to.eql(2); });",
+                  "pm.test(\"El más reciente primero\", () => pm.expect(r.comentarios[0].mensaje).to.eql(\"Tercer comentario: el más nuevo.\"));",
+                  "pm.test(\"Ordenados por fecha descendente\", () => pm.expect(new Date(r.comentarios[0].createdAt) >= new Date(r.comentarios[1].createdAt)).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios?offset=0&limit=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ],
+              "query": [
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            },
+            "description": "Primera carga: limit comentarios. El front muestra \"Cargar más\" mientras haya menos que el total.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Listar comentarios (cargar más: offset 2)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Trae el que faltaba (el más viejo)\", () => { pm.expect(r.comentarios.length).to.eql(1); pm.expect(r.comentarios[0].mensaje).to.eql(\"Primer comentario: qué partidazo.\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios?offset=2&limit=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ],
+              "query": [
+                {
+                  "key": "offset",
+                  "value": "2"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            },
+            "description": "\"Cargar más\": offset = cuántos ya tengo. El front los suma abajo sin borrar los anteriores.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Paginación inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios?offset=-1&limit=500",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ],
+              "query": [
+                {
+                  "key": "offset",
+                  "value": "-1"
+                },
+                {
+                  "key": "limit",
+                  "value": "500"
+                }
+              ]
+            },
+            "description": "offset no puede ser negativo y limit va de 1 a 50.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Editar mi comentario (modificado: true)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const com = pm.response.json();",
+                  "pm.test(\"Cambió el mensaje\", () => pm.expect(com.mensaje).to.eql(\"Primer comentario (editado): qué partidazo.\"));",
+                  "pm.test(\"Queda marcado como modificado\", () => pm.expect(com.modificado).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios/{{comentarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios",
+                "{{comentarioId}}"
+              ]
+            },
+            "description": "PUT: el back cambia el mensaje y pone modificado: true (el front muestra \"(editado)\").",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Primer comentario (editado): qué partidazo.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Mandar \"modificado\" en el body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"El campo no está permitido\", () => pm.expect(pm.response.json().message[0]).to.include(\"modificado\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios/{{comentarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios",
+                "{{comentarioId}}"
+              ]
+            },
+            "description": "modificado lo pone el back. forbidNonWhitelisted del ValidationPipe rechaza cualquier campo que no esté en el DTO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Intento de esconder la edición\",\n  \"modificado\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "403 - Editar el comentario de otro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Solo el autor\", () => pm.expect(pm.response.json().message).to.include(\"Solo el autor\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios/{{comentarioAdminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios",
+                "{{comentarioAdminId}}"
+              ]
+            },
+            "description": "Sabemos quién es (no es 401), pero no es el autor del comentario -> 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Cambio el comentario del admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 - Editar un comentario que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios/6aebc132c0764c47cbdc0000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios",
+                "6aebc132c0764c47cbdc0000"
+              ]
+            },
+            "description": "Tiene que ser un comentario de ESA publicación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Hola\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - La publicación cuenta sus comentarios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"cantidadComentarios = 3\", () => pm.expect(pm.response.json().cantidadComentarios).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}"
+              ]
+            },
+            "description": "cantidadComentarios se suma con $inc al comentar (como cantidadMeGusta): la tarjeta lo muestra sin otra consulta.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Dar de baja la publicación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}"
+              ]
+            },
+            "description": "Baja lógica (la borra su autor). Limpia lo que creó esta carpeta.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 - Los comentarios de una publicación dada de baja",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ]
+            },
+            "description": "Si la publicación se dio de baja, sus comentarios dejan de estar disponibles.",
             "auth": {
               "type": "bearer",
               "bearer": [
