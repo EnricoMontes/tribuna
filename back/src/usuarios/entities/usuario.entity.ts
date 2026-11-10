@@ -52,9 +52,15 @@ export class Usuario {
   @Prop({ type: Number, min: 1, max: 99, default: null })
   numeroCamiseta?: number | null;
 
-  // Por defecto "usuario". Un "administrador" se asigna desde la base (y en el sprint 4 desde el dashboard)
+  // Por defecto "usuario". Un administrador puede crear otros administradores desde el dashboard
   @Prop({ type: String, enum: PERFILES, default: 'usuario' })
   perfil: Perfil;
+
+  // Baja lógica: el usuario NO se borra, se marca habilitado = false y ya no puede entrar.
+  // Los usuarios creados antes de este campo no lo tienen en la base: Mongoose les pone el
+  // default (true) al leerlos, y en las consultas se compara con "=== false" para no excluirlos.
+  @Prop({ type: Boolean, default: true })
+  habilitado: boolean;
 }
 
 export const UsuarioSchema = SchemaFactory.createForClass(Usuario);

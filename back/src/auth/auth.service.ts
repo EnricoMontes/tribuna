@@ -1,78 +1,35 @@
 import {
-  BadRequestException,
-  ConflictException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { ArchivosService } from '../archivos/archivos.service.js';
-import { CuadrosService } from '../cuadros/cuadros.service.js';
 import { UsuarioDocument } from '../usuarios/entities/usuario.entity.js';
 import { UsuariosService } from '../usuarios/usuarios.service.js';
 import { DatosToken } from './guards/auth.guard.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegistroDto } from './dto/registro.dto.js';
 
-const EDAD_MINIMA = 13;
-const RONDAS_SALT = 10;
-
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usuariosService: UsuariosService,
-    private readonly archivosService: ArchivosService,
-    private readonly cuadrosService: CuadrosService,
     private readonly jwtService: JwtService,
   ) {}
 
+  /**
+   * Las validaciones, la foto y el hash están en UsuariosService.crearUsuario, porque el alta
+   * que hace un administrador (POST /usuarios) es igual. Acá solo se agrega el token.
+   * El perfil queda fijo en "usuario": nadie se puede registrar solo como administrador.
+   */
   async registro(datos: RegistroDto, foto?: Express.Multer.File) {
-    // 1) Reglas que el DTO no puede chequear solo
-    this.validarFechaNacimiento(datos.fechaNacimiento);
-
-    // 2) Correo y usuario únicos -> 409 Conflict (el dato es válido, pero choca con uno existente)
-    if (await this.usuariosService.correoEnUso(datos.correo)) {
-      throw new ConflictException('Ya existe una cuenta con ese correo');
-    }
-    if (await this.usuariosService.nombreUsuarioEnUso(datos.nombreUsuario)) {
-      throw new ConflictException('Ese nombre de usuario ya está en uso');
-    }
-
-    // El cuadro es opcional, pero si viene tiene que existir en la lista -> si no, 400
-    const { cuadroId, ...resto } = datos;
-    const cuadro = cuadroId ? await this.cuadrosService.buscar(cuadroId) : null;
-    if (cuadroId && !cuadro) {
-      throw new BadRequestException('El cuadro elegido no existe');
-    }
-
-    // 3) Recién ahora subimos la foto (así no quedan imágenes huérfanas si los datos estaban mal)
-    const fotoPerfil = foto
-      ? await this.archivosService.subirImagen(foto, 'perfiles')
-      : null;
-
-    // 4) Encriptar: bcrypt genera un "salt" aleatorio y hashea. El hash no se puede revertir.
-    const password = await bcrypt.hash(datos.password, RONDAS_SALT);
-
-    try {
-      const usuario = await this.usuariosService.crear({
-        ...resto,
-        descripcion: datos.descripcion ?? '',
-        cuadro,
-        numeroCamiseta: datos.numeroCamiseta ?? null,
-        fechaNacimiento: new Date(datos.fechaNacimiento),
-        password,
-        fotoPerfil,
-      });
-      return this.respuestaConToken(usuario);
-    } catch (error) {
-      // Dos registros simultáneos con el mismo correo: lo frena el índice único de Mongo (código 11000)
-      if ((error as { code?: number }).code === 11000) {
-        throw new ConflictException(
-          'El correo o el nombre de usuario ya están en uso',
-        );
-      }
-      throw error;
-    }
+    const usuario = await this.usuariosService.crearUsuario(
+      datos,
+      foto,
+      'usuario',
+    );
+    return this.respuestaConToken(usuario);
   }
 
   async login({ identificador, password }: LoginDto) {
@@ -84,19 +41,26 @@ export class AuthService {
       throw new UnauthorizedException('Usuario o contraseña incorrectos');
     }
 
+    // Sprint 4: usuario deshabilitado por un administrador -> 403 Forbidden.
+    // Se chequea DESPUÉS de la contraseña: así solo se entera el dueño de la cuenta, no
+    // cualquiera que pruebe nombres de usuario. 403 y no 401 porque las credenciales están
+    // bien (sabemos quién es), lo que no tiene es permiso para entrar.
+    if (usuario.habilitado === false) {
+      throw new ForbiddenException(
+        'Tu cuenta fue deshabilitada por un administrador. No podés ingresar a Tribuna.',
+      );
+    }
+
     return this.respuestaConToken(usuario);
   }
 
   /**
    * POST /auth/autorizar: el AuthGuard ya verificó la firma y que el token no esté vencido
    * (si no, respondió 401). Acá se devuelven los datos ACTUALES del usuario desde la base.
-   * Si el usuario ya no existe (lo borraron después de emitir el token) -> también 401.
+   * Si el usuario ya no existe o lo deshabilitaron después de emitir el token -> también 401.
    */
   async autorizar(datosToken: DatosToken) {
-    const usuario = await this.usuariosService.buscarPorId(datosToken.sub);
-    if (!usuario) {
-      throw new UnauthorizedException('La sesión no es válida');
-    }
+    const usuario = await this.usuarioVigente(datosToken.sub);
     return { usuario: usuario.toJSON() };
   }
 
@@ -104,10 +68,21 @@ export class AuthService {
    * POST /auth/refrescar: devuelve un token NUEVO con la misma payload y otros 15 minutos.
    * El token viejo trae además "iat" (cuándo se emitió) y "exp" (cuándo vence): se descartan,
    * porque sign() los vuelve a calcular. Si se copiaran, el nuevo vencería igual que el viejo.
+   * Antes se mira la base: a un usuario deshabilitado no se le extiende la sesión.
    */
-  refrescar({ sub, nombreUsuario, perfil }: DatosToken) {
+  async refrescar({ sub, nombreUsuario, perfil }: DatosToken) {
+    await this.usuarioVigente(sub);
     const datos: DatosToken = { sub, nombreUsuario, perfil };
     return { token: this.jwtService.sign(datos) };
+  }
+
+  /** El usuario del token tiene que seguir existiendo y estar habilitado; si no -> 401 */
+  private async usuarioVigente(id: string) {
+    const usuario = await this.usuariosService.buscarPorId(id);
+    if (!usuario || usuario.habilitado === false) {
+      throw new UnauthorizedException('La sesión no es válida');
+    }
+    return usuario;
   }
 
   /** Login y registro devuelven los datos del usuario + el token firmado (vence en 15 min) */
@@ -121,27 +96,5 @@ export class AuthService {
       usuario: usuario.toJSON(), // toJSON borra la contraseña (ver usuario.entity.ts)
       token: this.jwtService.sign(datos),
     };
-  }
-
-  private validarFechaNacimiento(fecha: string) {
-    const nacimiento = new Date(fecha);
-    const hoy = new Date();
-    if (nacimiento > hoy) {
-      throw new BadRequestException(
-        'La fecha de nacimiento no puede ser futura',
-      );
-    }
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const cumpleEsteAnio = new Date(
-      hoy.getFullYear(),
-      nacimiento.getMonth(),
-      nacimiento.getDate(),
-    );
-    if (hoy < cumpleEsteAnio) edad--;
-    if (edad < EDAD_MINIMA) {
-      throw new BadRequestException(
-        `Tenés que tener al menos ${EDAD_MINIMA} años para registrarte`,
-      );
-    }
   }
 }

@@ -53,6 +53,18 @@
     {
       "key": "tokenInvalido",
       "value": ""
+    },
+    {
+      "key": "adminId",
+      "value": ""
+    },
+    {
+      "key": "usuarioCreadoId",
+      "value": ""
+    },
+    {
+      "key": "usuarioCreadoNombre",
+      "value": ""
     }
   ],
   "item": [
@@ -2190,6 +2202,870 @@
         }
       ],
       "description": "Disponibilidad (registro) y edición de Mi perfil (PATCH /usuarios/mi-perfil, con token: correr antes \"Auth - Login\")."
+    },
+    {
+      "name": "Usuarios - Administración",
+      "description": "Sprint 4: rutas solo para administradores (AuthGuard + AdminGuard). Correr antes \"Auth - Login\" (guarda {{token}} de un usuario común y {{tokenAdmin}} del administrador). Sin token -> 401; con token de usuario común -> 403. Crea usuarios reales en la base (nombres \"alta...\" y \"admin...\").",
+      "item": [
+        {
+          "name": "401 - Listar usuarios sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "El AuthGuard corta antes de llegar al AdminGuard."
+          }
+        },
+        {
+          "name": "403 - Listar usuarios con un usuario común",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.include(\"Solo un administrador\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "403 y no 401: el token es válido (sabemos quién es), pero su perfil es \"usuario\".",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Listar usuarios (administrador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Devuelve un array\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Ninguno trae la contraseña\", () => lista.forEach(u => pm.expect(u).to.not.have.property(\"password\")));",
+                  "const yo = lista.find(u => u.nombreUsuario === \"enrico_admin\");",
+                  "if (yo) pm.collectionVariables.set(\"adminId\", yo._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "Todos los usuarios, habilitados y deshabilitados, los más nuevos primero. Guarda {{adminId}} para la prueba de deshabilitarse a sí mismo.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Alta sin elegir perfil",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Pide el perfil\", () => pm.expect(String(pm.response.json().message)).to.include(\"perfil\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "Mismos datos que el registro, pero falta \"perfil\" (los radio buttons del dashboard).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Alta",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Dashboard",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "alta{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "alta{{$timestamp}}{{$randomInt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "1995-03-20",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado por un administrador desde Postman",
+                  "type": "text"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "403 - Alta con un usuario común",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "Un usuario común no puede crear cuentas (y menos de administrador).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Alta",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Dashboard",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "alta{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "alta{{$timestamp}}{{$randomInt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "1995-03-20",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado por un administrador desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "perfil",
+                  "value": "administrador",
+                  "type": "text"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 - Alta de un usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "const u = pm.response.json();",
+                  "pm.test(\"Perfil usuario\", () => pm.expect(u.perfil).to.eql(\"usuario\"));",
+                  "pm.test(\"Nace habilitado\", () => pm.expect(u.habilitado).to.eql(true));",
+                  "pm.test(\"No devuelve contraseña ni token\", () => { pm.expect(u).to.not.have.property(\"password\"); pm.expect(u).to.not.have.property(\"token\"); });",
+                  "pm.collectionVariables.set(\"usuarioCreadoId\", u._id);",
+                  "pm.collectionVariables.set(\"usuarioCreadoNombre\", u.nombreUsuario);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "No devuelve token: el admin sigue logueado como él mismo. Guarda {{usuarioCreadoId}} y {{usuarioCreadoNombre}}.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Alta",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Dashboard",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "alta{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "alta{{$timestamp}}{{$randomInt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "1995-03-20",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado por un administrador desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "perfil",
+                  "value": "usuario",
+                  "type": "text"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "201 - Alta de un administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Perfil administrador\", () => pm.expect(pm.response.json().perfil).to.eql(\"administrador\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "El radio button \"administrador\": es la única forma de crear un admin desde la app.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Alta",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Dashboard",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "admin{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "admin{{$timestamp}}{{$randomInt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "1995-03-20",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado por un administrador desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "perfil",
+                  "value": "administrador",
+                  "type": "text"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "409 - Alta con un nombre de usuario existente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "Mismas reglas que el registro: correo y nombre de usuario únicos.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Alta",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Dashboard",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "alta{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "{{usuarioCreadoNombre}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "1995-03-20",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Creado por un administrador desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "perfil",
+                  "value": "usuario",
+                  "type": "text"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Deshabilitar un usuario (baja lógica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Queda deshabilitado\", () => pm.expect(pm.response.json().habilitado).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioCreadoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioCreadoId}}"
+              ]
+            },
+            "description": "No se borra: habilitado pasa a false. Sus publicaciones y comentarios siguen existiendo.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "403 - Login de un usuario deshabilitado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Avisa que fue deshabilitado\", () => pm.expect(pm.response.json().message).to.include(\"deshabilitada\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Usuario y contraseña correctos, pero la cuenta está deshabilitada -> 403 con un mensaje claro (lo muestra el modal del login).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{usuarioCreadoNombre}}\",\n  \"password\": \"Tribuna123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "401 - Login deshabilitado con contraseña incorrecta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Primero se valida la contraseña: a quien no la sabe no se le dice que la cuenta está deshabilitada.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{usuarioCreadoNombre}}\",\n  \"password\": \"Incorrecta123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "400 - El administrador se deshabilita a sí mismo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.include(\"tu propia cuenta\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{adminId}}"
+              ]
+            },
+            "description": "Se impide para que un admin no se quede afuera de la app.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "404 - Deshabilitar un usuario que no existe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/6aebc132c0764c47cbdc0000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "6aebc132c0764c47cbdc0000"
+              ]
+            },
+            "description": "Id con formato válido, pero no hay ningún usuario con ese id.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Id mal formado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "123"
+              ]
+            },
+            "description": "ParseObjectIdPipe: el id no tiene formato de ObjectId de Mongo.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Habilitar al usuario (alta lógica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Vuelve a estar habilitado\", () => pm.expect(pm.response.json().habilitado).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioCreadoId}}/habilitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioCreadoId}}",
+                "habilitar"
+              ]
+            },
+            "description": "200 y no 201: no se crea nada, se reactiva un usuario que ya existía.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Login después de habilitarlo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Devuelve el token\", () => pm.expect(pm.response.json().token).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Rehabilitado, puede volver a entrar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{usuarioCreadoNombre}}\",\n  \"password\": \"Tribuna123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "name": "Partidos",
