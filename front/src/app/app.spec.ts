@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
 import { App } from './app';
 
 describe('App', () => {
@@ -8,7 +9,12 @@ describe('App', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([]), provideHttpClient()],
+      // El service worker apagado (como en "ng serve"): App pide SwUpdate para avisar de versiones nuevas
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideServiceWorker('ngsw-worker.js', { enabled: false }),
+      ],
     }).compileComponents();
   });
 

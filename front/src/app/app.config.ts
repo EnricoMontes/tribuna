@@ -1,8 +1,14 @@
 import { DATE_PIPE_DEFAULT_OPTIONS, registerLocaleData } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import localeEsAr from '@angular/common/locales/es-AR';
-import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  isDevMode,
+  LOCALE_ID,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
 import { routes } from './app.routes';
 import { tokenInterceptor } from './interceptores/token.interceptor';
 
@@ -21,5 +27,13 @@ export const appConfig: ApplicationConfig = {
     // El pipe date muestra siempre la hora argentina (UTC-3, sin horario de verano),
     // aunque la compu del usuario tenga otra zona horaria configurada
     { provide: DATE_PIPE_DEFAULT_OPTIONS, useValue: { timezone: '-0300' } },
+    // PWA (Sprint 4): registra el service worker que genera Angular (ngsw-worker.js), configurado
+    // en ngsw-config.json. Solo en producción (en "ng serve" molestaría: guardaría versiones viejas).
+    // registerWhenStable: se registra cuando la app terminó de arrancar (o a los 30 s), para no
+    // competir con la carga inicial.
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };
