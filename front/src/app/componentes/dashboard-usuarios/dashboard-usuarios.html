@@ -3,7 +3,13 @@
   <div class="barra">
     <div>
       <h2>Usuarios</h2>
-      <p class="subtitulo">{{ contadores().todos }} cuentas en la tribuna</p>
+      <p class="subtitulo">
+        @if (busqueda().trim()) {
+          {{ contadores().todos }} resultados para "{{ busqueda().trim() }}"
+        } @else {
+          {{ contadores().todos }} cuentas en la tribuna
+        }
+      </p>
     </div>
     <div class="barra-acciones">
       <label class="sr-only" for="buscar">Buscar usuario</label>
@@ -27,24 +33,25 @@
         class="filtro"
         [class.activo]="filtro() === f.valor"
         [attr.aria-pressed]="filtro() === f.valor"
-        (click)="filtro.set(f.valor)"
+        (click)="elegirFiltro(f.valor)"
       >
         {{ f.texto }} <span class="cantidad">{{ contadores()[f.valor] }}</span>
       </button>
     }
   </div>
 
-  @if (cargando()) {
+  <!-- "Cargando" solo la primera vez; al cambiar de página la lista se atenúa mientras llega la nueva -->
+  @if (cargando() && usuarios().length === 0) {
     <p class="estado">Cargando usuarios...</p>
   } @else if (errorCarga()) {
     <div class="estado">
       <p class="error">{{ errorCarga() }}</p>
       <button class="boton secundario" type="button" (click)="cargar()">Reintentar</button>
     </div>
-  } @else if (visibles().length === 0) {
+  } @else if (usuarios().length === 0) {
     <p class="estado">No hay usuarios que coincidan.</p>
   } @else {
-    <ul class="lista">
+    <ul class="lista" [class.actualizando]="cargando()" [attr.aria-busy]="cargando()">
       <li class="fila-titulos" aria-hidden="true">
         <span>Usuario</span>
         <span>Correo</span>
@@ -53,7 +60,7 @@
         <span>Alta</span>
         <span></span>
       </li>
-      @for (usuario of visibles(); track usuario._id) {
+      @for (usuario of usuarios(); track usuario._id) {
         @let habilitado = estaHabilitado(usuario);
         <li class="usuario" [class.deshabilitado]="!habilitado">
           <div class="quien">
@@ -84,29 +91,63 @@
           <div class="accion">
             @if (esYo(usuario)) {
               <span class="vos">Sos vos</span>
-            } @else if (habilitado) {
-              <button
-                class="boton peligro chico"
-                type="button"
-                [disabled]="procesando() === usuario._id"
-                (click)="deshabilitar(usuario)"
-              >
-                Deshabilitar
-              </button>
             } @else {
+              <!-- Dar o quitar el rol de administrador (sin volver a registrarlo) -->
               <button
-                class="boton chico"
+                class="boton secundario chico"
                 type="button"
                 [disabled]="procesando() === usuario._id"
-                (click)="habilitar(usuario)"
+                (click)="cambiarPerfil(usuario)"
               >
-                Habilitar
+                {{ usuario.perfil === 'administrador' ? 'Quitar admin' : 'Hacer admin' }}
               </button>
+              @if (habilitado) {
+                <button
+                  class="boton peligro chico"
+                  type="button"
+                  [disabled]="procesando() === usuario._id"
+                  (click)="deshabilitar(usuario)"
+                >
+                  Deshabilitar
+                </button>
+              } @else {
+                <button
+                  class="boton chico"
+                  type="button"
+                  [disabled]="procesando() === usuario._id"
+                  (click)="habilitar(usuario)"
+                >
+                  Habilitar
+                </button>
+              }
             }
           </div>
         </li>
       }
     </ul>
+
+    <!-- Paginación: la hace el back con offset y limit (como las publicaciones) -->
+    @if (totalPaginas() > 1) {
+      <nav class="paginacion" aria-label="Páginas de usuarios">
+        <button
+          class="boton secundario chico"
+          type="button"
+          [disabled]="pagina() === 1 || cargando()"
+          (click)="irAPagina(pagina() - 1)"
+        >
+          Anterior
+        </button>
+        <span>Página {{ pagina() }} de {{ totalPaginas() }}</span>
+        <button
+          class="boton secundario chico"
+          type="button"
+          [disabled]="pagina() === totalPaginas() || cargando()"
+          (click)="irAPagina(pagina() + 1)"
+        >
+          Siguiente
+        </button>
+      </nav>
+    }
   }
 </div>
 
@@ -129,7 +170,7 @@
       <p class="subtitulo">
         Los mismos datos que el registro. Elegí si la cuenta es de usuario o de administrador.
       </p>
-      <app-registro [modoAdmin]="true" (creado)="alCrear($event)" />
+      <app-registro [modoAdmin]="true" (creado)="alCrear()" />
     </div>
   </div>
 }

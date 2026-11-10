@@ -92,7 +92,7 @@
 .fila-titulos,
 .usuario {
   display: grid;
-  grid-template-columns: minmax(0, 2.2fr) minmax(0, 2fr) 130px 130px 80px 130px;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.8fr) 125px 120px 70px 280px;
   align-items: center;
   gap: 1rem;
   padding: 0.85rem 0.5rem;
@@ -185,7 +185,29 @@
 
 .accion {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* mientras llega otra página, la lista actual se atenúa (en vez de desaparecer y "saltar") */
+.lista {
+  transition: opacity 0.15s;
+}
+
+.lista.actualizando {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  font-weight: 700;
+  color: var(--texto-suave);
 }
 
 .boton.chico {

@@ -2,7 +2,27 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Usuario } from '../modelos/usuario';
+import { Perfil, Usuario } from '../modelos/usuario';
+
+// Sprint 4: los filtros del dashboard (los mismos valores que acepta el back en ?estado=)
+export type EstadoUsuarios = 'todos' | 'habilitados' | 'deshabilitados' | 'administradores';
+export type ContadoresUsuarios = Record<EstadoUsuarios, number>;
+
+export interface FiltrosUsuarios {
+  offset: number;
+  limit: number;
+  estado: EstadoUsuarios;
+  buscar?: string;
+}
+
+// Lo que devuelve GET /usuarios
+export interface RespuestaUsuarios {
+  usuarios: Usuario[];
+  total: number;
+  offset: number;
+  limit: number;
+  contadores: ContadoresUsuarios;
+}
 
 @Service()
 export class Usuarios {
@@ -24,9 +44,21 @@ export class Usuarios {
 
   // ───── Sprint 4: solo administradores (el back responde 403 a cualquier otro) ─────
 
-  /** GET /usuarios: todos los usuarios, habilitados y deshabilitados */
-  listar(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(this.url);
+  /** GET /usuarios paginado: una página + el total y los contadores de cada filtro */
+  listar(filtros: FiltrosUsuarios): Observable<RespuestaUsuarios> {
+    let params = new HttpParams()
+      .set('offset', filtros.offset)
+      .set('limit', filtros.limit)
+      .set('estado', filtros.estado);
+    if (filtros.buscar) {
+      params = params.set('buscar', filtros.buscar);
+    }
+    return this.http.get<RespuestaUsuarios>(this.url, { params });
+  }
+
+  /** PATCH /usuarios/:id/perfil: dar o quitar el rol de administrador */
+  cambiarPerfil(id: string, perfil: Perfil): Observable<Usuario> {
+    return this.http.patch<Usuario>(`${this.url}/${id}/perfil`, { perfil });
   }
 
   /** POST /usuarios (multipart): mismos datos que el registro + "perfil". No toca la sesión del admin. */
