@@ -5577,6 +5577,480 @@
           }
         }
       ]
+    },
+    {
+      "name": "Estadísticas",
+      "description": "Sprint 4: EstadisticasController (módulo publicaciones). Las tres rutas son GET, solo para administradores (AuthGuard + AdminGuard), y reciben el lapso ?desde=AAAA-MM-DD&hasta=AAAA-MM-DD (días en hora argentina, los dos incluidos; sin parámetros = últimos 30 días). Correr antes \"Auth - Login\".",
+      "item": [
+        {
+          "name": "401 - Sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/publicaciones-por-usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "publicaciones-por-usuario"
+              ]
+            },
+            "description": "El AuthGuard corta antes."
+          }
+        },
+        {
+          "name": "403 - Usuario común",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/publicaciones-por-usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "publicaciones-por-usuario"
+              ]
+            },
+            "description": "Token válido pero no es administrador.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Publicaciones por usuario (últimos 30 días)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Trae desde, hasta, total y datos\", () => { pm.expect(r.desde).to.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); pm.expect(r.hasta).to.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); pm.expect(r.total).to.be.a(\"number\"); pm.expect(r.datos).to.be.an(\"array\"); });",
+                  "pm.test(\"Cada dato tiene usuario y cantidad\", () => r.datos.forEach(d => pm.expect(d).to.include.all.keys(\"usuario\", \"cantidad\")));",
+                  "pm.test(\"total = suma de las cantidades\", () => pm.expect(r.total).to.eql(r.datos.reduce((s, d) => s + d.cantidad, 0)));",
+                  "pm.test(\"Ordenado de mayor a menor\", () => r.datos.forEach((d, i) => i && pm.expect(d.cantidad).to.be.at.most(r.datos[i - 1].cantidad)));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/publicaciones-por-usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "publicaciones-por-usuario"
+              ]
+            },
+            "description": "Gráfico de torta. aggregate: $match (activas y en el lapso) -> $group por autor -> $sort -> $lookup a usuarios.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Publicaciones por usuario en un lapso elegido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Trae desde, hasta, total y datos\", () => { pm.expect(r.desde).to.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); pm.expect(r.hasta).to.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); pm.expect(r.total).to.be.a(\"number\"); pm.expect(r.datos).to.be.an(\"array\"); });",
+                  "pm.test(\"Cada dato tiene usuario y cantidad\", () => r.datos.forEach(d => pm.expect(d).to.include.all.keys(\"usuario\", \"cantidad\")));",
+                  "pm.test(\"total = suma de las cantidades\", () => pm.expect(r.total).to.eql(r.datos.reduce((s, d) => s + d.cantidad, 0)));",
+                  "pm.test(\"Devuelve el lapso pedido\", () => { pm.expect(r.desde).to.eql(\"2026-11-01\"); pm.expect(r.hasta).to.eql(\"2026-11-10\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/publicaciones-por-usuario?desde=2026-11-01&hasta=2026-11-10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "publicaciones-por-usuario"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-11-01"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-10"
+                }
+              ]
+            },
+            "description": "El lapso de tiempo elegido por el admin.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Comentarios por día",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Trae desde, hasta, total y datos\", () => { pm.expect(r.desde).to.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); pm.expect(r.hasta).to.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); pm.expect(r.total).to.be.a(\"number\"); pm.expect(r.datos).to.be.an(\"array\"); });",
+                  "pm.test(\"Cada dato tiene fecha y cantidad\", () => r.datos.forEach(d => pm.expect(d).to.include.all.keys(\"fecha\", \"cantidad\")));",
+                  "pm.test(\"total = suma de las cantidades\", () => pm.expect(r.total).to.eql(r.datos.reduce((s, d) => s + d.cantidad, 0)));",
+                  "pm.test(\"Un dato por cada día del lapso (10), con 0 los días sin comentarios\", () => { pm.expect(r.datos.length).to.eql(10); pm.expect(r.datos[0].fecha).to.eql(\"2026-11-01\"); pm.expect(r.datos[9].fecha).to.eql(\"2026-11-10\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/comentarios-por-dia?desde=2026-11-01&hasta=2026-11-10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "comentarios-por-dia"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-11-01"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-10"
+                }
+              ]
+            },
+            "description": "Gráfico de líneas. $group por $dateToString (día en hora argentina); los días sin comentarios se completan con 0.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Comentarios por publicación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Trae desde, hasta, total y datos\", () => { pm.expect(r.desde).to.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); pm.expect(r.hasta).to.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); pm.expect(r.total).to.be.a(\"number\"); pm.expect(r.datos).to.be.an(\"array\"); });",
+                  "pm.test(\"Cada dato tiene publicacion y cantidad\", () => r.datos.forEach(d => pm.expect(d).to.include.all.keys(\"publicacion\", \"cantidad\")));",
+                  "pm.test(\"total = suma de las cantidades\", () => pm.expect(r.total).to.eql(r.datos.reduce((s, d) => s + d.cantidad, 0)));",
+                  "pm.test(\"Cada publicación trae título y autor\", () => r.datos.forEach(d => { pm.expect(d.publicacion.titulo).to.be.a(\"string\"); pm.expect(d.publicacion.autor).to.be.a(\"string\"); }));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/comentarios-por-publicacion?desde=2026-11-01&hasta=2026-11-10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "comentarios-por-publicacion"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-11-01"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-10"
+                }
+              ]
+            },
+            "description": "Gráfico de barras. Solo cuenta comentarios de publicaciones activas.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - \"desde\" posterior a \"hasta\"",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.include(\"posterior\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/comentarios-por-dia?desde=2026-11-10&hasta=2026-11-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "comentarios-por-dia"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-11-10"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-01"
+                }
+              ]
+            },
+            "description": "El lapso tiene que estar bien armado.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Fecha con formato inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/comentarios-por-dia?desde=10-11-2026",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "comentarios-por-dia"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "10-11-2026"
+                }
+              ]
+            },
+            "description": "Tiene que ser AAAA-MM-DD.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Día que no existe (31/02)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Fecha no válida\", () => pm.expect(pm.response.json().message).to.include(\"no es válida\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/comentarios-por-dia?desde=2026-02-31&hasta=2026-03-05",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "comentarios-por-dia"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-02-31"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-03-05"
+                }
+              ]
+            },
+            "description": "JavaScript lo correría al 3/3: se detecta y se responde 400.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Lapso de más de un año",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/estadisticas/comentarios-por-dia?desde=2024-01-01&hasta=2026-11-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "estadisticas",
+                "comentarios-por-dia"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-01"
+                }
+              ]
+            },
+            "description": "Máximo 366 días.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
