@@ -2283,11 +2283,10 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "const lista = pm.response.json();",
-                  "pm.test(\"Devuelve un array\", () => pm.expect(lista).to.be.an(\"array\"));",
-                  "pm.test(\"Ninguno trae la contraseña\", () => lista.forEach(u => pm.expect(u).to.not.have.property(\"password\")));",
-                  "const yo = lista.find(u => u.nombreUsuario === \"enrico_admin\");",
-                  "if (yo) pm.collectionVariables.set(\"adminId\", yo._id);"
+                  "const r = pm.response.json();",
+                  "pm.test(\"Página 1: hasta 10 usuarios (limit por defecto)\", () => { pm.expect(r.usuarios).to.be.an(\"array\"); pm.expect(r.usuarios.length).to.be.at.most(10); });",
+                  "pm.test(\"Trae total, offset, limit y contadores\", () => { pm.expect(r.total).to.be.a(\"number\"); pm.expect(r.offset).to.eql(0); pm.expect(r.limit).to.eql(10); pm.expect(r.contadores).to.have.all.keys(\"todos\", \"habilitados\", \"deshabilitados\", \"administradores\"); });",
+                  "pm.test(\"Ninguno trae la contraseña\", () => r.usuarios.forEach(u => pm.expect(u).to.not.have.property(\"password\")));"
                 ]
               }
             }
@@ -2304,7 +2303,160 @@
                 "usuarios"
               ]
             },
-            "description": "Todos los usuarios, habilitados y deshabilitados, los más nuevos primero. Guarda {{adminId}} para la prueba de deshabilitarse a sí mismo.",
+            "description": "Paginado (offset 0, limit 10 por defecto), los más nuevos primero. Devuelve { usuarios, total, offset, limit, contadores }: contadores = cuántos hay en cada filtro (los números de los chips).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Página 2 de a 5, solo habilitados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Respeta offset y limit\", () => { pm.expect(r.offset).to.eql(5); pm.expect(r.limit).to.eql(5); pm.expect(r.usuarios.length).to.be.at.most(5); });",
+                  "pm.test(\"Todos habilitados\", () => r.usuarios.forEach(u => pm.expect(u.habilitado).to.not.eql(false)));",
+                  "pm.test(\"total = contador de habilitados\", () => pm.expect(r.total).to.eql(r.contadores.habilitados));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios?offset=5&limit=5&estado=habilitados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ],
+              "query": [
+                {
+                  "key": "offset",
+                  "value": "5"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "key": "estado",
+                  "value": "habilitados"
+                }
+              ]
+            },
+            "description": "offset = cuántos saltear. Página 2 con limit 5 -> offset 5.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Buscar un usuario (guarda adminId)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "const yo = r.usuarios.find(u => u.nombreUsuario === \"enrico_admin\");",
+                  "pm.test(\"Lo encuentra\", () => pm.expect(yo).to.exist);",
+                  "pm.test(\"Todos coinciden con la búsqueda\", () => r.usuarios.forEach(u => pm.expect(`${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u.correo}`.toLowerCase()).to.include(\"enrico_admin\")));",
+                  "if (yo) pm.collectionVariables.set(\"adminId\", yo._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios?buscar=enrico_admin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ],
+              "query": [
+                {
+                  "key": "buscar",
+                  "value": "enrico_admin"
+                }
+              ]
+            },
+            "description": "Busca en nombre, apellido, nombre de usuario y correo (sin distinguir mayúsculas). Guarda {{adminId}} para las pruebas de \"a sí mismo\".",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Query inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios?limit=500&estado=cualquiera",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "500"
+                },
+                {
+                  "key": "estado",
+                  "value": "cualquiera"
+                }
+              ]
+            },
+            "description": "limit máximo 50 y estado tiene que ser todos | habilitados | deshabilitados | administradores.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2722,6 +2874,324 @@
                   "type": "text"
                 }
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "403 - Cambiar perfil con un usuario común",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioCreadoId}}/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioCreadoId}}",
+                "perfil"
+              ]
+            },
+            "description": "Solo un administrador puede dar o quitar el rol.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"administrador\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Cambiar a un perfil inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioCreadoId}}/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioCreadoId}}",
+                "perfil"
+              ]
+            },
+            "description": "El perfil tiene que ser \"usuario\" o \"administrador\".",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"superadmin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Hacer administrador a un usuario existente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Ahora es administrador\", () => pm.expect(pm.response.json().perfil).to.eql(\"administrador\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioCreadoId}}/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioCreadoId}}",
+                "perfil"
+              ]
+            },
+            "description": "Sin volver a registrarlo. El rol también va en el token: el cambio vale cuando esa persona vuelve a iniciar sesión.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"administrador\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "200 - Login después del cambio: el token trae el rol nuevo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "const payload = JSON.parse(atob(pm.response.json().token.split(\".\")[1]));",
+                  "pm.test(\"perfil administrador en el token\", () => pm.expect(payload.perfil).to.eql(\"administrador\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Al volver a ingresar se firma un token nuevo con el perfil actual de la base.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificador\": \"{{usuarioCreadoNombre}}\",\n  \"password\": \"Tribuna123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "200 - Volver a usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Vuelve a ser usuario\", () => pm.expect(pm.response.json().perfil).to.eql(\"usuario\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioCreadoId}}/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioCreadoId}}",
+                "perfil"
+              ]
+            },
+            "description": "Quitarle el rol de administrador.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"usuario\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - El administrador se quita el rol a sí mismo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(pm.response.json().message).to.include(\"a vos mismo\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{adminId}}/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{adminId}}",
+                "perfil"
+              ]
+            },
+            "description": "Se impide para que la app no se quede sin administradores.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"usuario\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "auth": {
               "type": "bearer",

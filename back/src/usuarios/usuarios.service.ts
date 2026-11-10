@@ -6,11 +6,16 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { Model } from 'mongoose';
+import { Model, QueryFilter } from 'mongoose';
 import { ArchivosService } from '../archivos/archivos.service.js';
 import type { RegistroDto } from '../auth/dto/registro.dto.js';
 import { CuadrosService } from '../cuadros/cuadros.service.js';
 import { EditarPerfilDto } from './dto/editar-perfil.dto.js';
+import {
+  ESTADOS,
+  type Estado,
+  ListarUsuariosDto,
+} from './dto/listar-usuarios.dto.js';
 import {
   type Perfil,
   Usuario,
@@ -97,9 +102,72 @@ export class UsuariosService {
     }
   }
 
-  /** GET /usuarios (admin): todos, habilitados y deshabilitados, los más nuevos primero */
-  listar() {
-    return this.usuarioModel.find().sort({ createdAt: -1 }).exec();
+  /**
+   * GET /usuarios (admin): paginado, filtrado por estado/perfil y con búsqueda, los más nuevos primero.
+   * Además del total para paginar, devuelve cuántos hay en cada filtro (los números de los chips),
+   * contando con la búsqueda aplicada. Todas las consultas van a la vez con Promise.all.
+   */
+  async listar({ offset, limit, estado, buscar }: ListarUsuariosDto) {
+    const base: QueryFilter<UsuarioDocument> = {};
+    const texto = buscar?.trim();
+    if (texto) {
+      // Se escapan los caracteres especiales: así "a.b" busca el punto literal y nadie puede
+      // mandar una expresión regular rara. "i" = sin distinguir mayúsculas.
+      const patron = new RegExp(
+        texto.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+        'i',
+      );
+      base.$or = [
+        { nombre: patron },
+        { apellido: patron },
+        { nombreUsuario: patron },
+        { correo: patron },
+      ];
+    }
+
+    // Un filtro por cada chip. "habilitados" usa $ne: false para incluir a los usuarios viejos,
+    // que no tienen el campo guardado en la base.
+    const filtros: Record<Estado, QueryFilter<UsuarioDocument>> = {
+      todos: base,
+      habilitados: { ...base, habilitado: { $ne: false } },
+      deshabilitados: { ...base, habilitado: false },
+      administradores: { ...base, perfil: 'administrador' },
+    };
+
+    const [usuarios, ...cantidades] = await Promise.all([
+      this.usuarioModel
+        .find(filtros[estado])
+        .sort({ createdAt: -1, _id: -1 }) // _id desempata: el orden no cambia entre páginas
+        .skip(offset)
+        .limit(limit)
+        .exec(),
+      ...ESTADOS.map((e) => this.usuarioModel.countDocuments(filtros[e])),
+    ]);
+    const contadores = Object.fromEntries(
+      ESTADOS.map((e, i) => [e, cantidades[i]]),
+    ) as Record<Estado, number>;
+
+    return { usuarios, total: contadores[estado], offset, limit, contadores };
+  }
+
+  /**
+   * PATCH /usuarios/:id/perfil (admin): pasa un usuario a administrador o al revés.
+   * El rol también viaja en el token: el cambio vale cuando esa persona vuelve a iniciar sesión.
+   */
+  async cambiarPerfil(id: string, perfil: Perfil, idAdmin: string) {
+    // Si un admin se quitara el rol a sí mismo podría quedar la app sin ningún administrador
+    if (id === idAdmin && perfil !== 'administrador') {
+      throw new BadRequestException(
+        'No podés quitarte el rol de administrador a vos mismo',
+      );
+    }
+    const usuario = await this.usuarioModel
+      .findByIdAndUpdate(id, { perfil }, { new: true })
+      .exec();
+    if (!usuario) {
+      throw new NotFoundException('El usuario no existe');
+    }
+    return usuario;
   }
 
   /**

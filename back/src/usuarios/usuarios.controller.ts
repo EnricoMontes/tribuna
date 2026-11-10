@@ -23,7 +23,9 @@ import { opcionesImagen } from '../archivos/imagen.filtro.js';
 import { AdminGuard } from '../auth/guards/admin.guard.js';
 import { AuthGuard, type DatosToken } from '../auth/guards/auth.guard.js';
 import { UsuarioActual } from '../auth/usuario-actual.decorator.js';
+import { CambiarPerfilDto } from './dto/cambiar-perfil.dto.js';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto.js';
+import { ListarUsuariosDto } from './dto/listar-usuarios.dto.js';
 import { DisponibilidadDto } from './dto/disponibilidad.dto.js';
 import { EditarPerfilDto } from './dto/editar-perfil.dto.js';
 import { type ImagenesPerfil, UsuariosService } from './usuarios.service.js';
@@ -70,11 +72,25 @@ export class UsuariosController {
   // el rol (403 si no es administrador). Van en cada ruta y no en todo el controller porque
   // "disponibilidad" y "mi-perfil" las usan usuarios comunes.
 
-  // GET /usuarios -> 200 con todos los usuarios (habilitados y deshabilitados)
+  // GET /usuarios?offset=0&limit=10&estado=todos|habilitados|deshabilitados|administradores&buscar=
+  // -> 200 { usuarios, total, offset, limit, contadores }. Query inválida -> 400.
   @Get()
   @UseGuards(AuthGuard, AdminGuard)
-  listar() {
-    return this.usuariosService.listar();
+  listar(@Query() filtros: ListarUsuariosDto) {
+    return this.usuariosService.listar(filtros);
+  }
+
+  // PATCH /usuarios/:id/perfil  { "perfil": "administrador" | "usuario" } -> 200 con el usuario.
+  // PATCH porque cambia UN dato del usuario. 400 si el admin se quita el rol a sí mismo; 404 si no existe.
+  // El rol también va adentro del token: el cambio se aplica cuando esa persona vuelve a iniciar sesión.
+  @Patch(':id/perfil')
+  @UseGuards(AuthGuard, AdminGuard)
+  cambiarPerfil(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() { perfil }: CambiarPerfilDto,
+    @UsuarioActual() admin: DatosToken,
+  ) {
+    return this.usuariosService.cambiarPerfil(id.toString(), perfil, admin.sub);
   }
 
   // POST /usuarios (multipart/form-data) -> 201 con el usuario creado.
