@@ -1,8 +1,10 @@
-import { Component, inject, OnDestroy, signal } from '@angular/core';
+import { Component, inject, input, OnDestroy, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Cuadro } from '../../modelos/cuadro';
+import { Perfil, Usuario } from '../../modelos/usuario';
 import { Auth } from '../../servicios/auth';
 import { Cuadros } from '../../servicios/cuadros';
 import { Modal } from '../../servicios/modal';
@@ -21,12 +23,24 @@ const MAXIMO_MB = 2;
 export const EDAD_MINIMA = 13;
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet],
   selector: 'app-registro',
   styleUrl: './registro.css',
   templateUrl: './registro.html',
 })
 export class Registro implements OnDestroy {
+  /**
+   * Sprint 4: el mismo formulario se reusa en el dashboard para que un administrador cree usuarios
+   * ("mismos datos que el registro"). Con modoAdmin = true:
+   * - se muestran los dos radio buttons "usuario" / "administrador";
+   * - se manda a POST /usuarios (no a /auth/registro) y NO se toca la sesión del admin;
+   * - no se dibuja el lateral ni el link "¿Ya tenés cuenta?", porque va dentro de una ventana.
+   * Así no se duplican las validaciones: un cambio en el registro vale para los dos.
+   */
+  modoAdmin = input(false);
+  // Avisa al dashboard que se creó un usuario (para sumarlo a la lista y cerrar la ventana)
+  creado = output<Usuario>();
+
   // inject() acá (y no en el constructor) porque el FormGroup de abajo ya necesita Usuarios
   private usuarios = inject(Usuarios);
   private auth = inject(Auth);
@@ -82,6 +96,8 @@ export class Registro implements OnDestroy {
       numeroCamiseta: new FormControl<number | null>(null, {
         validators: [Validators.min(1), Validators.max(99), Validators.pattern(/^\d+$/)],
       }),
+      // Solo se usa (y se manda) en modoAdmin: los radio buttons del dashboard
+      perfil: new FormControl<Perfil>('usuario', { nonNullable: true }),
     },
     // Validador del grupo: las dos contraseñas tienen que ser iguales
     { validators: [clavesCoincidenValidator('password', 'repetirPassword')] },
@@ -165,8 +181,9 @@ export class Registro implements OnDestroy {
       return;
     }
 
-    // multipart/form-data: así viajan juntos los datos y el archivo. repetirPassword no se manda.
-    const { repetirPassword, ...datos } = this.formRegistro.getRawValue();
+    // multipart/form-data: así viajan juntos los datos y el archivo. repetirPassword no se manda,
+    // y "perfil" solo en modoAdmin (en el registro el back lo rechaza con 400: nadie se registra como admin).
+    const { repetirPassword, perfil, ...datos } = this.formRegistro.getRawValue();
     const formData = new FormData();
     // Los campos opcionales vacíos no se mandan (el back los guarda como null)
     Object.entries(datos).forEach(([campo, valor]) => {
@@ -180,6 +197,12 @@ export class Registro implements OnDestroy {
     }
 
     this.cargando.set(true);
+    if (this.modoAdmin()) {
+      formData.append('perfil', perfil);
+      this.crearComoAdmin(formData);
+      return;
+    }
+
     this.auth.registro(formData).subscribe({
       next: (usuario) => {
         this.cargando.set(false);
@@ -192,6 +215,24 @@ export class Registro implements OnDestroy {
       error: (error) => {
         this.cargando.set(false);
         this.modal.error('No pudimos crear tu cuenta', mensajeDeError(error));
+      },
+    });
+  }
+
+  /** modoAdmin: POST /usuarios. El admin sigue logueado como él mismo (la respuesta no trae token). */
+  private crearComoAdmin(formData: FormData) {
+    this.usuarios.crear(formData).subscribe({
+      next: (usuario) => {
+        this.cargando.set(false);
+        this.modal.exito(
+          'Usuario creado',
+          `La cuenta @${usuario.nombreUsuario} se creó como ${usuario.perfil} y ya puede ingresar a Tribuna.`,
+        );
+        this.creado.emit(usuario);
+      },
+      error: (error) => {
+        this.cargando.set(false);
+        this.modal.error('No pudimos crear el usuario', mensajeDeError(error));
       },
     });
   }

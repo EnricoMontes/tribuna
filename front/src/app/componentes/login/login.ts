@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -54,7 +55,13 @@ export class Login {
       },
       error: (error) => {
         this.cargando.set(false);
-        this.modal.error('No pudimos iniciar sesión', mensajeDeError(error));
+        // Sprint 4: 403 = usuario y contraseña bien, pero un administrador deshabilitó la cuenta.
+        // El texto lo manda el back; acá solo cambia el título para que se entienda que no es un error de tipeo.
+        const deshabilitado = error instanceof HttpErrorResponse && error.status === 403;
+        this.modal.error(
+          deshabilitado ? 'Cuenta deshabilitada' : 'No pudimos iniciar sesión',
+          mensajeDeError(error),
+        );
       },
     });
   }

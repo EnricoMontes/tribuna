@@ -1,0 +1,135 @@
+<div class="panel">
+  <!-- Barra de arriba: título, búsqueda y botón de alta -->
+  <div class="barra">
+    <div>
+      <h2>Usuarios</h2>
+      <p class="subtitulo">{{ contadores().todos }} cuentas en la tribuna</p>
+    </div>
+    <div class="barra-acciones">
+      <label class="sr-only" for="buscar">Buscar usuario</label>
+      <input
+        id="buscar"
+        class="buscador"
+        type="search"
+        placeholder="Buscar por nombre, usuario o correo"
+        [value]="busqueda()"
+        (input)="buscar($event)"
+      />
+      <button class="boton" type="button" (click)="creando.set(true)">Nuevo usuario</button>
+    </div>
+  </div>
+
+  <!-- Filtros con su cantidad -->
+  <div class="filtros" role="group" aria-label="Filtrar usuarios">
+    @for (f of filtros; track f.valor) {
+      <button
+        type="button"
+        class="filtro"
+        [class.activo]="filtro() === f.valor"
+        [attr.aria-pressed]="filtro() === f.valor"
+        (click)="filtro.set(f.valor)"
+      >
+        {{ f.texto }} <span class="cantidad">{{ contadores()[f.valor] }}</span>
+      </button>
+    }
+  </div>
+
+  @if (cargando()) {
+    <p class="estado">Cargando usuarios...</p>
+  } @else if (errorCarga()) {
+    <div class="estado">
+      <p class="error">{{ errorCarga() }}</p>
+      <button class="boton secundario" type="button" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (visibles().length === 0) {
+    <p class="estado">No hay usuarios que coincidan.</p>
+  } @else {
+    <ul class="lista">
+      <li class="fila-titulos" aria-hidden="true">
+        <span>Usuario</span>
+        <span>Correo</span>
+        <span>Perfil</span>
+        <span>Estado</span>
+        <span>Alta</span>
+        <span></span>
+      </li>
+      @for (usuario of visibles(); track usuario._id) {
+        @let habilitado = estaHabilitado(usuario);
+        <li class="usuario" [class.deshabilitado]="!habilitado">
+          <div class="quien">
+            @if (usuario.fotoPerfil) {
+              <img class="avatar" [src]="usuario.fotoPerfil" alt="" width="44" height="44" />
+            } @else {
+              <span class="avatar">{{ iniciales(usuario) }}</span>
+            }
+            <div class="nombres">
+              <strong>{{ usuario.nombre }} {{ usuario.apellido }}</strong>
+              <span>&#64;{{ usuario.nombreUsuario }}</span>
+            </div>
+          </div>
+          <span class="correo" [title]="usuario.correo">{{ usuario.correo }}</span>
+          <span>
+            <span class="etiqueta" [class.destacada]="usuario.perfil === 'administrador'">{{
+              usuario.perfil
+            }}</span>
+          </span>
+          <span>
+            <span class="estado-chip" [class.apagado]="!habilitado">
+              {{ habilitado ? 'Habilitado' : 'Deshabilitado' }}
+            </span>
+          </span>
+          <time class="alta" [attr.datetime]="usuario.createdAt">{{
+            usuario.createdAt | date: 'd/M/yy'
+          }}</time>
+          <div class="accion">
+            @if (esYo(usuario)) {
+              <span class="vos">Sos vos</span>
+            } @else if (habilitado) {
+              <button
+                class="boton peligro chico"
+                type="button"
+                [disabled]="procesando() === usuario._id"
+                (click)="deshabilitar(usuario)"
+              >
+                Deshabilitar
+              </button>
+            } @else {
+              <button
+                class="boton chico"
+                type="button"
+                [disabled]="procesando() === usuario._id"
+                (click)="habilitar(usuario)"
+              >
+                Habilitar
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+<!-- Ventana "Nuevo usuario": el formulario del registro en modoAdmin (mismos datos + radio de perfil) -->
+@if (creando()) {
+  <div class="fondo" (click)="creando.set(false)">
+    <div
+      class="ventana"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-alta"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="encabezado">
+        <h2 id="titulo-alta">Nuevo usuario</h2>
+        <button type="button" class="cerrar" aria-label="Cerrar" (click)="creando.set(false)">
+          ✕
+        </button>
+      </div>
+      <p class="subtitulo">
+        Los mismos datos que el registro. Elegí si la cuenta es de usuario o de administrador.
+      </p>
+      <app-registro [modoAdmin]="true" (creado)="alCrear($event)" />
+    </div>
+  </div>
+}

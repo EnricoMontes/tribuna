@@ -222,3 +222,57 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Sprint 4 (modoAdmin): radio buttons del perfil, como dos tarjetas ---------- */
+
+.perfiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.perfiles legend {
+  padding: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.perfil-opcion {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--divisor);
+  border-radius: var(--radio-chico);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.perfil-opcion:hover {
+  border-color: var(--azul);
+}
+
+/* :has() pinta la tarjeta entera cuando su radio está elegido */
+.perfil-opcion:has(input:checked) {
+  border-color: var(--azul);
+  background: var(--azul-claro);
+}
+
+.perfil-opcion input {
+  margin: 0.2rem 0 0;
+  accent-color: var(--azul);
+}
+
+.perfil-opcion span {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.perfil-opcion small {
+  color: var(--texto-suave);
+  font-size: 0.8rem;
+}

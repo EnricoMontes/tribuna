@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './guards/admin.guard';
 import { sesionGuard } from './guards/sesion.guard';
 
 // Todas las pantallas con lazy loading (loadComponent): cada una se descarga recién al visitarla.
@@ -52,6 +53,24 @@ export const routes: Routes = [
     title: 'Mi perfil · Tribuna',
     canActivate: [sesionGuard],
     loadComponent: () => import('./componentes/mi-perfil/mi-perfil').then((m) => m.MiPerfil),
+  },
+  {
+    // Sprint 4: panel de administración. El adminGuard va en la ruta PADRE, así protege a todas
+    // las hijas. Las hijas se dibujan en el <router-outlet> del componente Dashboard.
+    path: 'dashboard',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./componentes/dashboard/dashboard').then((m) => m.Dashboard),
+    children: [
+      { path: '', redirectTo: 'usuarios', pathMatch: 'full' },
+      {
+        path: 'usuarios',
+        title: 'Usuarios · Dashboard · Tribuna',
+        loadComponent: () =>
+          import('./componentes/dashboard-usuarios/dashboard-usuarios').then(
+            (m) => m.DashboardUsuarios,
+          ),
+      },
+    ],
   },
   {
     path: '**',

@@ -12,6 +12,7 @@ export interface Usuario {
   fotoPerfil: string | null;
   banner?: string | null; // foto de portada (se carga desde Mi perfil)
   perfil: Perfil;
+  habilitado?: boolean; // Sprint 4: baja lógica (false = un admin lo deshabilitó). Sin el campo = habilitado
   cuadro: { id: string; nombre: string; escudo: string } | null;
   numeroCamiseta: number | null;
   createdAt: string;

@@ -1,0 +1,38 @@
+.cabecera-pagina {
+  padding-bottom: 0;
+}
+
+/* pestañas pegadas al borde de abajo de la cabecera, como solapas de una carpeta */
+.pestanias {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 2rem;
+}
+
+.pestanias a {
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radio-chico) var(--radio-chico) 0 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--fuente-titulos);
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: var(--translucido);
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.pestanias a:hover {
+  color: var(--blanco);
+}
+
+.pestanias a.activa {
+  color: var(--texto);
+  background: var(--fondo);
+}
+
+.contenedor {
+  padding-top: 2rem;
+}

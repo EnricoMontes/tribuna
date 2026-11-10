@@ -31,6 +31,9 @@ export class Auth {
   // Usuario logueado. Es un signal: navbar y Mi Perfil se actualizan solos cuando cambia.
   usuario = signal<Usuario | null>(this.leerSesionGuardada());
   logueado = computed(() => this.usuario() !== null);
+  // Sprint 4: muestra el link "Dashboard" y deja pasar el adminGuard.
+  // (Es solo para la interfaz: el que de verdad protege los datos es el AdminGuard del back.)
+  esAdmin = computed(() => this.usuario()?.perfil === 'administrador');
 
   // Pantalla de carga del inicio: true mientras se valida el token contra POST /auth/autorizar
   verificando = signal(true);

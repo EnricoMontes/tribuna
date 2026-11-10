@@ -21,4 +21,26 @@ export class Usuarios {
   editarPerfil(datos: FormData): Observable<Usuario> {
     return this.http.patch<Usuario>(`${this.url}/mi-perfil`, datos);
   }
+
+  // ───── Sprint 4: solo administradores (el back responde 403 a cualquier otro) ─────
+
+  /** GET /usuarios: todos los usuarios, habilitados y deshabilitados */
+  listar(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(this.url);
+  }
+
+  /** POST /usuarios (multipart): mismos datos que el registro + "perfil". No toca la sesión del admin. */
+  crear(datos: FormData): Observable<Usuario> {
+    return this.http.post<Usuario>(this.url, datos);
+  }
+
+  /** DELETE /usuarios/:id: baja lógica (no puede volver a ingresar) */
+  deshabilitar(id: string): Observable<Usuario> {
+    return this.http.delete<Usuario>(`${this.url}/${id}`);
+  }
+
+  /** POST /usuarios/:id/habilitar: alta lógica (vuelve a poder ingresar) */
+  habilitar(id: string): Observable<Usuario> {
+    return this.http.post<Usuario>(`${this.url}/${id}/habilitar`, {});
+  }
 }
