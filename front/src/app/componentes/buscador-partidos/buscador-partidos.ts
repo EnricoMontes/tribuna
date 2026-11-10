@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, ElementRef, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Partido } from '../../modelos/partido';
 
 const MAXIMO_RESULTADOS = 6;
@@ -25,7 +26,7 @@ function normalizar(texto: string): string {
  * con un click (o foco) en el buscador.
  */
 @Component({
-  imports: [DatePipe],
+  imports: [DatePipe, ImagenRespaldoDirective],
   selector: 'app-buscador-partidos',
   host: {
     // Click en cualquier lado de la página: si fue afuera del buscador, se cierra el desplegable

@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Partido } from '../../modelos/partido';
 import { Modal } from '../../servicios/modal';
 import { Partidos } from '../../servicios/partidos';
@@ -14,7 +15,7 @@ const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 const MAXIMO_MB = 2;
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink, DatePipe],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe, ImagenRespaldoDirective],
   selector: 'app-publicar',
   styleUrl: './publicar.css',
   templateUrl: './publicar.html',

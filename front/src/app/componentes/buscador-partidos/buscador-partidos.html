@@ -34,13 +34,13 @@
           (mouseenter)="activo.set(i)"
         >
           <span class="equipo">
-            <img [src]="p.local.escudo" alt="" width="26" height="26" />
+            <img appImagenRespaldo [src]="p.local.escudo" alt="" width="26" height="26" />
             {{ p.local.nombre }}
           </span>
           <span class="marcador">{{ p.goles.local }} - {{ p.goles.visitante }}</span>
           <span class="equipo visitante">
             {{ p.visitante.nombre }}
-            <img [src]="p.visitante.escudo" alt="" width="26" height="26" />
+            <img appImagenRespaldo [src]="p.visitante.escudo" alt="" width="26" height="26" />
           </span>
           <span class="cuando">{{ p.fecha }} · {{ p.inicio | date: 'EEE d/M' }}</span>
         </li>

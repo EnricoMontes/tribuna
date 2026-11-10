@@ -1,4 +1,4 @@
-<div class="fondo" (click)="cerrar.emit()">
+<div class="fondo" (click)="cerrar.emit()" (appEscape)="alPresionarEscape()">
   <form class="ventana form" [formGroup]="form" (ngSubmit)="guardar()" (click)="$event.stopPropagation()"
         role="dialog" aria-modal="true" aria-labelledby="titulo-editar" novalidate>
     <div class="encabezado">
@@ -65,7 +65,7 @@
         <label for="editarCuadro">¿De qué cuadro sos?</label>
         <div class="con-escudo">
           @if (escudoElegido(); as escudo) {
-            <img [src]="escudo" alt="" width="34" height="34">
+            <img appImagenRespaldo [src]="escudo" alt="" width="34" height="34">
           }
           <select id="editarCuadro" formControlName="cuadroId">
             <option value="">Ninguno</option>

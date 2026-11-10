@@ -10,7 +10,10 @@ import {
   untracked,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Comentario } from '../../modelos/comentario';
+import { InicialesPipe } from '../../pipes/iniciales.pipe';
+import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo.pipe';
 import { Auth } from '../../servicios/auth';
 import { Comentarios as ComentariosApi } from '../../servicios/comentarios';
 import { Modal } from '../../servicios/modal';
@@ -33,7 +36,14 @@ const validadoresMensaje = [
  * - El que escribió un comentario lo puede editar; uno editado muestra "(editado)".
  */
 @Component({
-  imports: [DatePipe, ReactiveFormsModule, Cargando],
+  imports: [
+    DatePipe,
+    ReactiveFormsModule,
+    Cargando,
+    InicialesPipe,
+    TiempoRelativoPipe,
+    ImagenRespaldoDirective,
+  ],
   selector: 'app-comentarios',
   styleUrl: './comentarios.css',
   templateUrl: './comentarios.html',
@@ -154,9 +164,5 @@ export class Comentarios {
         this.modal.error('No se pudo editar el comentario', mensajeDeError(error));
       },
     });
-  }
-
-  iniciales(autor: Comentario['autor']): string {
-    return `${autor.nombre[0] ?? ''}${autor.apellido[0] ?? ''}`.toUpperCase();
   }
 }

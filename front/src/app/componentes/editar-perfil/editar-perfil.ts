@@ -1,6 +1,8 @@
-import { Component, HostListener, inject, input, OnDestroy, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { EscapeDirective } from '../../directivas/escape.directive';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Usuario } from '../../modelos/usuario';
 import { Cuadros } from '../../servicios/cuadros';
 import { Modal } from '../../servicios/modal';
@@ -24,7 +26,7 @@ const SIN_CAMBIOS: EstadoImagen = { archivo: null, vistaPrevia: null, quitar: fa
  * input usuario: los datos actuales. output guardado: el usuario ya actualizado por la API.
  */
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, EscapeDirective, ImagenRespaldoDirective],
   selector: 'app-editar-perfil',
   styleUrl: './editar-perfil.css',
   templateUrl: './editar-perfil.html',
@@ -149,7 +151,7 @@ export class EditarPerfil implements OnInit, OnDestroy {
     });
   }
 
-  @HostListener('document:keydown.escape')
+  // Lo llama la directiva propia (appEscape) del fondo de la ventana
   alPresionarEscape() {
     if (!this.guardando()) this.cerrar.emit();
   }

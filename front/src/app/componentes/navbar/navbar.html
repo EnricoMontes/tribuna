@@ -6,10 +6,8 @@
       <a routerLink="/publicaciones" routerLinkActive="activo">Publicaciones</a>
       <a routerLink="/publicar" routerLinkActive="activo">Publicar</a>
       <a routerLink="/mi-perfil" routerLinkActive="activo">Mi perfil</a>
-      <!-- Sprint 4: solo los administradores ven el link al dashboard -->
-      @if (auth.esAdmin()) {
-        <a routerLink="/dashboard" routerLinkActive="activo">Dashboard</a>
-      }
+      <!-- Sprint 4: solo los administradores ven el link al dashboard (*appSoloAdmin: directiva propia) -->
+      <a *appSoloAdmin routerLink="/dashboard" routerLinkActive="activo">Dashboard</a>
     </div>
 
     <div class="sesion">
@@ -17,6 +15,7 @@
         <a class="usuario" routerLink="/mi-perfil">
           @if (usuario.fotoPerfil) {
             <img
+              appImagenRespaldo
               class="avatar"
               [src]="usuario.fotoPerfil"
               alt="Foto de perfil"
@@ -24,7 +23,7 @@
               height="38"
             />
           } @else {
-            <span class="avatar">{{ iniciales() }}</span>
+            <span class="avatar">{{ usuario | iniciales }}</span>
           }
           <span class="arroba">&#64;{{ usuario.nombreUsuario }}</span>
         </a>

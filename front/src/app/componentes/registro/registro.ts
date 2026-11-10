@@ -3,8 +3,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Cuadro } from '../../modelos/cuadro';
 import { Perfil, Usuario } from '../../modelos/usuario';
+import { InicialesPipe } from '../../pipes/iniciales.pipe';
 import { Auth } from '../../servicios/auth';
 import { Cuadros } from '../../servicios/cuadros';
 import { Modal } from '../../servicios/modal';
@@ -23,7 +25,13 @@ const MAXIMO_MB = 2;
 export const EDAD_MINIMA = 13;
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    NgTemplateOutlet,
+    InicialesPipe,
+    ImagenRespaldoDirective,
+  ],
   selector: 'app-registro',
   styleUrl: './registro.css',
   templateUrl: './registro.html',
@@ -117,12 +125,6 @@ export class Registro implements OnDestroy {
     return this.categorias()
       .flatMap((categoria) => categoria.cuadros)
       .find((cuadro) => cuadro.id === id);
-  }
-
-  /** Iniciales para el carnet de socio mientras no haya foto */
-  inicialesCarnet(): string {
-    const { nombre, apellido } = this.formRegistro.controls;
-    return `${nombre.value.trim()[0] ?? ''}${apellido.value.trim()[0] ?? ''}`.toUpperCase() || '?';
   }
 
   /** true si el campo se tocó y tiene errores (para pintar el borde rojo) */

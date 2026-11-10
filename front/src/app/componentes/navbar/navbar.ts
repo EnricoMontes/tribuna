@@ -1,21 +1,25 @@
-import { Component, computed } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
+import { SoloAdminDirective } from '../../directivas/solo-admin.directive';
+import { InicialesPipe } from '../../pipes/iniciales.pipe';
 import { Auth } from '../../servicios/auth';
 import { Logo } from '../logo/logo';
 
 @Component({
-  imports: [RouterLink, RouterLinkActive, Logo],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    Logo,
+    InicialesPipe,
+    ImagenRespaldoDirective,
+    SoloAdminDirective,
+  ],
   selector: 'app-navbar',
   styleUrl: './navbar.css',
   templateUrl: './navbar.html',
 })
 export class Navbar {
-  // Iniciales para el avatar cuando el usuario no subió foto
-  iniciales = computed(() => {
-    const usuario = this.auth.usuario();
-    return usuario ? `${usuario.nombre[0]}${usuario.apellido[0]}`.toUpperCase() : '';
-  });
-
   constructor(
     public auth: Auth,
     private router: Router,

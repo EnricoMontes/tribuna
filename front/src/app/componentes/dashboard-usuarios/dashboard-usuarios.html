@@ -5,9 +5,9 @@
       <h2>Usuarios</h2>
       <p class="subtitulo">
         @if (busqueda().trim()) {
-          {{ contadores().todos }} resultados para "{{ busqueda().trim() }}"
+          {{ contadores().todos | plural: 'resultado' }} para "{{ busqueda().trim() }}"
         } @else {
-          {{ contadores().todos }} cuentas en la tribuna
+          {{ contadores().todos | plural: 'cuenta' }} en la tribuna
         }
       </p>
     </div>
@@ -65,9 +65,9 @@
         <li class="usuario" [class.deshabilitado]="!habilitado">
           <div class="quien">
             @if (usuario.fotoPerfil) {
-              <img class="avatar" [src]="usuario.fotoPerfil" alt="" width="44" height="44" />
+              <img appImagenRespaldo class="avatar" [src]="usuario.fotoPerfil" alt="" width="44" height="44" />
             } @else {
-              <span class="avatar">{{ iniciales(usuario) }}</span>
+              <span class="avatar">{{ usuario | iniciales }}</span>
             }
             <div class="nombres">
               <strong>{{ usuario.nombre }} {{ usuario.apellido }}</strong>
@@ -153,7 +153,8 @@
 
 <!-- Ventana "Nuevo usuario": el formulario del registro en modoAdmin (mismos datos + radio de perfil) -->
 @if (creando()) {
-  <div class="fondo" (click)="creando.set(false)">
+  <!-- (appEscape): directiva propia, Escape cierra la ventana -->
+  <div class="fondo" (click)="creando.set(false)" (appEscape)="creando.set(false)">
     <div
       class="ventana"
       role="dialog"

@@ -1,14 +1,10 @@
 import { DatePipe } from '@angular/common';
-import {
-  Component,
-  computed,
-  HostListener,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { EscapeDirective } from '../../directivas/escape.directive';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Perfil, Usuario } from '../../modelos/usuario';
+import { InicialesPipe } from '../../pipes/iniciales.pipe';
+import { PluralPipe } from '../../pipes/plural.pipe';
 import { Auth } from '../../servicios/auth';
 import { Modal } from '../../servicios/modal';
 import { ContadoresUsuarios, EstadoUsuarios, Usuarios } from '../../servicios/usuarios';
@@ -26,7 +22,14 @@ const ESPERA_BUSQUEDA = 400; // ms sin tipear antes de pedirle la búsqueda al b
  * - dar o quitar el rol de administrador a un usuario que ya existe.
  */
 @Component({
-  imports: [DatePipe, Registro],
+  imports: [
+    DatePipe,
+    Registro,
+    InicialesPipe,
+    PluralPipe,
+    EscapeDirective,
+    ImagenRespaldoDirective,
+  ],
   selector: 'app-dashboard-usuarios',
   styleUrl: './dashboard-usuarios.css',
   templateUrl: './dashboard-usuarios.html',
@@ -133,10 +136,6 @@ export class DashboardUsuarios implements OnInit, OnDestroy {
     return usuario._id === this.auth.usuario()?._id;
   }
 
-  iniciales(usuario: Usuario): string {
-    return `${usuario.nombre[0] ?? ''}${usuario.apellido[0] ?? ''}`.toUpperCase();
-  }
-
   /** Baja lógica: se pide confirmación con el modal (nunca confirm()) */
   deshabilitar(usuario: Usuario) {
     this.modal.confirmar(
@@ -178,12 +177,6 @@ export class DashboardUsuarios implements OnInit, OnDestroy {
     this.busqueda.set('');
     this.pagina.set(1);
     this.cargar();
-  }
-
-  // Escape cierra la ventana de alta (como el resto de los modales de la app)
-  @HostListener('document:keydown.escape')
-  cerrarConEscape() {
-    this.creando.set(false);
   }
 
   ngOnDestroy() {

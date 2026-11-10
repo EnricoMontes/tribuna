@@ -9,6 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { Orden, PaginaPublicaciones, Publicacion } from '../../modelos/publicacion';
+import { PluralPipe } from '../../pipes/plural.pipe';
 import { Auth } from '../../servicios/auth';
 import { Modal } from '../../servicios/modal';
 import { Publicaciones } from '../../servicios/publicaciones';
@@ -22,7 +23,7 @@ import { TarjetaPublicacion } from '../tarjeta-publicacion/tarjeta-publicacion';
  * y Mi perfil (input usuario, 3 por página y sin controles: "mis últimas 3").
  */
 @Component({
-  imports: [Cargando, TarjetaPublicacion],
+  imports: [Cargando, TarjetaPublicacion, PluralPipe],
   selector: 'app-lista-publicaciones',
   styleUrl: './lista-publicaciones.css',
   templateUrl: './lista-publicaciones.html',

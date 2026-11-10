@@ -3,9 +3,9 @@
   <div class="contenido">
     <header class="autor">
       @if (p.autor.fotoPerfil) {
-        <img class="avatar" [src]="p.autor.fotoPerfil" alt="" width="44" height="44" />
+        <img appImagenRespaldo class="avatar" [src]="p.autor.fotoPerfil" alt="" width="44" height="44" />
       } @else {
-        <span class="avatar">{{ iniciales() }}</span>
+        <span class="avatar">{{ p.autor | iniciales }}</span>
       }
       <div class="autor-datos">
         <strong>{{ p.autor.nombre }} {{ p.autor.apellido }}</strong>
@@ -14,6 +14,7 @@
           @if (p.autor.cuadro; as cuadro) {
             ·
             <img
+              appImagenRespaldo
               class="escudo-mini"
               [src]="cuadro.escudo"
               [alt]="cuadro.nombre"
@@ -24,9 +25,13 @@
           }
         </span>
       </div>
-      <time class="cuando" [attr.datetime]="p.createdAt">{{
-        p.createdAt | date: 'd MMM, HH:mm'
-      }}</time>
+      <!-- "hace 3 h" (pipe propia); pasando el mouse, la fecha completa -->
+      <time
+        class="cuando"
+        [attr.datetime]="p.createdAt"
+        [title]="p.createdAt | date: 'd MMM y, HH:mm'"
+        >{{ p.createdAt | tiempoRelativo }}</time
+      >
     </header>
 
     <!-- El título lleva a la página de la publicación (salvo que ya estemos ahí) -->
@@ -42,10 +47,10 @@
     <!-- La foto también lleva a la página de la publicación (salvo que ya estemos ahí) -->
     @if (p.imagen) {
       @if (grande()) {
-        <img class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
+        <img appImagenRespaldo="sin-imagen.svg" class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
       } @else {
         <a class="foto-link" [routerLink]="['/publicaciones', p._id]" title="Ver la publicación">
-          <img class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
+          <img appImagenRespaldo="sin-imagen.svg" class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
         </a>
       }
     }
@@ -75,8 +80,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 5h16v11H9l-5 4Z" />
           </svg>
-          {{ cantidadComentarios() }}
-          {{ cantidadComentarios() === 1 ? 'comentario' : 'comentarios' }}
+          {{ cantidadComentarios() | plural: 'comentario' }}
         </a>
       }
       @if (puedeEliminar()) {
@@ -121,12 +125,12 @@
     >
       <span class="partido-liga">{{ p.partido.liga }} · {{ p.partido.fecha }}</span>
       <span class="equipo">
-        <img [src]="p.partido.local.escudo" alt="" width="40" height="40" />
+        <img appImagenRespaldo [src]="p.partido.local.escudo" alt="" width="40" height="40" />
         {{ p.partido.local.nombre }}
       </span>
       <span class="vs">{{ p.partido.goles.local }} - {{ p.partido.goles.visitante }}</span>
       <span class="equipo">
-        <img [src]="p.partido.visitante.escudo" alt="" width="40" height="40" />
+        <img appImagenRespaldo [src]="p.partido.visitante.escudo" alt="" width="40" height="40" />
         {{ p.partido.visitante.nombre }}
       </span>
       <span class="partido-hora">{{ p.partido.inicio | date: 'EEE d/M · HH:mm' }}</span>

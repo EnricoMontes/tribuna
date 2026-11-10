@@ -31,6 +31,7 @@
       <div class="cabecera">
         @if (usuario.fotoPerfil) {
           <img
+            appImagenRespaldo
             class="avatar grande"
             [src]="usuario.fotoPerfil"
             alt="Foto de perfil de {{ usuario.nombre }}"
@@ -38,7 +39,7 @@
             height="120"
           />
         } @else {
-          <span class="avatar grande">{{ iniciales() }}</span>
+          <span class="avatar grande">{{ usuario | iniciales }}</span>
         }
         <div class="identidad">
           <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
@@ -55,6 +56,7 @@
           <div class="hincha">
             @if (usuario.cuadro; as cuadro) {
               <img
+                appImagenRespaldo
                 [src]="cuadro.escudo"
                 alt="Escudo de {{ cuadro.nombre }}"
                 width="52"

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <!-- Respaldo de la directiva appImagenRespaldo: la foto de una publicación no se pudo cargar -->
+  <rect width="640" height="360" fill="#e8effc"/>
+  <g fill="none" stroke="#1f5bd8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" transform="translate(270 110)">
+    <path d="M10 30h22l12-18h12l12 18h22v62H10Z"/>
+    <circle cx="50" cy="60" r="18"/>
+    <path d="M-10 -10 110 110"/>
+  </g>
+  <text x="320" y="270" text-anchor="middle" font-family="Manrope, system-ui, sans-serif" font-size="26" font-weight="700" fill="#5e6873">Imagen no disponible</text>
+</svg>

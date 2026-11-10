@@ -599,3 +599,14 @@ img {
 .boton.peligro::before {
   background: #b32a2a;
 }
+
+/* ---------- directiva appImagenRespaldo: la imagen original no cargó y se puso la de respaldo ---------- */
+img.imagen-respaldo {
+  object-fit: contain;
+}
+
+/* en un avatar, el respaldo (avatar-respaldo.svg) ya trae su fondo: que lo ocupe entero */
+img.avatar.imagen-respaldo {
+  object-fit: cover;
+  background: var(--noche);
+}

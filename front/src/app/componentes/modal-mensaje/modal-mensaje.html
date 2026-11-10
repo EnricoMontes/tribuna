@@ -1,5 +1,6 @@
 @if (modal.datos(); as datos) {
-  <div class="fondo" (click)="modal.cerrar()">
+  <!-- (appEscape): directiva propia, Escape también lo cierra -->
+  <div class="fondo" (click)="modal.cerrar()" (appEscape)="modal.cerrar()">
     <div
       class="ventana"
       [class]="'tipo-' + datos.tipo"

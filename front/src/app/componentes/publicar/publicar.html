@@ -31,11 +31,11 @@
       }
       @if (partidoElegido(); as p) {
         <div class="partido-elegido">
-          <img [src]="p.local.escudo" alt="" width="40" height="40" />
+          <img appImagenRespaldo [src]="p.local.escudo" alt="" width="40" height="40" />
           <strong>{{ p.local.nombre }}</strong>
           <span class="vs">{{ p.goles.local }} - {{ p.goles.visitante }}</span>
           <strong>{{ p.visitante.nombre }}</strong>
-          <img [src]="p.visitante.escudo" alt="" width="40" height="40" />
+          <img appImagenRespaldo [src]="p.visitante.escudo" alt="" width="40" height="40" />
           <span class="liga">{{ p.liga }} · {{ p.fecha }}</span>
         </div>
       }

@@ -2,7 +2,7 @@
   <div class="barra-orden">
     <span class="etiqueta-seccion">
       @if (datos(); as d) {
-        {{ d.total }} {{ d.total === 1 ? 'publicación' : 'publicaciones' }}
+        {{ d.total | plural: 'publicación' : 'publicaciones' }}
       } @else {
         Publicaciones
       }

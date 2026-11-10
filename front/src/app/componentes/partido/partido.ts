@@ -3,6 +3,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Partido as DatosPartido } from '../../modelos/partido';
 import { PaginaPublicaciones } from '../../modelos/publicacion';
 import { Partidos } from '../../servicios/partidos';
@@ -13,7 +14,7 @@ import { ListaPublicaciones } from '../lista-publicaciones/lista-publicaciones';
  * El :id llega como input gracias a withComponentInputBinding() (ver app.config.ts).
  */
 @Component({
-  imports: [DatePipe, RouterLink, ListaPublicaciones],
+  imports: [DatePipe, RouterLink, ListaPublicaciones, ImagenRespaldoDirective],
   selector: 'app-partido',
   styleUrl: './partido.css',
   templateUrl: './partido.html',

@@ -1,14 +1,23 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Usuario } from '../../modelos/usuario';
+import { InicialesPipe } from '../../pipes/iniciales.pipe';
 import { Auth } from '../../servicios/auth';
 import { Modal } from '../../servicios/modal';
 import { EditarPerfil } from '../editar-perfil/editar-perfil';
 import { ListaPublicaciones } from '../lista-publicaciones/lista-publicaciones';
 
 @Component({
-  imports: [RouterLink, DatePipe, ListaPublicaciones, EditarPerfil],
+  imports: [
+    RouterLink,
+    DatePipe,
+    ListaPublicaciones,
+    EditarPerfil,
+    InicialesPipe,
+    ImagenRespaldoDirective,
+  ],
   selector: 'app-mi-perfil',
   styleUrl: './mi-perfil.css',
   templateUrl: './mi-perfil.html',
@@ -25,12 +34,7 @@ export class MiPerfil {
     this.modal.exito('Perfil actualizado', 'Tus cambios ya se ven en la tribuna.');
   }
 
-  // computed: se recalculan solos cuando cambia el signal auth.usuario()
-  iniciales = computed(() => {
-    const usuario = this.auth.usuario();
-    return usuario ? `${usuario.nombre[0]}${usuario.apellido[0]}`.toUpperCase() : '';
-  });
-
+  // computed: se recalcula solo cuando cambia el signal auth.usuario()
   edad = computed(() => {
     const usuario = this.auth.usuario();
     if (!usuario) {

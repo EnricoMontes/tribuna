@@ -1,7 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, input, linkedSignal, output } from '@angular/core';
+import { Component, input, linkedSignal, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Publicacion } from '../../modelos/publicacion';
+import { InicialesPipe } from '../../pipes/iniciales.pipe';
+import { PluralPipe } from '../../pipes/plural.pipe';
+import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo.pipe';
 import { Comentarios } from '../comentarios/comentarios';
 
 /**
@@ -12,7 +16,15 @@ import { Comentarios } from '../comentarios/comentarios';
  *   (así la misma tarjeta sirve en cualquier pantalla).
  */
 @Component({
-  imports: [DatePipe, RouterLink, Comentarios],
+  imports: [
+    DatePipe,
+    RouterLink,
+    Comentarios,
+    InicialesPipe,
+    PluralPipe,
+    TiempoRelativoPipe,
+    ImagenRespaldoDirective,
+  ],
   selector: 'app-tarjeta-publicacion',
   styleUrl: './tarjeta-publicacion.css',
   templateUrl: './tarjeta-publicacion.html',
@@ -32,9 +44,4 @@ export class TarjetaPublicacion {
   // linkedSignal: arranca con el valor que vino de la API, se puede cambiar acá (al comentar) y
   // si llega otra publicación por el input vuelve a tomar el valor nuevo
   cantidadComentarios = linkedSignal(() => this.publicacion().cantidadComentarios ?? 0);
-
-  iniciales = computed(() => {
-    const { nombre, apellido } = this.publicacion().autor;
-    return `${nombre[0] ?? ''}${apellido[0] ?? ''}`.toUpperCase();
-  });
 }

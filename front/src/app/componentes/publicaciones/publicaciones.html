@@ -9,6 +9,10 @@
         Lo último que se dice en la tribuna.
       }
     </p>
+    <!-- *appSoloAdmin (directiva propia): este aviso solo lo ve un administrador -->
+    <p class="aviso-admin" *appSoloAdmin>
+      Sos administrador: podés dar de baja cualquier publicación (y sus comentarios).
+    </p>
 
     <!-- Buscador: filtra los partidos ya jugados y entra al que elijas -->
     <app-buscador-partidos [partidos]="partidos()" />
@@ -55,12 +59,12 @@
             <li>
               <a [routerLink]="['/partidos', partido.id]">
                 <span class="equipos">
-                  <img [src]="partido.local.escudo" alt="" width="24" height="24" />
+                  <img appImagenRespaldo [src]="partido.local.escudo" alt="" width="24" height="24" />
                   <span>{{ partido.local.nombre }}</span>
                   <strong class="goles">{{ partido.goles.local }}</strong>
                 </span>
                 <span class="equipos">
-                  <img [src]="partido.visitante.escudo" alt="" width="24" height="24" />
+                  <img appImagenRespaldo [src]="partido.visitante.escudo" alt="" width="24" height="24" />
                   <span>{{ partido.visitante.nombre }}</span>
                   <strong class="goles">{{ partido.goles.visitante }}</strong>
                 </span>

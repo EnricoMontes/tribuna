@@ -26,7 +26,7 @@
             @if (vistaPrevia()) {
               <img class="avatar" [src]="vistaPrevia()" alt="" width="64" height="64">
             } @else {
-              <span class="avatar">{{ inicialesCarnet() }}</span>
+              <span class="avatar">{{ (formRegistro.value | iniciales) || '?' }}</span>
             }
             <div class="carnet-datos">
               <strong>{{ datos.nombre.value || 'Tu nombre' }} {{ datos.apellido.value }}</strong>
@@ -37,7 +37,7 @@
           <div class="carnet-pie">
             @if (cuadroElegido(); as cuadro) {
               <span class="carnet-cuadro">
-                <img [src]="cuadro.escudo" alt="" width="20" height="20">
+                <img appImagenRespaldo [src]="cuadro.escudo" alt="" width="20" height="20">
                 {{ cuadro.nombre }}
               </span>
             } @else {
@@ -217,7 +217,7 @@
           <label for="cuadroId">¿De qué cuadro sos? <span class="opcional">(opcional)</span></label>
           <div class="con-escudo">
             @if (cuadroElegido(); as cuadro) {
-              <img class="escudo" [src]="cuadro.escudo" alt="Escudo de {{ cuadro.nombre }}" width="36" height="36">
+              <img appImagenRespaldo class="escudo" [src]="cuadro.escudo" alt="Escudo de {{ cuadro.nombre }}" width="36" height="36">
             }
             <select id="cuadroId" formControlName="cuadroId">
               <option value="">Ninguno / prefiero no decir</option>
