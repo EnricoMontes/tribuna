@@ -1,0 +1,26 @@
+<div class="grilla">
+  <app-grafico-estadistica
+    titulo="Publicaciones por usuario"
+    descripcion="Cuántas publicaciones hizo cada usuario en el lapso elegido."
+    tipo="doughnut"
+    unidad="publicaciones"
+    [pedir]="publicacionesPorUsuario"
+  />
+
+  <app-grafico-estadistica
+    titulo="Comentarios por día"
+    descripcion="Cuántos comentarios se hicieron cada día del lapso elegido."
+    tipo="line"
+    unidad="comentarios"
+    [pedir]="comentariosPorDia"
+  />
+
+  <app-grafico-estadistica
+    class="ancho"
+    titulo="Comentarios por publicación"
+    descripcion="Cuántos comentarios recibió cada publicación en el lapso elegido."
+    tipo="bar"
+    unidad="comentarios"
+    [pedir]="comentariosPorPublicacion"
+  />
+</div>

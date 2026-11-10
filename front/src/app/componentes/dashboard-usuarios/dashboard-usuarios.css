@@ -92,7 +92,7 @@
 .fila-titulos,
 .usuario {
   display: grid;
-  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.8fr) 125px 120px 70px 280px;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.8fr) 125px 120px 70px 290px;
   align-items: center;
   gap: 1rem;
   padding: 0.85rem 0.5rem;
@@ -183,11 +183,22 @@
   color: var(--error);
 }
 
+/* dos columnas de ancho FIJO (perfil | estado): así los botones quedan alineados en todas las
+   filas, aunque "Deshabilitar" sea más largo que "Habilitar" */
 .accion {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: 112px 170px;
+  justify-content: end;
   gap: 0.5rem;
+}
+
+.accion .boton {
+  width: 100%;
+}
+
+/* los que tienen la flechita: el texto a la izquierda y el círculo pegado a la derecha */
+.accion .boton:not(.secundario) {
+  justify-content: space-between;
 }
 
 /* mientras llega otra página, la lista actual se atenúa (en vez de desaparecer y "saltar") */
@@ -216,6 +227,8 @@
 }
 
 .vos {
+  grid-column: 1 / -1;
+  justify-self: end;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--texto-tenue);

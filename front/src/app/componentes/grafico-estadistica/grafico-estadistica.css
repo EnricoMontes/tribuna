@@ -1,0 +1,150 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.tarjeta {
+  display: grid;
+  gap: 1rem;
+  height: 100%;
+}
+
+.cabeza {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.cabeza h2 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.descripcion {
+  margin: 0.25rem 0 0;
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+
+/* el total, como un número del tablero del estadio */
+.total {
+  display: grid;
+  justify-items: end;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.total strong {
+  font-family: var(--fuente-titulos);
+  font-weight: 400;
+  font-size: 2.6rem;
+  color: var(--azul);
+}
+
+.total span {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-tenue);
+}
+
+/* ---------- lapso de tiempo ---------- */
+
+.lapso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--radio-chico);
+  background: var(--fondo);
+}
+
+.atajos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.atajo {
+  padding: 0.4rem 0.8rem;
+  font: 700 0.8rem var(--fuente-texto);
+  color: var(--texto-suave);
+  background: var(--blanco);
+  border: 1px solid var(--divisor);
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+.atajo.activo {
+  color: var(--blanco);
+  background: var(--noche);
+  border-color: var(--noche);
+}
+
+.fechas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.fechas label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-tenue);
+}
+
+.fechas input {
+  padding: 0.45rem 0.6rem;
+  font: 600 0.9rem var(--fuente-texto);
+  color: var(--texto);
+  background: var(--blanco);
+  border: 1px solid var(--divisor);
+  border-radius: 8px;
+}
+
+.fechas input:focus {
+  outline: 2px solid var(--azul);
+  outline-offset: 1px;
+}
+
+.error {
+  margin: 0;
+}
+
+/* ---------- el gráfico ---------- */
+
+.lienzo {
+  position: relative;
+  min-width: 0;
+  transition: opacity 0.15s;
+}
+
+.lienzo.atenuado {
+  opacity: 0.5;
+}
+
+.aviso {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+  color: var(--texto-suave);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+@media (max-width: 600px) {
+  .tarjeta {
+    padding: 1.5rem 1.1rem;
+  }
+}

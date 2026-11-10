@@ -1,0 +1,67 @@
+<article class="panel tarjeta">
+  <header class="cabeza">
+    <div>
+      <h2>{{ titulo() }}</h2>
+      @if (descripcion()) {
+        <p class="descripcion">{{ descripcion() }}</p>
+      }
+    </div>
+    @if (datos(); as d) {
+      <div class="total" aria-live="polite">
+        <strong>{{ d.total }}</strong>
+        <span>{{ unidad() }}</span>
+      </div>
+    }
+  </header>
+
+  <!-- El lapso de tiempo de ESTE gráfico -->
+  <div class="lapso">
+    <div class="atajos" role="group" aria-label="Lapsos rápidos">
+      @for (a of atajos; track a.dias) {
+        <button
+          type="button"
+          class="atajo"
+          [class.activo]="esAtajo(a.dias)"
+          (click)="ultimos(a.dias)"
+        >
+          {{ a.texto }}
+        </button>
+      }
+    </div>
+    <div class="fechas">
+      <label>
+        <span>Desde</span>
+        <input
+          type="date"
+          [value]="desde()"
+          [max]="hasta() || hoy"
+          (change)="cambiarDesde($event)"
+        />
+      </label>
+      <label>
+        <span>Hasta</span>
+        <input
+          type="date"
+          [value]="hasta()"
+          [min]="desde()"
+          [max]="hoy"
+          (change)="cambiarHasta($event)"
+        />
+      </label>
+    </div>
+  </div>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <!-- El canvas está siempre (Chart.js lo necesita); los avisos van encima -->
+  <div class="lienzo" [style.height.px]="alto()" [class.atenuado]="cargando()">
+    <canvas #lienzo [attr.aria-label]="titulo()" role="img"></canvas>
+    @if (cargando() && !datos()) {
+      <p class="aviso">Cargando...</p>
+    } @else if (datos()?.total === 0) {
+      <p class="aviso">No hay {{ unidad() }} en este lapso. Probá con otras fechas.</p>
+    }
+  </div>
+</article>

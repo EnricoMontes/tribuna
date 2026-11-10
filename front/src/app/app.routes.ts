@@ -70,6 +70,14 @@ export const routes: Routes = [
             (m) => m.DashboardUsuarios,
           ),
       },
+      {
+        path: 'estadisticas',
+        title: 'Estadísticas · Dashboard · Tribuna',
+        loadComponent: () =>
+          import('./componentes/dashboard-estadisticas/dashboard-estadisticas').then(
+            (m) => m.DashboardEstadisticas,
+          ),
+      },
     ],
   },
   {
