@@ -59,11 +59,16 @@ export class PartidosService {
       if (!actual) {
         return [];
       }
-      // La key es "72_228_8_16": todo menos el último número identifica al torneo (Clausura)
-      const torneo = actual.key.slice(0, actual.key.lastIndexOf('_') + 1);
-      const fechasDelTorneo = fechas
-        .slice(0, fechas.indexOf(actual) + 1)
-        .filter((f) => f.key.startsWith(torneo));
+      // Las keys son "temporada_torneo_FASE_numero": "72_228_8_16" = Fecha 16 de la fase regular del
+      // Clausura; "72_228_9_-1" = Octavos de Final (otra FASE, número -1). Cada torneo arranca en su
+      // "Fecha 1" y sigue con los playoffs. Entonces el torneo actual va desde la ÚLTIMA "Fecha 1"
+      // anterior a la fecha actual hasta la actual (así, en los playoffs, siguen entrando las 16 fechas).
+      const indiceActual = fechas.indexOf(actual);
+      let inicio = indiceActual;
+      while (inicio > 0 && !fechas[inicio].key.endsWith('_1')) {
+        inicio--;
+      }
+      const fechasDelTorneo = fechas.slice(inicio, indiceActual + 1);
 
       // Todas las fechas a la vez (Promise.all). La actual ya viene con sus partidos.
       const porFecha = await Promise.all(
