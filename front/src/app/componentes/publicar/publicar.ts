@@ -10,6 +10,7 @@ import { Modal } from '../../servicios/modal';
 import { Partidos } from '../../servicios/partidos';
 import { Publicaciones } from '../../servicios/publicaciones';
 import { mensajeDeError } from '../../utilidades/errores';
+import { sinSoloEspaciosValidator } from '../../validadores/registro.validadores';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 const MAXIMO_MB = 2;
@@ -49,11 +50,11 @@ export class Publicar implements OnDestroy {
     partidoId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     titulo: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
+      validators: [Validators.required, sinSoloEspaciosValidator(), Validators.maxLength(80)],
     }),
     mensaje: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(500)],
+      validators: [Validators.required, sinSoloEspaciosValidator(), Validators.maxLength(500)],
     }),
   });
 

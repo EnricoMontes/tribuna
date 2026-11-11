@@ -17,6 +17,7 @@ import {
   correoValidator,
   disponibleValidator,
   edadMinimaValidator,
+  sinSoloEspaciosValidator,
   passwordFuerteValidator,
 } from '../../validadores/registro.validadores';
 
@@ -62,16 +63,18 @@ export class Registro implements OnDestroy {
   readonly edadMinima = EDAD_MINIMA;
   readonly anio = new Date().getFullYear();
   readonly hoy = new Date().toISOString().slice(0, 10); // tope del input date
+  // piso del input date: hace 120 años (el validador y el back también lo controlan)
+  readonly minimoFecha = `${new Date().getFullYear() - 120}${this.hoy.slice(4)}`;
 
   formRegistro = new FormGroup(
     {
       nombre: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(50)],
+        validators: [Validators.required, sinSoloEspaciosValidator(), Validators.maxLength(50)],
       }),
       apellido: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required, Validators.maxLength(50)],
+        validators: [Validators.required, sinSoloEspaciosValidator(), Validators.maxLength(50)],
       }),
       correo: new FormControl('', {
         nonNullable: true,

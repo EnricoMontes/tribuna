@@ -36,6 +36,20 @@ export function correoValidator(): ValidatorFn {
 }
 
 /**
+ * Obligatorio de verdad: Validators.required acepta "   " (no es un texto vacío), pero el back
+ * le saca los espacios y lo rechaza. Este validador lo marca en el momento con el MISMO error
+ * "required", así los mensajes que ya existen ("Ingresá tu nombre") se muestran solos.
+ */
+export function sinSoloEspaciosValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const valor = control.value;
+    return typeof valor === 'string' && valor.length > 0 && valor.trim() === ''
+      ? { required: true }
+      : null;
+  };
+}
+
+/**
  * Validador de GRUPO: compara dos controles del mismo formulario.
  * Va en el FormGroup (y no en un control) para que se recalcule si cambia cualquiera de los dos.
  */
@@ -50,8 +64,8 @@ export function clavesCoincidenValidator(campo: string, campoRepetido: string): 
   };
 }
 
-/** Fecha (yyyy-mm-dd del input date) que no sea futura y con una edad mínima. */
-export function edadMinimaValidator(edadMinima: number): ValidatorFn {
+/** Fecha (yyyy-mm-dd del input date) que no sea futura, con una edad mínima y una máxima (120 años). */
+export function edadMinimaValidator(edadMinima: number, edadMaxima = 120): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) {
       return null;
@@ -62,7 +76,12 @@ export function edadMinimaValidator(edadMinima: number): ValidatorFn {
       return { fechaFutura: true };
     }
     const fechaLimite = new Date(hoy.getFullYear() - edadMinima, hoy.getMonth(), hoy.getDate());
-    return nacimiento > fechaLimite ? { menorDeEdad: { edadMinima } } : null;
+    if (nacimiento > fechaLimite) {
+      return { menorDeEdad: { edadMinima } };
+    }
+    // Una fecha de hace más de 120 años no puede ser real (el back también la rechaza)
+    const fechaMasVieja = new Date(hoy.getFullYear() - edadMaxima, hoy.getMonth(), hoy.getDate());
+    return nacimiento < fechaMasVieja ? { demasiadoVieja: { edadMaxima } } : null;
   };
 }
 

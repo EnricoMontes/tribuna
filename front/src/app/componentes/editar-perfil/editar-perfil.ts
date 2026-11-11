@@ -8,6 +8,7 @@ import { Cuadros } from '../../servicios/cuadros';
 import { Modal } from '../../servicios/modal';
 import { Usuarios } from '../../servicios/usuarios';
 import { mensajeDeError } from '../../utilidades/errores';
+import { sinSoloEspaciosValidator } from '../../validadores/registro.validadores';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 const MAXIMO_MB = 2;
@@ -44,11 +45,11 @@ export class EditarPerfil implements OnInit, OnDestroy {
   form = new FormGroup({
     nombre: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(50)],
+      validators: [Validators.required, sinSoloEspaciosValidator(), Validators.maxLength(50)],
     }),
     apellido: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(50)],
+      validators: [Validators.required, sinSoloEspaciosValidator(), Validators.maxLength(50)],
     }),
     descripcion: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(200)] }),
     cuadroId: new FormControl('', { nonNullable: true }),

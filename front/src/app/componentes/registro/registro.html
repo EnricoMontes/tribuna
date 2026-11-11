@@ -200,13 +200,14 @@
 
       <div class="campo" [class.invalido]="mostrarError('fechaNacimiento')">
         <label for="fechaNacimiento">Fecha de nacimiento</label>
-        <input id="fechaNacimiento" type="date" formControlName="fechaNacimiento" [max]="hoy">
+        <input id="fechaNacimiento" type="date" formControlName="fechaNacimiento" [min]="minimoFecha" [max]="hoy">
         @let fecha = formRegistro.controls.fechaNacimiento;
         @if (mostrarError('fechaNacimiento')) {
           <p class="error">
             @if (fecha.hasError('required')) { Ingresá tu fecha de nacimiento }
             @else if (fecha.hasError('fechaFutura')) { La fecha no puede ser futura }
             @else if (fecha.hasError('menorDeEdad')) { Tenés que tener al menos {{ edadMinima }} años }
+            @else if (fecha.hasError('demasiadoVieja')) { La fecha no es válida (más de 120 años) }
           </p>
         }
       </div>
