@@ -1167,6 +1167,201 @@
             },
             "description": "La fecha de nacimiento no puede ser futura."
           }
+        },
+        {
+          "name": "400 - Nombre de solo espacios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(String(pm.response.json().message)).to.include(\"nombre\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Auditoría: antes daba 500 (Mongoose recortaba los espacios y chocaba con required). Ahora @Recortar() saca los espacios antes de validar.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "     ",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-05-10",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Fecha que no existe (31/02)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(String(pm.response.json().message)).to.include(\"no existe\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Auditoría: antes se guardaba como 2 de marzo (JavaScript corre la fecha).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "2000-02-31",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Más de 120 años",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(String(pm.response.json().message)).to.include(\"120\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Auditoría: edad máxima 120 años (también en el front).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Hincha",
+                  "type": "text"
+                },
+                {
+                  "key": "apellido",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "correo",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}@tribuna.com",
+                  "type": "text"
+                },
+                {
+                  "key": "nombreUsuario",
+                  "value": "hincha{{$timestamp}}{{$randomInt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Tribuna123",
+                  "type": "text"
+                },
+                {
+                  "key": "fechaNacimiento",
+                  "value": "1850-01-01",
+                  "type": "text"
+                }
+              ]
+            }
+          }
         }
       ],
       "description": "multipart/form-data. Campos nuevos (opcionales): cuadroId y numeroCamiseta. Responde { usuario, token }."
@@ -3901,6 +4096,65 @@
           }
         },
         {
+          "name": "400 - Título de solo espacios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(String(pm.response.json().message)).to.include(\"título\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "description": "Auditoría: antes daba 500.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "titulo",
+                  "value": "     ",
+                  "type": "text"
+                },
+                {
+                  "key": "mensaje",
+                  "value": "hola",
+                  "type": "text"
+                },
+                {
+                  "key": "partidoId",
+                  "value": "{{partidoId}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "200 - Listar por fecha (página 1)",
           "event": [
             {
@@ -4950,6 +5204,61 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"mensaje\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "400 - Comentario de solo espacios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Mensaje claro\", () => pm.expect(String(pm.response.json().message)).to.include(\"vacío\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publicaciones/{{publicacionComentadaId}}/comentarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionComentadaId}}",
+                "comentarios"
+              ]
+            },
+            "description": "Auditoría: antes daba 500.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"   \\n  \"\n}",
               "options": {
                 "raw": {
                   "language": "json"

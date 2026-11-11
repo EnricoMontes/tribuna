@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as dns from 'node:dns';
 import { AppModule } from './app.module.js';
+import { ErroresMongooseFilter } from './comun/errores-mongoose.filter.js';
 
 // Algunos DNS no resuelven los registros SRV de "mongodb+srv://" (error querySrv ECONNREFUSED).
 // Si pasa, se definen servidores DNS públicos en el .env (mismo workaround que el ejemplo del profe).
@@ -26,6 +27,9 @@ async function bootstrap() {
       stopAtFirstError: true, // un solo mensaje por campo (el primero que falla)
     }),
   );
+
+  // Red de seguridad: si Mongoose rechaza un dato, responde 400/409 en vez de 500
+  app.useGlobalFilters(new ErroresMongooseFilter());
 
   await app.listen(process.env.PORT ?? 3000);
 }

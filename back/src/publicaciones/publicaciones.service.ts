@@ -10,6 +10,7 @@ import { Model, Types } from 'mongoose';
 import { ArchivosService } from '../archivos/archivos.service.js';
 import type { DatosToken } from '../auth/guards/auth.guard.js';
 import { PartidosService } from '../partidos/partidos.service.js';
+import { conAutor } from './autor-eliminado.js';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto.js';
 import { ListarPublicacionesDto } from './dto/listar-publicaciones.dto.js';
 import {
@@ -134,7 +135,7 @@ export class PublicacionesService {
         path: 'autor',
         select: 'nombre apellido nombreUsuario fotoPerfil',
       });
-      porPublicacion.set(grupo._id.toString(), grupo.comentarios);
+      porPublicacion.set(grupo._id.toString(), grupo.comentarios.map(conAutor));
     }
     return porPublicacion;
   }
@@ -221,7 +222,11 @@ export class PublicacionesService {
    * es información de otros usuarios), solo el total y si el usuario que pregunta ya dio me gusta.
    */
   private paraRespuesta(publicacion: PublicacionDocument, idUsuario: string) {
-    const { meGusta, activa: _activa, ...resto } = publicacion.toJSON();
+    const {
+      meGusta,
+      activa: _activa,
+      ...resto
+    } = conAutor(publicacion.toJSON());
     return {
       ...resto,
       meGustaMio: meGusta.some((id) => id.toString() === idUsuario),

@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import type { DatosToken } from '../auth/guards/auth.guard.js';
+import { conAutor } from './autor-eliminado.js';
 import { ComentarioDto } from './dto/comentario.dto.js';
 import { PaginacionDto } from './dto/paginacion.dto.js';
 import {
@@ -72,7 +73,7 @@ export class ComentariosService {
       total,
       offset,
       limit,
-      comentarios: comentarios.map((c) => c.toJSON()),
+      comentarios: comentarios.map((c) => conAutor(c.toJSON())),
     };
   }
 

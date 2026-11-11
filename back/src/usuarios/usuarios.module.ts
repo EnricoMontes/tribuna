@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ArchivosModule } from '../archivos/archivos.module.js';
 import { CuadrosModule } from '../cuadros/cuadros.module.js';
@@ -6,6 +6,10 @@ import { Usuario, UsuarioSchema } from './entities/usuario.entity.js';
 import { UsuariosController } from './usuarios.controller.js';
 import { UsuariosService } from './usuarios.service.js';
 
+// @Global: UsuariosService queda disponible en TODOS los módulos sin importarlo. Lo necesita el
+// AuthGuard (que se usa en publicaciones, partidos, comentarios...) para mirar si el usuario
+// del token sigue existiendo y está habilitado.
+@Global()
 @Module({
   // forFeature registra el modelo "Usuario" para poder inyectarlo con @InjectModel
   imports: [

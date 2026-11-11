@@ -28,6 +28,7 @@ export interface ImagenesPerfil {
 }
 
 const EDAD_MINIMA = 13;
+const EDAD_MAXIMA = 120;
 const RONDAS_SALT = 10;
 
 // Lógica de acceso a la colección "usuarios". La usa AuthModule (por eso el módulo exporta este servicio).
@@ -255,6 +256,19 @@ export class UsuariosService {
       .exec();
   }
 
+  /**
+   * Para el AuthGuard (en CADA petición con token): solo trae "habilitado", sin los demás datos,
+   * y lean() devuelve un objeto plano (más liviano que un documento de Mongoose).
+   * null = el usuario ya no existe.
+   */
+  estadoParaSesion(id: string) {
+    return this.usuarioModel
+      .findById(id)
+      .select('habilitado')
+      .lean<{ habilitado?: boolean }>()
+      .exec();
+  }
+
   /** Para /auth/autorizar: los datos del usuario del token (sin la contraseña, que tiene select: false) */
   buscarPorId(id: string) {
     return this.usuarioModel.findById(id).exec();
@@ -278,6 +292,15 @@ export class UsuariosService {
 
   private validarFechaNacimiento(fecha: string) {
     const nacimiento = new Date(fecha);
+    // Un día que no existe (31/02) JavaScript lo "corre" al mes siguiente (2 o 3 de marzo).
+    // Se detecta comparando el día que quedó con el que se mandó.
+    const dia = /^\d{4}-\d{2}-\d{2}/.exec(fecha)?.[0];
+    if (
+      Number.isNaN(nacimiento.getTime()) ||
+      (dia && new Date(`${dia}T00:00:00Z`).toISOString().slice(0, 10) !== dia)
+    ) {
+      throw new BadRequestException('La fecha de nacimiento no existe');
+    }
     const hoy = new Date();
     if (nacimiento > hoy) {
       throw new BadRequestException(
@@ -291,6 +314,11 @@ export class UsuariosService {
       nacimiento.getDate(),
     );
     if (hoy < cumpleEsteAnio) edad--;
+    if (edad > EDAD_MAXIMA) {
+      throw new BadRequestException(
+        `La fecha de nacimiento no es válida (más de ${EDAD_MAXIMA} años)`,
+      );
+    }
     if (edad < EDAD_MINIMA) {
       throw new BadRequestException(
         `Tenés que tener al menos ${EDAD_MINIMA} años para registrarte`,

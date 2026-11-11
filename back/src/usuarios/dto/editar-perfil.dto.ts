@@ -9,6 +9,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { Recortar } from '../../comun/recortar.decorator.js';
 
 // Un texto vacío ('') en un campo opcional significa "sacarlo" -> se convierte en null
 const vacioANull = ({ value }: { value: unknown }) =>
@@ -20,18 +21,21 @@ const vacioANull = ({ value }: { value: unknown }) =>
  * Correo, nombre de usuario, contraseña y fecha de nacimiento no se editan acá.
  */
 export class EditarPerfilDto {
+  @Recortar()
   @IsOptional()
   @IsString({ message: 'El nombre es obligatorio' })
   @IsNotEmpty({ message: 'El nombre no puede quedar vacío' })
   @MaxLength(50, { message: 'El nombre no puede superar los 50 caracteres' })
   nombre?: string;
 
+  @Recortar()
   @IsOptional()
   @IsString({ message: 'El apellido es obligatorio' })
   @IsNotEmpty({ message: 'El apellido no puede quedar vacío' })
   @MaxLength(50, { message: 'El apellido no puede superar los 50 caracteres' })
   apellido?: string;
 
+  @Recortar()
   @IsOptional()
   @IsString({ message: 'La descripción debe ser texto' })
   @MaxLength(200, {
