@@ -16,6 +16,7 @@
           @if (usuario.fotoPerfil) {
             <img
               appImagenRespaldo
+              [iniciales]="usuario | iniciales"
               class="avatar"
               [src]="usuario.fotoPerfil"
               alt="Foto de perfil"

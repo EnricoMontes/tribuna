@@ -32,6 +32,7 @@
         @if (usuario.fotoPerfil) {
           <img
             appImagenRespaldo
+            [iniciales]="usuario | iniciales"
             class="avatar grande"
             [src]="usuario.fotoPerfil"
             alt="Foto de perfil de {{ usuario.nombre }}"

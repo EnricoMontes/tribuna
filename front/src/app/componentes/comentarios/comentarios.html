@@ -36,7 +36,7 @@
     @for (c of comentarios(); track c._id) {
       <li class="comentario">
         @if (c.autor.fotoPerfil) {
-          <img appImagenRespaldo class="avatar" [src]="c.autor.fotoPerfil" alt="" width="34" height="34" />
+          <img appImagenRespaldo [iniciales]="c.autor | iniciales" class="avatar" [src]="c.autor.fotoPerfil" alt="" width="34" height="34" />
         } @else {
           <span class="avatar">{{ c.autor | iniciales }}</span>
         }

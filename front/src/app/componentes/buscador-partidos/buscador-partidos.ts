@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, ElementRef, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { ClickAfueraDirective } from '../../directivas/click-afuera.directive';
 import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Partido } from '../../modelos/partido';
 
@@ -8,10 +9,7 @@ const MAXIMO_RESULTADOS = 6;
 
 /** Minúsculas y sin tildes: "Córdoba" -> "cordoba", así buscar "cordoba" o "CÓRDOBA" da lo mismo */
 function normalizar(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase();
+  return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
 /**
@@ -22,22 +20,17 @@ function normalizar(texto: string): string {
  * Cada palabra tiene que aparecer en el local, el visitante o la fecha:
  * "river" -> todos los de River · "river talleres" -> River vs Talleres · "fecha 16" -> esa fecha.
  * Teclado: flechas para moverse, Enter para entrar, Escape para cerrar.
- * El desplegable flota encima del contenido; se cierra con un click afuera y se vuelve a abrir
- * con un click (o foco) en el buscador.
+ * El desplegable flota encima del contenido; se cierra con un click afuera (directiva propia
+ * appClickAfuera) y se vuelve a abrir con un click (o foco) en el buscador.
  */
 @Component({
-  imports: [DatePipe, ImagenRespaldoDirective],
+  imports: [DatePipe, ImagenRespaldoDirective, ClickAfueraDirective],
   selector: 'app-buscador-partidos',
-  host: {
-    // Click en cualquier lado de la página: si fue afuera del buscador, se cierra el desplegable
-    '(document:pointerdown)': 'clickEnLaPagina($event)',
-  },
   styleUrl: './buscador-partidos.css',
   templateUrl: './buscador-partidos.html',
 })
 export class BuscadorPartidos {
   private router = inject(Router);
-  private elemento = inject(ElementRef<HTMLElement>);
 
   partidos = input.required<Partido[]>();
 
@@ -68,10 +61,9 @@ export class BuscadorPartidos {
     this.abierto.set(true);
   }
 
-  clickEnLaPagina(evento: PointerEvent) {
-    if (!this.elemento.nativeElement.contains(evento.target as Node)) {
-      this.abierto.set(false);
-    }
+  /** Lo llama la directiva propia appClickAfuera: hubo un click fuera del buscador */
+  cerrar() {
+    this.abierto.set(false);
   }
 
   teclado(evento: KeyboardEvent) {

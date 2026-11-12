@@ -3,7 +3,7 @@
   <div class="contenido">
     <header class="autor">
       @if (p.autor.fotoPerfil) {
-        <img appImagenRespaldo class="avatar" [src]="p.autor.fotoPerfil" alt="" width="44" height="44" />
+        <img appImagenRespaldo [iniciales]="p.autor | iniciales" class="avatar" [src]="p.autor.fotoPerfil" alt="" width="44" height="44" />
       } @else {
         <span class="avatar">{{ p.autor | iniciales }}</span>
       }

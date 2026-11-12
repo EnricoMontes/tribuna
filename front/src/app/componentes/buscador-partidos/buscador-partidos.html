@@ -1,4 +1,5 @@
-<div class="buscador">
+<!-- (appClickAfuera): directiva propia, un click fuera del buscador cierra el desplegable -->
+<div class="buscador" (appClickAfuera)="cerrar()">
   <label class="titulo-buscador" for="buscar-partido">Buscá un partido</label>
   <div class="campo-busqueda">
     <svg class="lupa" viewBox="0 0 24 24" aria-hidden="true">
