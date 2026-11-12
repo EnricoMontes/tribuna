@@ -64,8 +64,8 @@ export function clavesCoincidenValidator(campo: string, campoRepetido: string): 
   };
 }
 
-/** Fecha (yyyy-mm-dd del input date) que no sea futura, con una edad mínima y una máxima (120 años). */
-export function edadMinimaValidator(edadMinima: number, edadMaxima = 120): ValidatorFn {
+/** Fecha (yyyy-mm-dd del input date) que no sea futura, con una edad mínima y una máxima (100 años). */
+export function edadMinimaValidator(edadMinima: number, edadMaxima = 100): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) {
       return null;
@@ -79,7 +79,7 @@ export function edadMinimaValidator(edadMinima: number, edadMaxima = 120): Valid
     if (nacimiento > fechaLimite) {
       return { menorDeEdad: { edadMinima } };
     }
-    // Una fecha de hace más de 120 años no puede ser real (el back también la rechaza)
+    // Una fecha de hace más de 100 años no puede ser real (el back también la rechaza)
     const fechaMasVieja = new Date(hoy.getFullYear() - edadMaxima, hoy.getMonth(), hoy.getDate());
     return nacimiento < fechaMasVieja ? { demasiadoVieja: { edadMaxima } } : null;
   };

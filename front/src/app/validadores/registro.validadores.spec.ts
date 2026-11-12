@@ -42,8 +42,15 @@ describe('sinSoloEspaciosValidator (auditoría)', () => {
 describe('edadMinimaValidator (auditoría)', () => {
   const validar = (valor: string) => new FormControl(valor, edadMinimaValidator(13)).errors;
 
-  it('rechaza una fecha de hace más de 120 años', () => {
-    expect(validar('1850-01-01')).toEqual({ demasiadoVieja: { edadMaxima: 120 } });
+  it('rechaza una fecha de hace más de 100 años', () => {
+    expect(validar('1850-01-01')).toEqual({ demasiadoVieja: { edadMaxima: 100 } });
+    expect(validar(`${new Date().getFullYear() - 101}-01-01`)).toEqual({
+      demasiadoVieja: { edadMaxima: 100 },
+    });
+  });
+
+  it('acepta a alguien de 99 años', () => {
+    expect(validar(`${new Date().getFullYear() - 99}-01-01`)).toBeNull();
   });
 
   it('sigue aceptando una edad normal y rechazando a un menor', () => {

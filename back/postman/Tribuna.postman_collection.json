@@ -1299,7 +1299,7 @@
           }
         },
         {
-          "name": "400 - Más de 120 años",
+          "name": "400 - Más de 100 años",
           "event": [
             {
               "listen": "test",
@@ -1307,7 +1307,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
-                  "pm.test(\"Mensaje claro\", () => pm.expect(String(pm.response.json().message)).to.include(\"120\"));"
+                  "pm.test(\"Mensaje claro\", () => pm.expect(String(pm.response.json().message)).to.include(\"100\"));"
                 ]
               }
             }
@@ -1325,7 +1325,7 @@
                 "registro"
               ]
             },
-            "description": "Auditoría: edad máxima 120 años (también en el front).",
+            "description": "Auditoría: edad máxima 100 años (también en el front).",
             "body": {
               "mode": "formdata",
               "formdata": [

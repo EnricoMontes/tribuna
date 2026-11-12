@@ -207,7 +207,7 @@
             @if (fecha.hasError('required')) { Ingresá tu fecha de nacimiento }
             @else if (fecha.hasError('fechaFutura')) { La fecha no puede ser futura }
             @else if (fecha.hasError('menorDeEdad')) { Tenés que tener al menos {{ edadMinima }} años }
-            @else if (fecha.hasError('demasiadoVieja')) { La fecha no es válida (más de 120 años) }
+            @else if (fecha.hasError('demasiadoVieja')) { La fecha no es válida (más de 100 años) }
           </p>
         }
       </div>

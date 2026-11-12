@@ -28,7 +28,7 @@ export interface ImagenesPerfil {
 }
 
 const EDAD_MINIMA = 13;
-const EDAD_MAXIMA = 120;
+const EDAD_MAXIMA = 100;
 const RONDAS_SALT = 10;
 
 // Lógica de acceso a la colección "usuarios". La usa AuthModule (por eso el módulo exporta este servicio).

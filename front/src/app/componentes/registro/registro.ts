@@ -63,8 +63,8 @@ export class Registro implements OnDestroy {
   readonly edadMinima = EDAD_MINIMA;
   readonly anio = new Date().getFullYear();
   readonly hoy = new Date().toISOString().slice(0, 10); // tope del input date
-  // piso del input date: hace 120 años (el validador y el back también lo controlan)
-  readonly minimoFecha = `${new Date().getFullYear() - 120}${this.hoy.slice(4)}`;
+  // piso del input date: hace 100 años (el validador y el back también lo controlan)
+  readonly minimoFecha = `${new Date().getFullYear() - 100}${this.hoy.slice(4)}`;
 
   formRegistro = new FormGroup(
     {
