@@ -1782,7 +1782,7 @@
                   "const viejo = leer(pm.collectionVariables.get(\"token\")), payload = leer(nuevo);",
                   "pm.test(\"Devuelve un token\", () => pm.expect(nuevo).to.be.a(\"string\"));",
                   "pm.test(\"Misma payload (sub, nombreUsuario, perfil)\", () => { pm.expect(payload.sub).to.eql(viejo.sub); pm.expect(payload.nombreUsuario).to.eql(viejo.nombreUsuario); pm.expect(payload.perfil).to.eql(viejo.perfil); });",
-                  "pm.test(\"Vence a los 15 minutos\", () => pm.expect(payload.exp - payload.iat).to.eql(900));",
+                  "pm.test(\"Vence a los 15 segundos (para la demo; la consigna pide 15 minutos = 900)\", () => pm.expect(payload.exp - payload.iat).to.eql(15));",
                   "pm.test(\"Vence después (o igual) que el anterior\", () => pm.expect(payload.exp).to.be.at.least(viejo.exp));",
                   "// Se sigue usando el token nuevo",
                   "pm.collectionVariables.set(\"token\", nuevo);"

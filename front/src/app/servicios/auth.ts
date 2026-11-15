@@ -10,8 +10,9 @@ const CLAVE_USUARIO = 'tribuna_usuario';
 const CLAVE_TOKEN = 'tribuna_token';
 const CLAVE_VENCE = 'tribuna_token_vence'; // cuándo vence el token, según el reloj de ESTA compu
 
-// El aviso sale 5 minutos antes de que venza el token (que dura 15): a los 10 minutos de entrar
-const AVISO_ANTES_DE_VENCER = 5 * 60 * 1000;
+// El aviso sale cuando queda 1/3 de la duración del token: con 15 minutos, a los 10 (faltan 5);
+// con 15 segundos (para probarlo en vivo), a los 10 segundos (faltan 5).
+const FRACCION_AVISO = 1 / 3;
 // La pantalla de carga se muestra al menos esto, para que no sea un parpadeo si la API responde rápido
 const DURACION_MINIMA_CARGA = 800;
 
@@ -167,26 +168,41 @@ export class Auth {
     const vence = Number(localStorage.getItem(CLAVE_VENCE));
     if (!vence) return;
     const falta = vence - Date.now();
+    const token = this.token();
+    const duracion = (token && this.leerDuracion(token)) || 15 * 60 * 1000;
+    const avisoAntes = duracion * FRACCION_AVISO;
 
     this.timerAviso = setTimeout(
-      () => this.preguntarSiExtiende(),
-      Math.max(0, falta - AVISO_ANTES_DE_VENCER),
+      () => this.preguntarSiExtiende(avisoAntes, duracion),
+      Math.max(0, falta - avisoAntes),
     );
     this.timerVencimiento = setTimeout(() => this.sesionVencida(), Math.max(0, falta));
   }
 
-  private preguntarSiExtiende() {
+  private preguntarSiExtiende(falta: number, duracion: number) {
     this.modal.confirmar(
-      'Tu sesión vence en 5 minutos',
+      `Tu sesión vence en ${this.textoDuracion(falta)}`,
       '¿Querés extenderla? Si no, vas a tener que volver a ingresar.',
       'Extender sesión',
       () =>
         this.refrescar().subscribe({
-          next: () => this.modal.exito('Sesión extendida', 'Tenés 15 minutos más en la tribuna.'),
+          next: () =>
+            this.modal.exito(
+              'Sesión extendida',
+              `Tenés ${this.textoDuracion(duracion)} más en la tribuna.`,
+            ),
           error: () => this.sesionVencida(),
         }),
       false, // no es una acción peligrosa: botón azul, no rojo
     );
+  }
+
+  /** 300000 -> "5 minutos", 5000 -> "5 segundos" */
+  private textoDuracion(ms: number): string {
+    const segundos = Math.round(ms / 1000);
+    if (segundos < 60) return `${segundos} segundo${segundos === 1 ? '' : 's'}`;
+    const minutos = Math.round(segundos / 60);
+    return `${minutos} minuto${minutos === 1 ? '' : 's'}`;
   }
 
   private cancelarTimers() {
