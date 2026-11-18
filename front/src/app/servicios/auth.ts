@@ -40,9 +40,10 @@ export class Auth {
   verificando = signal(true);
   private verificacion$?: Observable<boolean>;
 
-  // Los dos timers de la sesión (se cancelan al cerrar sesión o al refrescar el token)
+  // El timer del aviso "¿Extender sesión?" (se cancela al cerrar sesión o al refrescar el token).
+  // NO hay un timer que cierre la sesión al vencer (corrección del profe): el usuario se queda
+  // en la pantalla y el próximo pedido a la API da 401, que captura el interceptor.
   private timerAviso?: ReturnType<typeof setTimeout>;
-  private timerVencimiento?: ReturnType<typeof setTimeout>;
 
   // FormData porque viaja un archivo (la foto): el navegador arma el multipart/form-data
   registro(datos: FormData): Observable<Usuario> {
@@ -105,7 +106,7 @@ export class Auth {
     this.usuario.set(null);
   }
 
-  /** La sesión venció (timer de los 15 min o un 401 de la API): se cierra y se vuelve al login */
+  /** La API respondió 401 (token vencido o usuario deshabilitado): se cierra y se vuelve al login */
   sesionVencida() {
     if (!this.token()) return; // ya se había cerrado (por ejemplo, dos 401 seguidos)
     this.cerrarSesion();
@@ -159,24 +160,25 @@ export class Auth {
   }
 
   /**
-   * Los timers salen del vencimiento guardado, no de un "10 minutos" fijo: así funcionan igual
+   * El timer sale del vencimiento guardado, no de un "10 minutos" fijo: así funciona igual
    * al iniciar sesión (aviso a los 10 min) que al recargar la página a mitad de la sesión
    * (el aviso sale cuando falten 5 minutos, no 10 minutos después del F5).
+   * Solo avisa: si el usuario cancela o no responde, NO se lo desloguea al vencer.
    */
   private programarTimers() {
     this.cancelarTimers();
     const vence = Number(localStorage.getItem(CLAVE_VENCE));
     if (!vence) return;
     const falta = vence - Date.now();
+    if (falta <= 0) return; // ya venció: no hay nada que extender, el próximo pedido da 401
     const token = this.token();
     const duracion = (token && this.leerDuracion(token)) || 15 * 60 * 1000;
     const avisoAntes = duracion * FRACCION_AVISO;
 
     this.timerAviso = setTimeout(
-      () => this.preguntarSiExtiende(avisoAntes, duracion),
+      () => this.preguntarSiExtiende(Math.min(avisoAntes, falta), duracion),
       Math.max(0, falta - avisoAntes),
     );
-    this.timerVencimiento = setTimeout(() => this.sesionVencida(), Math.max(0, falta));
   }
 
   private preguntarSiExtiende(falta: number, duracion: number) {
@@ -207,7 +209,6 @@ export class Auth {
 
   private cancelarTimers() {
     clearTimeout(this.timerAviso);
-    clearTimeout(this.timerVencimiento);
   }
 
   /**

@@ -59,7 +59,7 @@ src/app/
 │   ├── comentarios.ts       listar (offset, limit) / crear / editar
 │   ├── partidos.ts          GET /partidos
 │   └── cuadros.ts           GET /cuadros (shareReplay)
-├── interceptores/token.interceptor.ts   agrega el Bearer y, si hay 401, vuelve al login
+├── interceptores/token.interceptor.ts   agrega el Bearer y captura el 401 (consola + login)
 ├── guards/sesion.guard.ts   canActivate: espera la verificación inicial; sin sesión -> /login
 ├── validadores/registro.validadores.ts
 ├── utilidades/errores.ts    traduce el error de Nest ({statusCode, message}) a texto
@@ -119,9 +119,10 @@ Validar en el front da feedback inmediato. El back **vuelve a validar todo**, po
 - **Pantalla de carga (Sprint 3):** `App` llama a `auth.verificarSesion()` al iniciar y `app.html` muestra `<app-cargando pantallaCompleta>` mientras `auth.verificando()` es true.
   - `verificarSesion()` hace `POST /auth/autorizar` junto con un `timer(800)` (`forkJoin`), para que el spinner no sea un parpadeo, y usa `shareReplay(1)` para que la petición salga una sola vez aunque se suscriban App y el guard.
   - El **guard** devuelve ese Observable mientras se verifica (Angular espera a que emita): válido → entra; inválido → `UrlTree` al login.
-- **Modal a los 10 minutos:** dos `setTimeout`, uno a los 10 minutos (abre `modal.confirmar` con "Extender sesión", que llama a `POST /auth/refrescar` y reprograma los timers) y otro a los 15 (cierra la sesión y vuelve al login con un aviso). Se cancelan con `clearTimeout` al salir.
+- **Modal antes de vencer:** un `setTimeout` abre `modal.confirmar` con "Extender sesión", que llama a `POST /auth/refrescar` y reprograma el timer. Se cancela con `clearTimeout` al salir.
+- **Al vencer NO se cierra la sesión** (corrección del profe, 16/11): si el usuario cancela el modal, se queda en la pantalla. Recién en el próximo pedido a la API el back responde 401.
   - El vencimiento se guarda como `Date.now() + (exp - iat) * 1000` (la duración del token, leída del payload con `atob`), no con `exp` directo: `exp` es la hora del servidor, y si la compu tiene la hora corrida el aviso saldría a destiempo.
-- **401:** el interceptor llama a `auth.sesionVencida()` (cierra sesión, va al login y avisa). El 401 de `/auth/autorizar` lo resuelve el guard, sin aviso.
+- **401:** el interceptor lo captura con `catchError`: lo escribe en la consola (el 401 además se ve en Network), llama a `auth.sesionVencida()` (cierra sesión, va al login y muestra un modal genérico "Tu sesión venció") y devuelve `EMPTY`: el 401 no llega al componente, así no aparece encima su modal propio ("No se pudo actualizar el me gusta", "No se pudo comentar"...). Así se puede probar un pedido con el token vencido. Lo mismo pasa si un admin deshabilita a un usuario conectado: su próximo pedido da 401. El 401 de `/auth/autorizar` lo resuelve el guard, sin aviso.
 
 ### Publicaciones: componentes que se comunican
 - **`TarjetaPublicacion`** (la consigna pide que cada publicación sea un componente) recibe la publicación con **`input.required()`** y avisa con **`output()`** cuando se toca me gusta o eliminar. **No llama a la API**: solo muestra y avisa. Así sirve igual en el listado, en el partido y en Mi perfil.
