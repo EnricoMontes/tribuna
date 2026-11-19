@@ -1,0 +1,106 @@
+<header class="cabecera-pagina con-solapa">
+  <div class="interior">
+    <button class="boton translucido volver" type="button" (click)="volver()">← Volver</button>
+    <span class="etiqueta-seccion">Perfil de hincha</span>
+    @if (usuario(); as u) {
+      <h1>&#64;{{ u.nombreUsuario }}</h1>
+    } @else if (error()) {
+      <h1>Perfil no encontrado</h1>
+    } @else {
+      <h1>Cargando...</h1>
+    }
+  </div>
+</header>
+
+<section class="contenedor">
+  @if (usuario(); as usuario) {
+    <!-- Misma ficha que Mi perfil, pero sin el lápiz de editar ni los datos privados -->
+    <article class="panel perfil">
+      <div
+        class="portada"
+        aria-hidden="true"
+        [class.con-banner]="usuario.banner"
+        [style.background-image]="usuario.banner ? 'url(' + usuario.banner + ')' : null"
+      ></div>
+
+      <div class="cabecera">
+        @if (usuario.fotoPerfil) {
+          <img
+            appImagenRespaldo
+            [iniciales]="usuario | iniciales"
+            class="avatar grande"
+            [src]="usuario.fotoPerfil"
+            alt="Foto de perfil de {{ usuario.nombre }}"
+            width="120"
+            height="120"
+          />
+        } @else {
+          <span class="avatar grande">{{ usuario | iniciales }}</span>
+        }
+        <div class="identidad">
+          <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
+          <div class="linea-usuario">
+            <p class="arroba">&#64;{{ usuario.nombreUsuario }}</p>
+            <span class="etiqueta" [class.destacada]="usuario.perfil === 'administrador'">
+              {{ usuario.perfil }}
+            </span>
+          </div>
+        </div>
+        @if (usuario.cuadro || usuario.numeroCamiseta) {
+          <div class="hincha">
+            @if (usuario.cuadro; as cuadro) {
+              <img
+                appImagenRespaldo
+                [src]="cuadro.escudo"
+                alt="Escudo de {{ cuadro.nombre }}"
+                width="52"
+                height="52"
+              />
+            }
+            <div class="hincha-textos">
+              @if (usuario.cuadro; as cuadro) {
+                <span class="hincha-de">Hincha de</span>
+                <strong>{{ cuadro.nombre }}</strong>
+              }
+            </div>
+            @if (usuario.numeroCamiseta) {
+              <span class="numero">{{ usuario.numeroCamiseta }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <p class="descripcion">
+        @if (usuario.descripcion) {
+          {{ usuario.descripcion }}
+        } @else {
+          <span class="sin-dato">Todavía no escribió una descripción.</span>
+        }
+      </p>
+
+      <dl class="datos">
+        <div>
+          <dt>En la tribuna desde</dt>
+          <dd>{{ usuario.createdAt | date: 'MMMM y' }}</dd>
+        </div>
+      </dl>
+    </article>
+
+    <!-- Sus publicaciones: la misma lista de siempre, filtrada por su usuario (con orden y páginas) -->
+    <section class="mis-publicaciones">
+      <app-lista-publicaciones [usuario]="usuario._id" [porPagina]="5">
+        <div vacio class="panel sin-publicaciones">
+          <p>&#64;{{ usuario.nombreUsuario }} todavía no publicó nada.</p>
+        </div>
+      </app-lista-publicaciones>
+    </section>
+  } @else if (error()) {
+    <div class="panel aviso">
+      <p class="error">{{ error() }}</p>
+      <p>Puede que el usuario no exista o que lo hayan deshabilitado.</p>
+      <a class="boton" routerLink="/publicaciones">Ver las publicaciones</a>
+    </div>
+  } @else {
+    <app-cargando texto="Cargando perfil..." />
+  }
+</section>

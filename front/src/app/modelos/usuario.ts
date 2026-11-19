@@ -18,3 +18,20 @@ export interface Usuario {
   createdAt: string;
   updatedAt: string;
 }
+
+// GET /usuarios/perfil/:nombreUsuario: lo que se puede ver del perfil de OTRO usuario
+// (sin correo ni fecha de nacimiento)
+export type UsuarioPublico = Pick<
+  Usuario,
+  | '_id'
+  | 'nombre'
+  | 'apellido'
+  | 'nombreUsuario'
+  | 'fotoPerfil'
+  | 'banner'
+  | 'descripcion'
+  | 'cuadro'
+  | 'numeroCamiseta'
+  | 'perfil'
+  | 'createdAt'
+>;

@@ -26,6 +26,24 @@
   margin-bottom: 0.9rem;
 }
 
+/* foto + nombre: un solo link al perfil del autor */
+.autor-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.autor-link strong {
+  transition: color 0.2s;
+}
+
+.autor-link:hover strong {
+  color: var(--azul);
+}
+
 .autor .avatar {
   width: 44px;
   height: 44px;
@@ -220,44 +238,6 @@ h3 {
   text-decoration: underline;
 }
 
-/* ---------- versión grande (página de la publicación) ---------- */
-
-.tarjeta.grande {
-  grid-template-columns: minmax(0, 1fr) 240px;
-  /* la columna del partido sigue oscura hasta abajo, aunque el panel no ocupe todo el alto */
-  background: linear-gradient(90deg, var(--blanco) calc(100% - 240px), var(--noche) 0);
-  /* clip y no hidden: overflow hidden anula el position: sticky del panel del partido */
-  overflow: clip;
-}
-
-/* La tarjeta grande es muy alta (foto + comentarios): el panel del partido mide lo que la pantalla
-   (menos la navbar), queda centrado y es sticky, así acompaña mientras se baja por los comentarios */
-.tarjeta.grande .partido {
-  position: sticky;
-  top: 83px; /* alto de la navbar, que también es sticky */
-  align-self: start;
-  height: calc(100vh - 83px);
-  max-height: 100%;
-}
-
-.tarjeta.grande .contenido {
-  padding: 2rem 2.2rem 1.6rem;
-}
-
-.tarjeta.grande h3 {
-  font-size: 2.4rem;
-}
-
-.tarjeta.grande .mensaje {
-  font-size: 1.05rem;
-}
-
-.tarjeta.grande .foto {
-  max-height: 640px;
-  object-fit: contain;
-  background: var(--noche);
-}
-
 .borrar {
   margin-left: auto;
   font: 700 0.85rem var(--fuente-texto);
@@ -363,24 +343,8 @@ h3 {
 
 /* en celular el partido va arriba, horizontal */
 @media (max-width: 640px) {
-  .tarjeta,
-  .tarjeta.grande {
+  .tarjeta {
     grid-template-columns: 1fr;
-    background: var(--blanco);
-  }
-
-  .tarjeta.grande .partido {
-    position: relative;
-    top: 0;
-    height: auto;
-  }
-
-  .tarjeta.grande .contenido {
-    padding: 1.4rem 1.2rem 1.1rem;
-  }
-
-  .tarjeta.grande h3 {
-    font-size: 1.9rem;
   }
 
   .partido {

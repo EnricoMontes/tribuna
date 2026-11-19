@@ -1,0 +1,28 @@
+/* Lo demás viene de mi-perfil.css (las dos fichas se ven iguales) */
+
+/* botón para volver: usa el .boton.translucido global (pensado para fondos oscuros) */
+.volver {
+  display: flex;
+  width: fit-content;
+  margin-bottom: 1.25rem;
+  padding: 0.7rem 1.3rem;
+  font-size: 1rem;
+}
+
+.cabecera-pagina h1 {
+  margin-top: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+/* si el perfil no existe */
+.aviso {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.aviso p {
+  margin: 0;
+}

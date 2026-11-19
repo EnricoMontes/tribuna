@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -10,6 +10,7 @@ import {
   untracked,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Comentario } from '../../modelos/comentario';
 import { InicialesPipe } from '../../pipes/iniciales.pipe';
@@ -38,13 +39,16 @@ const validadoresMensaje = [
 @Component({
   imports: [
     DatePipe,
+    NgTemplateOutlet,
     ReactiveFormsModule,
+    RouterLink,
     Cargando,
     InicialesPipe,
     TiempoRelativoPipe,
     ImagenRespaldoDirective,
   ],
   selector: 'app-comentarios',
+  host: { '[class.en-panel]': 'enPanel()' }, // el CSS usa :host(.en-panel)
   styleUrl: './comentarios.css',
   templateUrl: './comentarios.html',
 })
@@ -55,6 +59,8 @@ export class Comentarios {
 
   publicacionId = input.required<string>();
   porPagina = input(5);
+  // true en la página de la publicación: solo la lista se desplaza y el formulario queda fijo abajo
+  enPanel = input(false);
   totalCambio = output<number>(); // avisa a la tarjeta para que actualice "N comentarios"
 
   protected readonly maximo = MAXIMO;

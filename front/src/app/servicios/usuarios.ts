@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Perfil, Usuario } from '../modelos/usuario';
+import { Perfil, Usuario, UsuarioPublico } from '../modelos/usuario';
 
 // Sprint 4: los filtros del dashboard (los mismos valores que acepta el back en ?estado=)
 export type EstadoUsuarios = 'todos' | 'habilitados' | 'deshabilitados' | 'administradores';
@@ -40,6 +40,13 @@ export class Usuarios {
   /** PATCH /usuarios/mi-perfil (multipart: datos + fotoPerfil y/o banner). Devuelve el usuario actualizado. */
   editarPerfil(datos: FormData): Observable<Usuario> {
     return this.http.patch<Usuario>(`${this.url}/mi-perfil`, datos);
+  }
+
+  /** GET /usuarios/perfil/:nombreUsuario: el perfil público de otro usuario (solo para ver) */
+  perfilPublico(nombreUsuario: string): Observable<UsuarioPublico> {
+    return this.http.get<UsuarioPublico>(
+      `${this.url}/perfil/${encodeURIComponent(nombreUsuario)}`,
+    );
   }
 
   // ───── Sprint 4: solo administradores (el back responde 403 a cualquier otro) ─────

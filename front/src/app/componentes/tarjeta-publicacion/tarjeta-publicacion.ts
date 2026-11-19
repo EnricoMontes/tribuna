@@ -36,7 +36,6 @@ export class TarjetaPublicacion {
   mostrarPartido = input(true); // en la página del partido no hace falta repetirlo
   conComentarios = input(false); // muestra los comentarios abajo (página de la publicación y Mi perfil)
   comentariosPorPagina = input(5);
-  grande = input(false); // la página de la publicación la muestra "grande en la pantalla"
 
   meGusta = output<Publicacion>();
   eliminar = output<Publicacion>();

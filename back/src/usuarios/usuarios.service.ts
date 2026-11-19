@@ -269,6 +269,28 @@ export class UsuariosService {
       .exec();
   }
 
+  /**
+   * GET /usuarios/perfil/:nombreUsuario: el perfil PÚBLICO de cualquier usuario (solo para ver).
+   * El select trae solo lo que se puede mostrar a otros: NO el correo ni la fecha de nacimiento
+   * (y la contraseña nunca, tiene select: false). Un usuario deshabilitado no tiene perfil -> 404.
+   */
+  async perfilPublico(nombreUsuario: string) {
+    const usuario = await this.usuarioModel
+      .findOne({
+        nombreUsuario: nombreUsuario.trim().toLowerCase(),
+        habilitado: { $ne: false },
+      })
+      .select(
+        'nombre apellido nombreUsuario fotoPerfil banner descripcion cuadro numeroCamiseta perfil createdAt',
+      )
+      .lean()
+      .exec();
+    if (!usuario) {
+      throw new NotFoundException('Ese usuario no existe');
+    }
+    return usuario;
+  }
+
   /** Para /auth/autorizar: los datos del usuario del token (sin la contraseña, que tiene select: false) */
   buscarPorId(id: string) {
     return this.usuarioModel.findById(id).exec();

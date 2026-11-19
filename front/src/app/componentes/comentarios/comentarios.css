@@ -148,6 +148,19 @@ textarea.invalido {
   font-size: 0.85rem;
 }
 
+.autor-link {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.45rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.autor-link:hover strong {
+  color: var(--azul);
+}
+
 .usuario {
   color: var(--azul);
   font-weight: 700;
@@ -212,4 +225,60 @@ time {
 
 app-cargando {
   padding: 0.75rem;
+}
+
+/* ---------- modo panel (página de la publicación, estilo Instagram) ---------- */
+
+/* El host ocupa lo que le deja el padre; la sección es una columna:
+   lista que se desplaza (crece) + acciones y formulario fijos abajo */
+:host(.en-panel) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.comentarios.en-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* min-height: 0 hace falta: sin eso un hijo flex no se achica por debajo de su contenido
+   y en vez de aparecer el scroll, se estiraría toda la página */
+.en-panel .desplazable {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem 1.25rem;
+}
+
+.en-panel .lista {
+  margin-top: 0;
+}
+
+.en-panel .nuevo {
+  padding: 0.75rem 1.25rem 0.9rem;
+  border-top: 1px solid var(--divisor);
+}
+
+.en-panel .nuevo textarea {
+  min-height: 44px;
+  max-height: 120px;
+  resize: none;
+}
+
+.en-panel .pie-form {
+  margin-top: 0.4rem;
+}
+
+/* en pantallas chicas la página se lee de corrido: la lista ya no tiene su propio scroll */
+@media (max-width: 900px) {
+  .en-panel .desplazable {
+    overflow: visible;
+  }
 }

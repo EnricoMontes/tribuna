@@ -7,7 +7,7 @@ import {
   LOCALE_ID,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { routes } from './app.routes';
 import { tokenInterceptor } from './interceptores/token.interceptor';
@@ -19,7 +19,13 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     // withComponentInputBinding: los parámetros de la ruta (:id) y de la query (?partido=) llegan como input()
-    provideRouter(routes, withComponentInputBinding()),
+    // withInMemoryScrolling: al entrar a una página nueva arranca arriba de todo (sin esto quedaba
+    // scrolleada como la anterior). 'enabled' además, con "atrás", vuelve a donde estabas.
+    provideRouter(
+      routes,
+      withComponentInputBinding(),
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
+    ),
     // HttpClient para hablar con la API de Nest (withFetch usa la API fetch del navegador).
     // withInterceptors: el tokenInterceptor agrega el JWT a cada petición.
     provideHttpClient(withFetch(), withInterceptors([tokenInterceptor])),

@@ -1,3 +1,6 @@
+<!-- Estilo Instagram: la foto a la izquierda y los comentarios a la derecha, todo en el alto de la
+     pantalla. Lo único que se desplaza es la lista de comentarios; la foto, los me gusta, la cantidad
+     de comentarios y el formulario quedan siempre a la vista. -->
 <header class="cabecera-pagina">
   <div class="interior">
     <button class="boton translucido volver" type="button" (click)="volver()">← Volver</button>
@@ -5,9 +8,19 @@
     @if (publicacion(); as p) {
       <h1>{{ p.titulo }}</h1>
       <p class="subtitulo-cabecera">
-        Por &#64;{{ p.autor.nombreUsuario }} · {{ p.partido.local.nombre }}
-        {{ p.partido.goles.local }}-{{ p.partido.goles.visitante }}
-        {{ p.partido.visitante.nombre }}
+        Por
+        <a class="link-autor" [routerLink]="['/usuarios', p.autor.nombreUsuario]">&#64;{{ p.autor.nombreUsuario }}</a>
+        ·
+        <!-- El partido lleva a su página, con todas las publicaciones de ese partido -->
+        <a
+          class="link-partido"
+          [routerLink]="['/partidos', p.partido.id]"
+          title="Ver todas las publicaciones de este partido"
+        >
+          <img appImagenRespaldo [src]="p.partido.local.escudo" alt="" width="20" height="20" />
+          {{ p.partido.local.nombre }} {{ p.partido.goles.local }}-{{ p.partido.goles.visitante }}
+          {{ p.partido.visitante.nombre }}
+          <img appImagenRespaldo [src]="p.partido.visitante.escudo" alt="" width="20" height="20" />        </a>
       </p>
     } @else if (error()) {
       <h1>No encontramos la publicación</h1>
@@ -17,18 +30,103 @@
   </div>
 </header>
 
-<section class="contenedor angosto">
+<div class="pagina">
+
   @if (publicacion(); as p) {
-    <app-tarjeta-publicacion
-      [publicacion]="p"
-      [grande]="true"
-      [conComentarios]="true"
-      [comentariosPorPagina]="5"
-      [puedeEliminar]="puedeEliminar()"
-      [ocupado]="procesando()"
-      (meGusta)="alternarMeGusta($event)"
-      (eliminar)="confirmarEliminar($event)"
-    />
+    <article class="visor">
+      <!-- Izquierda: la foto entera (contain, sin recortar). Si no tiene, el partido en grande -->
+      <div class="media">
+        @if (p.imagen) {
+          <img appImagenRespaldo="sin-imagen.svg" class="foto" [src]="p.imagen" [alt]="p.titulo" />
+        } @else {
+          <div class="sin-foto">
+            <span class="sin-foto-liga">{{ p.partido.liga }} · {{ p.partido.fecha }}</span>
+            <div class="sin-foto-equipos">
+              <span class="sin-foto-equipo">
+                <img appImagenRespaldo [src]="p.partido.local.escudo" alt="" width="96" height="96" />
+                {{ p.partido.local.nombre }}
+              </span>
+              <span class="sin-foto-marcador">
+                {{ p.partido.goles.local }} - {{ p.partido.goles.visitante }}
+              </span>
+              <span class="sin-foto-equipo">
+                <img appImagenRespaldo [src]="p.partido.visitante.escudo" alt="" width="96" height="96" />
+                {{ p.partido.visitante.nombre }}
+              </span>
+            </div>
+            <span class="sin-foto-hora">{{ p.partido.inicio | date: 'EEE d/M · HH:mm' }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Derecha: autor arriba, comentarios en el medio (scroll) y abajo las acciones y el formulario -->
+      <div class="lateral">
+        <header class="autor">
+          <a class="autor-link" [routerLink]="['/usuarios', p.autor.nombreUsuario]" title="Ver su perfil">
+            @if (p.autor.fotoPerfil) {
+              <img appImagenRespaldo [iniciales]="p.autor | iniciales" class="avatar" [src]="p.autor.fotoPerfil" alt="" width="40" height="40" />
+            } @else {
+              <span class="avatar">{{ p.autor | iniciales }}</span>
+            }
+            <span class="autor-datos">
+              <strong>{{ p.autor.nombre }} {{ p.autor.apellido }}</strong>
+              <span>
+                &#64;{{ p.autor.nombreUsuario }}
+                @if (p.autor.cuadro; as cuadro) {
+                  ·
+                  <img appImagenRespaldo class="escudo-mini" [src]="cuadro.escudo" [alt]="cuadro.nombre" [title]="cuadro.nombre" width="16" height="16" />
+                }
+              </span>
+            </span>
+          </a>
+          @if (puedeEliminar()) {
+            <button type="button" class="borrar" (click)="confirmarEliminar(p)">Eliminar</button>
+          }
+        </header>
+
+        <app-comentarios
+          [enPanel]="true"
+          [publicacionId]="p._id"
+          [porPagina]="5"
+          (totalCambio)="cantidadComentarios.set($event)"
+        >
+          <!-- Proyectado arriba de la lista: el título y el texto, como la descripción en Instagram -->
+          <div encabezado class="leyenda">
+            <h2>{{ p.titulo }}</h2>
+            <p class="mensaje">{{ p.mensaje }}</p>
+            <time [attr.datetime]="p.createdAt" [title]="p.createdAt | date: 'd MMM y, HH:mm'">
+              {{ p.createdAt | tiempoRelativo }}
+            </time>
+          </div>
+
+          <!-- Proyectado debajo de la lista (fijo): me gusta y cantidad de comentarios -->
+          <footer acciones class="acciones">
+            <button
+              type="button"
+              class="me-gusta"
+              [class.activo]="p.meGustaMio"
+              [disabled]="procesando()"
+              [attr.aria-pressed]="p.meGustaMio"
+              (click)="alternarMeGusta(p)"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 21s-7.5-4.6-9.6-9.3C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 5.3 3 1.7-1.9 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.2C19.5 16.4 12 21 12 21Z"
+                />
+              </svg>
+              {{ p.cantidadMeGusta }} me gusta
+            </button>
+            <!-- Lleva el cursor al formulario para escribir -->
+            <button type="button" class="contar-comentarios" (click)="enfocarComentario(p._id)">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h16v11H9l-5 4Z" />
+              </svg>
+              {{ cantidadComentarios() | plural: 'comentario' }}
+            </button>
+          </footer>
+        </app-comentarios>
+      </div>
+    </article>
   } @else if (error()) {
     <div class="panel aviso">
       <p class="error">{{ error() }}</p>
@@ -38,4 +136,4 @@
   } @else {
     <app-cargando texto="Cargando publicación..." />
   }
-</section>
+</div>

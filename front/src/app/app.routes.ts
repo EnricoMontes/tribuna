@@ -55,6 +55,14 @@ export const routes: Routes = [
     loadComponent: () => import('./componentes/mi-perfil/mi-perfil').then((m) => m.MiPerfil),
   },
   {
+    // El perfil de OTRO usuario, solo para ver (el mío se edita en /mi-perfil)
+    path: 'usuarios/:nombreUsuario',
+    title: 'Perfil · Tribuna',
+    canActivate: [sesionGuard],
+    loadComponent: () =>
+      import('./componentes/perfil-usuario/perfil-usuario').then((m) => m.PerfilUsuario),
+  },
+  {
     // Sprint 4: panel de administración. El adminGuard va en la ruta PADRE, así protege a todas
     // las hijas. Las hijas se dibujan en el <router-outlet> del componente Dashboard.
     path: 'dashboard',

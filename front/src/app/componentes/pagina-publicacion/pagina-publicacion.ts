@@ -1,21 +1,38 @@
-import { Location } from '@angular/common';
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { DatePipe, Location } from '@angular/common';
+import { Component, computed, effect, inject, input, linkedSignal, signal, untracked } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { ImagenRespaldoDirective } from '../../directivas/imagen-respaldo.directive';
 import { Publicacion } from '../../modelos/publicacion';
+import { InicialesPipe } from '../../pipes/iniciales.pipe';
+import { PluralPipe } from '../../pipes/plural.pipe';
+import { TiempoRelativoPipe } from '../../pipes/tiempo-relativo.pipe';
 import { Auth } from '../../servicios/auth';
 import { Modal } from '../../servicios/modal';
 import { Publicaciones } from '../../servicios/publicaciones';
 import { mensajeDeError } from '../../utilidades/errores';
 import { Cargando } from '../cargando/cargando';
-import { TarjetaPublicacion } from '../tarjeta-publicacion/tarjeta-publicacion';
+import { Comentarios } from '../comentarios/comentarios';
 
 /**
- * Página de una publicación: /publicaciones/:id
- * La muestra grande en la pantalla, con sus comentarios abajo (escribir, editar, "cargar más").
- * Reusa la misma tarjeta del listado, con [grande] y [conComentarios].
+ * Página de una publicación: /publicaciones/:id, armada como en Instagram.
+ * - Izquierda: la foto entera (o el partido en grande si no tiene foto).
+ * - Derecha: el autor (lleva a su perfil), el título y el texto, los comentarios (lo único que se
+ *   desplaza) y abajo, fijos, los me gusta, la cantidad de comentarios y el formulario.
+ * Todo entra en el alto de la pantalla. En celular se apila y se lee de corrido.
+ * Los comentarios son el mismo componente de Mi perfil, con [enPanel]="true"; las acciones y el
+ * texto se le pasan por contenido proyectado (ng-content con select).
  */
 @Component({
-  imports: [RouterLink, Cargando, TarjetaPublicacion],
+  imports: [
+    RouterLink,
+    DatePipe,
+    Cargando,
+    Comentarios,
+    InicialesPipe,
+    PluralPipe,
+    TiempoRelativoPipe,
+    ImagenRespaldoDirective,
+  ],
   selector: 'app-pagina-publicacion',
   styleUrl: './pagina-publicacion.css',
   templateUrl: './pagina-publicacion.html',
@@ -32,6 +49,9 @@ export class PaginaPublicacion {
   publicacion = signal<Publicacion | null>(null);
   error = signal('');
   procesando = signal(false);
+
+  // Arranca con lo que trajo la API y se actualiza cuando alguien comenta (output totalCambio)
+  cantidadComentarios = linkedSignal(() => this.publicacion()?.cantidadComentarios ?? 0);
 
   puedeEliminar = computed(() => {
     const usuario = this.auth.usuario();
@@ -55,13 +75,18 @@ export class PaginaPublicacion {
     });
   }
 
-  /** Volver a donde estaba (la lista, el partido o Mi perfil); si entró directo, a publicaciones */
+  /** Volver a donde estaba (la lista, el partido o un perfil); si entró directo, a publicaciones */
   volver() {
     if (window.history.length > 1) {
       this.location.back();
     } else {
       this.router.navigate(['/publicaciones']);
     }
+  }
+
+  /** El botón "N comentarios" lleva el cursor al formulario (el textarea tiene id "nuevo-<id>") */
+  enfocarComentario(id: string) {
+    document.getElementById(`nuevo-${id}`)?.focus();
   }
 
   alternarMeGusta(publicacion: Publicacion) {

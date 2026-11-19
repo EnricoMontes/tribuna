@@ -67,6 +67,15 @@ export class UsuariosController {
     return this.usuariosService.editarPerfil(usuario.sub, datos, imagenes);
   }
 
+  // GET /usuarios/perfil/:nombreUsuario -> 200 con el perfil público de otro usuario (sin correo
+  // ni fecha de nacimiento). Cualquier usuario logueado lo puede VER; no hay ruta para modificar
+  // datos ajenos (mi-perfil edita solo al usuario del token). 404 si no existe o está deshabilitado.
+  @Get('perfil/:nombreUsuario')
+  @UseGuards(AuthGuard)
+  perfilPublico(@Param('nombreUsuario') nombreUsuario: string) {
+    return this.usuariosService.perfilPublico(nombreUsuario);
+  }
+
   // ───────────── Sprint 4: rutas del administrador ─────────────
   // @UseGuards(AuthGuard, AdminGuard): primero el token (401 si falta o venció) y después
   // el rol (403 si no es administrador). Van en cada ruta y no en todo el controller porque

@@ -1,3 +1,5 @@
+/* ---------- cabecera (la banda oscura de siempre, con el título) ---------- */
+
 /* botón para volver: usa el .boton.translucido global (pensado para fondos oscuros) */
 .volver {
   display: flex;
@@ -13,10 +15,323 @@
 }
 
 .subtitulo-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: none; /* el global de .cabecera-pagina p (560px) lo partía en dos renglones */
   margin: 0.6rem 0 0;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
 }
+
+.link-autor {
+  color: inherit;
+  text-decoration: none;
+}
+
+.link-autor:hover {
+  color: var(--blanco);
+  text-decoration: underline;
+}
+
+/* el partido: escudos + resultado (al pasar el mouse se subraya, como un link) */
+.link-partido {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--blanco);
+  text-decoration: none;
+}
+
+.link-partido img {
+  object-fit: contain;
+}
+
+.link-partido:hover {
+  text-decoration: underline;
+}
+
+/* ---------- debajo de la cabecera: el visor ocupa el alto de la pantalla ---------- */
+
+.pagina {
+  --alto-navbar: 83px; /* la navbar es sticky y mide esto */
+  display: flex;
+  flex-direction: column;
+  width: min(1280px, 100% - 2rem);
+  height: calc(100dvh - var(--alto-navbar));
+  min-height: 560px; /* en pantallas muy bajas no se aplasta: se desplaza la página */
+  margin: 0 auto;
+  padding: 1rem 0 1.25rem;
+}
+
+/* ---------- el visor: foto | panel ---------- */
+
+.visor {
+  flex: 1;
+  min-height: 0; /* sin esto el grid crecería con los comentarios en vez de dejar que se desplacen */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  grid-template-rows: minmax(0, 1fr); /* una fila del alto del visor, aunque la foto sea más alta */
+  background: var(--blanco);
+  border: 1px solid var(--divisor);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+
+.media {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--noche);
+}
+
+/* contain: la foto se ve ENTERA, sin recortar; sobra fondo oscuro a los costados si hace falta */
+.foto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* sin foto: el partido en grande, sobre la cancha */
+.sin-foto {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  align-content: center;
+  padding: 2rem;
+  color: var(--blanco);
+  text-align: center;
+  background:
+    linear-gradient(rgba(3, 21, 33, 0.82), rgba(3, 21, 33, 0.82)),
+    var(--cancha-horizontal) center / cover no-repeat;
+}
+
+.sin-foto-liga {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.sin-foto-equipos {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.sin-foto-equipo {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  font-family: var(--fuente-titulos);
+  font-size: 1.6rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.sin-foto-equipo img {
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+.sin-foto-marcador {
+  font-family: var(--fuente-titulos);
+  font-size: 2.4rem;
+  color: var(--azul);
+  background: var(--blanco);
+  border-radius: 100px;
+  padding: 0.1rem 1.1rem;
+}
+
+.sin-foto-hora {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: capitalize;
+}
+
+/* ---------- panel de la derecha ---------- */
+
+.lateral {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--divisor);
+}
+
+/* los comentarios ocupan todo lo que sobra entre el autor y el borde de abajo */
+app-comentarios {
+  flex: 1;
+}
+
+.autor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--divisor);
+}
+
+.autor-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.autor-link:hover strong {
+  color: var(--azul);
+}
+
+.autor .avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+  border-width: 2px;
+  border-color: var(--azul-claro);
+  flex-shrink: 0;
+}
+
+.autor-datos {
+  display: grid;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.autor-datos strong {
+  transition: color 0.2s;
+}
+
+.autor-datos span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--azul);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.escudo-mini {
+  object-fit: contain;
+}
+
+.borrar {
+  margin-left: auto;
+  font: 700 0.85rem var(--fuente-texto);
+  color: var(--error);
+  background: none;
+  border: none;
+  padding: 0.4rem 0.2rem;
+  cursor: pointer;
+}
+
+.borrar:hover {
+  text-decoration: underline;
+}
+
+/* título y texto: van arriba de la lista de comentarios y se desplazan con ella */
+.leyenda {
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--divisor);
+}
+
+.leyenda h2 {
+  font-size: 2rem;
+  margin: 0 0 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.leyenda .mensaje {
+  margin: 0 0 0.4rem;
+  color: var(--texto-suave);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.leyenda time {
+  font-size: 0.78rem;
+  color: var(--texto-tenue);
+}
+
+/* ---------- acciones (fijas, entre la lista y el formulario) ---------- */
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--divisor);
+}
+
+.me-gusta,
+.contar-comentarios {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font: 700 0.9rem var(--fuente-texto);
+  color: var(--texto-suave);
+  background: var(--fondo);
+  border: 1px solid var(--divisor);
+  border-radius: 100px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.me-gusta svg,
+.contar-comentarios svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  transition: transform 0.2s;
+}
+
+.me-gusta:hover:not(:disabled),
+.contar-comentarios:hover {
+  border-color: var(--azul);
+  color: var(--azul);
+}
+
+.me-gusta.activo {
+  color: var(--blanco);
+  background: var(--azul);
+  border-color: var(--azul);
+}
+
+.me-gusta.activo:hover:not(:disabled) {
+  color: var(--blanco);
+  background: var(--azul-oscuro);
+  border-color: var(--azul-oscuro);
+}
+
+.me-gusta.activo svg {
+  fill: currentColor;
+  transform: scale(1.1);
+}
+
+.me-gusta:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ---------- error ---------- */
 
 .aviso {
   display: grid;
@@ -26,4 +341,32 @@
 
 .aviso p {
   margin: 0;
+}
+
+/* ---------- pantallas chicas: todo apilado y se lee de corrido ---------- */
+
+@media (max-width: 900px) {
+  .pagina {
+    height: auto;
+    min-height: 0;
+  }
+
+  .visor {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .media {
+    max-height: 70vh;
+  }
+
+  .foto {
+    height: auto;
+    max-height: 70vh;
+  }
+
+  .lateral {
+    border-left: none;
+    border-top: 1px solid var(--divisor);
+  }
 }

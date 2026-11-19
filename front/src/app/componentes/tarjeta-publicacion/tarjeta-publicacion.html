@@ -1,30 +1,33 @@
 @let p = publicacion();
-<article class="tarjeta" [class.sin-partido]="!mostrarPartido()" [class.grande]="grande()">
+<article class="tarjeta" [class.sin-partido]="!mostrarPartido()">
   <div class="contenido">
     <header class="autor">
-      @if (p.autor.fotoPerfil) {
-        <img appImagenRespaldo [iniciales]="p.autor | iniciales" class="avatar" [src]="p.autor.fotoPerfil" alt="" width="44" height="44" />
-      } @else {
-        <span class="avatar">{{ p.autor | iniciales }}</span>
-      }
-      <div class="autor-datos">
-        <strong>{{ p.autor.nombre }} {{ p.autor.apellido }}</strong>
-        <span>
-          &#64;{{ p.autor.nombreUsuario }}
-          @if (p.autor.cuadro; as cuadro) {
-            ·
-            <img
-              appImagenRespaldo
-              class="escudo-mini"
-              [src]="cuadro.escudo"
-              [alt]="cuadro.nombre"
-              [title]="cuadro.nombre"
-              width="16"
-              height="16"
-            />
-          }
+      <!-- La foto y el nombre llevan al perfil del autor (si soy yo, termina en Mi perfil) -->
+      <a class="autor-link" [routerLink]="['/usuarios', p.autor.nombreUsuario]" title="Ver su perfil">
+        @if (p.autor.fotoPerfil) {
+          <img appImagenRespaldo [iniciales]="p.autor | iniciales" class="avatar" [src]="p.autor.fotoPerfil" alt="" width="44" height="44" />
+        } @else {
+          <span class="avatar">{{ p.autor | iniciales }}</span>
+        }
+        <span class="autor-datos">
+          <strong>{{ p.autor.nombre }} {{ p.autor.apellido }}</strong>
+          <span>
+            &#64;{{ p.autor.nombreUsuario }}
+            @if (p.autor.cuadro; as cuadro) {
+              ·
+              <img
+                appImagenRespaldo
+                class="escudo-mini"
+                [src]="cuadro.escudo"
+                [alt]="cuadro.nombre"
+                [title]="cuadro.nombre"
+                width="16"
+                height="16"
+              />
+            }
+          </span>
         </span>
-      </div>
+      </a>
       <!-- "hace 3 h" (pipe propia); pasando el mouse, la fecha completa -->
       <time
         class="cuando"
@@ -34,25 +37,17 @@
       >
     </header>
 
-    <!-- El título lleva a la página de la publicación (salvo que ya estemos ahí) -->
-    @if (grande()) {
-      <h3>{{ p.titulo }}</h3>
-    } @else {
-      <h3>
-        <a class="titulo-link" [routerLink]="['/publicaciones', p._id]">{{ p.titulo }}</a>
-      </h3>
-    }
+    <!-- El título lleva a la página de la publicación -->
+    <h3>
+      <a class="titulo-link" [routerLink]="['/publicaciones', p._id]">{{ p.titulo }}</a>
+    </h3>
     <p class="mensaje">{{ p.mensaje }}</p>
 
-    <!-- La foto también lleva a la página de la publicación (salvo que ya estemos ahí) -->
+    <!-- La foto también lleva a la página de la publicación -->
     @if (p.imagen) {
-      @if (grande()) {
+      <a class="foto-link" [routerLink]="['/publicaciones', p._id]" title="Ver la publicación">
         <img appImagenRespaldo="sin-imagen.svg" class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
-      } @else {
-        <a class="foto-link" [routerLink]="['/publicaciones', p._id]" title="Ver la publicación">
-          <img appImagenRespaldo="sin-imagen.svg" class="foto" [src]="p.imagen" [alt]="p.titulo" loading="lazy" />
-        </a>
-      }
+      </a>
     }
 
     <footer class="acciones">
