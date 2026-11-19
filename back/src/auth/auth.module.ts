@@ -16,8 +16,9 @@ import { AuthService } from './auth.service.js';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.getOrThrow<string>('JWT_SECRET'),
-        // La consigna pide 15 minutos ('15m'); el profe pidió 15 segundos para probarlo en vivo.
-        signOptions: { expiresIn: '60s' },
+        // La consigna pide 15 minutos. Para probarlo en vivo se puede bajar a '60s'
+        // (el aviso del front sale con 1/3 de la duración: a los 40s, faltando 20).
+        signOptions: { expiresIn: '15m' },
       }),
     }),
   ],
